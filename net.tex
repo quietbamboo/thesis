@@ -1,0 +1,44 @@
+\chapter{MobiPerf: characterizing 3G/4G network performance} \label{chap:net}
+
+Given the wide adoption of smartphone platforms, such as iOS and Android, there is a growing number of popular mobile applications designed for these platforms. For many of these applications, including web browser, email, VoIP, social networks, network access is required. Even for games that are often run locally, ranking systems and online peer matching systems are widely adopted which also requires network access, \eg Game Center for iOS. As a result, mobile data traffic volume is sky-rocketing. For example, AT\&T's mobile data volumes surged by a staggering 8,000\% from 2007 to 2010~\cite{att.overload}. Hence, it is critical to understand the {\em network performance} in cellular networks, and such understanding is a prerequisite to study smartphone application performance and optimizations. Smartphone customers want to know the cellular network performance in order to choose carriers and devices to use; mobile network operators care about cellular network performance to ensure the quality of service.
+
+Systematically quantifying the cellular network performance is not straightforward. The challenges are multifold:
+\begin{itemize}
+\item It is not easy to reuse existing open-source network performance measurement tools due to smartphone operating system constraints. For example, iOS does not allow us to run a command-line program unless we jailbreak the device.
+\item Conducting measurements from a single or a few vantage points is not sufficient for large cellular carriers. This is because the network condition and user load may vary across locations and without a reasonable number of sample users, the measurement results may not be representative. This forces us to abandon the idea to carry out all measurements ourselves, but instead to provide a tool for real smartphone users to use for network performance measurement.
+\item As the measurement tool is intended to be run by real smartphone users, who do not necessarily have any computer science background, we have to design the tool in a way that is easy for these users to make network measurements.
+\item The selection of the set of metrics for quantifying the cellular network performance is critical, as we want to collect sufficient information about the network performance within a period of user-tolerable time. Existing similar tools, such as Speedtest.net~\cite{speedtestnet} 
+and FCC's broadband test~\cite{fccspeedtest}, only measure bandwidth and latency in cellular networks and ignore other important metrics such as DNS lookup time, \etc The measurement methodology also requires careful design, \eg bandwidth measurements in cellular networks need support from geo-distributed server nodes.
+\end{itemize}
+
+
+In the following of this chapter, we first discuss the design and implementation of \mobiperf, the tool to characterize cellular network performance in Section~\ref{sec:net.design}. Then we discuss the measurement results collected via \mobiperf and implications in Section~\ref{sec:net.result}.
+
+
+\nsection{Design and Implication of MobiPerf}
+\label{sec:net.design}
+
+%\mobiperf covers a more comprehensive set of metrics, including DNS lookup, Ping to the first hop, TCP handshake, and HTTP request to landmark servers.
+
+To overcome the limitation of a single vantage point for locally
+conducted measurements, we design and deploy a cross-platform
+measurement tool, called {\em 3GTest}, to measure network-level 
+performance, using basic metrics such as throughput, round trip 
+time (RTT), retransmission rate, \etc attracting more than 30,000 
+users all over the world, providing a representative data set on 
+the current 3G network performance. {\em 3GTest} enables us to 
+carry out local experiments informed by realistic 3G network 
+conditions across diverse locations and network carriers. As far 
+as we know, \emph{3GTest} is the first such cross-platform tool 
+available that comprehensively characterizes 3G network performance, 
+and our data set is also unique in that regard.
+
+
+
++ Metrics
++ Design and implementation of tools
+
+\nsection{Understanding 3G/4G Network Performance}
+\label{sec:net.result}
++ Results
++ Implications (compare across network types, compare over time)

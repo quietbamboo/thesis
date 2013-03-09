@@ -1,0 +1,121 @@
+\chapter{Anatomizing Smartphone Application Performance and Power Footprints} \label{chap:app}
+
+\comment{smartphone application study (microscopic)}
+	+ Motivation
+	
+	Unlike traditional Internet-based applications, whose performance is mostly constrained by the wired network, network application performance on smartphones with limited physical resources also heavily depends on factors including hardware and software on the 
+phone as well as the quality and load of wireless link. Understanding 
+the application performance on smartphones is important for the 
+purpose of assisting consumers in choosing carriers and phones and 
+guiding application developers in designing intelligent software. 
+Moreover, cellular network operators and smartphone hardware and 
+software vendors can use this knowledge to optimize networks and 
+phones for better end-user experiences. Similarly, content providers 
+can leverage this knowledge to better customize content for mobile 
+users. However, this task is quite challenging since the performance 
+of network applications on smartphones is poorly understood before our study, due to a lack of a systematic approach for controlled experiments 
+and comparative analysis. We believe this work fills this gap.
+
+We focus on developing systematic methodology for measuring and
+analyzing 3G network performance as well as smartphone application
+performance. We make it relevant to end users by studying real
+applications directly on the phone platforms. Our approach differs 
+inherently from most previous work of using laptops equipped with 
+3G data cards in three ways: (1) We measure the performance of 
+applications rather than that of the low-level protocols. Prior 
+work has shown that application performance often significantly 
+deviates from protocol performance~\cite{Zhuang:A3:Mobicom2006}. 
+We target the pervasive web browsing, streaming video, and VoIP
+applications that most end-users care about; (2) We measure 
+application performance on several common mobile devices. 
+Application performance varies widely across devices due to 
+differences in hardware and software, necessitating direct 
+experimentation on smartphones instead of on laptops with wireless 
+cards; (3) We study the application performance under real-world 
+scenarios and quantify the performance of web browsing by 
+evaluating commercial websites in addition to locally-constructed 
+ones with replicated, real web content under our control. The 
+latter setup helps dissect and analyze the individual factors 
+that contribute to the overall web browsing performance.
+
+To overcome the limitation of a single vantage point for locally
+conducted measurements, we design and deploy a cross-platform
+measurement tool, called {\em 3GTest}, to measure network-level 
+performance, using basic metrics such as throughput, round trip 
+time (RTT), retransmission rate, \etc attracting more than 30,000 
+users all over the world, providing a representative data set on 
+the current 3G network performance. {\em 3GTest} enables us to 
+carry out local experiments informed by realistic 3G network 
+conditions across diverse locations and network carriers. As far 
+as we know, \emph{3GTest} is the first such cross-platform tool 
+available that comprehensively characterizes 3G network performance, 
+and our data set is also unique in that regard.
+
+In addition to shedding light on the overall application and network
+performance, we perform detailed analysis to identify and isolate
+factors that impact user-perceived performance to help carriers,
+phone vendors, content providers, and application developers gain 
+insight. For example, for carriers, we infer various network-level 
+problems, \eg high latency or high loss rate, which they can directly 
+take action on. For phone vendors, we identify performance bottlenecks 
+on the devices or issues associated with the content. These issues can
+be resolved either independently or by cooperating with content 
+providers. And for application developers, we evaluate factors such 
+as the overhead of HTML rendering and Javascript execution given a 
+particular software configuration.
+
+We comprehensively study the 3G network and application performance
+for all four major U.S. wireless carriers including AT\&T, Sprint,
+Verizon, and T-Mobile. We choose popular devices including iPhone,
+Android G2 from HTC, and Windows Mobile phones from Palm, HTC, and 
+Samsung for carrying out experiments. Our results show that their
+performance varies significantly across network applications. In 
+fact, even for the same network application such as web browsing, 
+certain types of phones consistently outperform others due to the 
+differences in factors such as downloading behavior, customized 
+contents, and page rendering. The application performance also 
+heavily depends on properties of carriers including DNS lookup, 
+RTT, and loss rate.
+
+We summarize our main observations from extensive experimentation:
+
+\begin{enumerate}%\itemsep=-0.9ex
+
+\item The four carriers we studied demonstrate distinct 
+characteristics in network performance in terms of throughput, RTT, 
+retransmission rate, and time-of-day effect. For example, compared 
+with T-Mobile and AT\&T's median of TCP retransmission rate of 
+0\%, Sprint and Verizon have a higher median value of 0.7\%. 
+
+\item TCP throughput, RTT, and retransmission rate vary widely even
+for a single carrier in measurement taken at different times and 
+locations, \eg downlink throughput ranges from 50 kbps to 4 Mbps for 
+AT\&T, with the median value of about 1 Mbps.
+
+\item The wireless delay in the 3G network dominates the whole
+network path delay, \eg latency to the first pingable hop is around 
+200 ms, which is close to the end-to-end Ping latency to landmark
+servers distributed across the U.S.
+
+\item Besides networks, devices heavily influence application 
+performance. Given the same content and network condition, different 
+devices exhibit vastly different webpage loading time, \eg the
+page loading time of Samsung SCHi760 is consistently twice that of 
+iPhone. 
+
+\item Mobile devices can benefit from new content optimization
+techniques like the data URL scheme, \eg~page loading time for 
+GPhone can improve by 20\% in our experiments, despite 
+its already good performance compared to other devices.
+\end{enumerate}
+
+
+
+	
+	
+	
+	
+	+ Web based application running time breakdown.
+	+ Video/audio streaming applications (sigcomm submission, mobisys10)
+	+ Screen status's impact on traffic pattern
+	+ Power footprint of apps (mobisys12)

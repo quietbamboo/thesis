@@ -43,35 +43,41 @@
 \newcommand{\eg}{\emph{e.g.,}\xspace}
 \newcommand{\etal}{\emph{et al.}\xspace}
 \newcommand{\wrt}{\emph{w.r.t.}\xspace}
-\newcommand{\mycomment}[1]{{\color{red}[\textsf{#1}]}}
-
-\newcommand{\DCH}{$\sf\small{DCH}$}
-\newcommand{\DCHH}{$\sf\small{DCH}$ }
-\newcommand{\FACH}{$\sf\small{FACH}$}
-\newcommand{\FACHH}{$\sf\small{FACH}$ }
-\newcommand{\IDLE}{$\sf\small{IDLE}$}
-\newcommand{\IDLEE}{$\sf\small{IDLE}$ }
-\newcommand{\RC}{$\small{\textbf{\texttt{RRC\_CONNECTED}}}\normalsize$\xspace}
-\newcommand{\RI}{$\small{\textbf{\texttt{RRC\_IDLE}}}\normalsize$\xspace}
+\newcommand{\comment}[1]{{\color{red}[\textsf{#1}]}}
 
 \newcommand{\MR}[1]{\multirow{2}{*}{#1}}
+\newcommand{\MC}[1]{\multicolumn{2}{|c|}{#1}}
 \newcommand{\hd}[1]{\small{\textbf{\texttt{#1}}}\normalsize}
 \newcommand{\hds}[1]{\small{\textbf{\texttt{#1}}}}
+\newcommand{\hdf}[1]{\small{\textbf{\texttt{#1}}}\footnotesize}
 
-\newcommand{\ISP}{$\sf\small{ISP}$}
-\newcommand{\ISPP}{$\sf\small{ISP}$ }
-\newcommand{\UMICH}{$\sf\small{UMICH}$}
-\newcommand{\UMICHH}{$\sf\small{UMICH}$ }
+\newcommand{\UMICH}{$\sf\small{UMICH}$\xspace}
+\newcommand{\RC}{$\small{\textbf{\texttt{RRC\_CONNECTED}}}\normalsize$\xspace}
+\newcommand{\RI}{$\small{\textbf{\texttt{RRC\_IDLE}}}\normalsize$\xspace}
+\newcommand{\RCB}{${\textbf{\texttt{RRC\_CONNECTED}}}\normalsize$\xspace}
+\newcommand{\RIB}{${\textbf{\texttt{RRC\_IDLE}}}\normalsize$\xspace}
+\newcommand{\FT}{$\sf\small{4GTest}$\xspace}
+\newcommand{\TT}{$\sf\small{3GTest}$\xspace}
+\newcommand{\mobiperf}{$\sf\small{MobiPerf}$\xspace}
 
-\theoremstyle{definition} \newtheorem{apitest}{Test}
-\newcommand{\YY}{\CIRCLE}
-\newcommand{\NN}{\Circle}
-\newcommand{\YN}{\RIGHTcircle}
-\newcommand{\XX}{\ding{53}}
+\newcommand{\IGL}{\includegraphics[width=0.995\textwidth]}
+\newcommand{\IG}{\includegraphics[width=0.3\textwidth]}
+\newcommand{\IGML}{\includegraphics[width=0.47\textwidth]}
+\newcommand{\IGMM}{\includegraphics[width=0.385\textwidth]}
+\newcommand{\IGM}{\includegraphics[width=0.27\textwidth]}
+\newcommand{\IGS}{\includegraphics[width=0.23\textwidth]}
+
+\newcommand{\nsection}[1]{\vspace{-0.0em}\section{#1}\vspace{-0.0em}}
+\newcommand{\nsubsection}[1]{\vspace{-0.0em}\subsection{#1}\vspace{-0.0em}}
+\newcommand{\nsubsubsection}[1]{\vspace{-0.0em}\subsubsection{#1}\vspace{-0.0em}}
+\newcommand{\ncaption}[1]{\vspace{-0.0em}\caption{#1.}\vspace{-0.0em}}
+
 
 \begin{document}
 
-\titlepage{My Title}{Junxian Huang}{Doctor of Philosophy}
+\titlepage{Performance and Power Characterization of 3G/4G Networks and Optimizations of Mobile Applications}
+{Junxian Huang}
+{Doctor of Philosophy}
 {Computer Science and Engineering}{2013}
 {Associate Professor Z. Morley Mao, Chair \\
 Associate Professor Jason N. Flinn \\
@@ -100,6 +106,9 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 \input{intro}
 
 \input{bkg}
+
+\input{net}
+
 
 \input{related}
 
