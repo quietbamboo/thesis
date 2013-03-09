@@ -1,5 +1,5 @@
 SRC = abstract.tex ack.tex conc.tex intro.tex\
-      bkg.tex related.tex thesis.tex
+      bkg.tex related.tex thesis.tex appendix.tex
 
 thesis: thesis.ps thesis.pdf
 

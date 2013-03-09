@@ -18,21 +18,45 @@ In the following of this chapter, we first discuss the design and implementation
 \nsection{Design and Implication of MobiPerf}
 \label{sec:net.design}
 
-%\mobiperf covers a more comprehensive set of metrics, including DNS lookup, Ping to the first hop, TCP handshake, and HTTP request to landmark servers.
+Inspired by previous work in the Internet, \eg~Netalyzr~\cite{netalyzr}, which collects measurement data from volunteers, we develop a measurement platform, \mobiperf~\footnote{\mobiperf~\cite{mobiperf} project was initiated in 2008 and the name of the measurement tool was \TT~\cite{mobiperf, mobisys.3gtest} at the time. With significant UI and methodology improvements, we changed the name to be \FT~\cite{4gtest} in 2011. In 2012, we further decided to change the tool name to be \mobiperf and made it open source~\cite{mobiperf.repo}. At the time this dissertation is being written, \mobiperf is under active development with joint efforts from University of Michigan, University of Washington, and M-Lab~\cite{mlab}.}, used by real users on their smartphones to build a comprehensive data set for cellular networks. The public deployment of \mobiperf overcomes the limitation of a single vantage point and short time duration for locally conducted measurements and provides a representative data set on cellular network performance in the real world.
 
-To overcome the limitation of a single vantage point for locally
-conducted measurements, we design and deploy a cross-platform
-measurement tool, called {\em 3GTest}, to measure network-level 
-performance, using basic metrics such as throughput, round trip 
-time (RTT), retransmission rate, \etc attracting more than 30,000 
-users all over the world, providing a representative data set on 
-the current 3G network performance. {\em 3GTest} enables us to 
-carry out local experiments informed by realistic 3G network 
-conditions across diverse locations and network carriers. As far 
-as we know, \emph{3GTest} is the first such cross-platform tool 
-available that comprehensively characterizes 3G network performance, 
-and our data set is also unique in that regard.
+\mobiperf covers a more comprehensive set of metrics than existing public network performance measurement tools available in iOS or Android, such as DNS lookup, Ping to the first hop, \etc. We next describe the metrics we use for evaluating network performance and how we compute them. To minimize the impact of the performance limiting factors in the Internet path, we leverage the M-Lab~\cite{mlab} support and make \mobiperf always choose the closest server node(s) for measurement. \mobiperf server suite is deployed to 46 M-Lab nodes across the world, covering North America, Europe, Asia, and Australia.  Each node has 4-core 2.00 GHz Intel Xeon CPU and our virtual slice has 4GB memory and 100Mbps Ethernet network access, which ensures that the network bottleneck is unlikely on the wired network path. Specifically, 23 nodes are within the U.S., spreading across major cities in different parts of the country. 
 
+To characterize cellular network performance, we use TCP throughput, downlink RTT, retransmission rate, local DNS lookup time, TCP handshake time, and Ping latency to the first responsive IP hop as our metrics. TCP is of particular interest, since most network applications use TCP. An application session usually requires DNS lookup, and every TCP connection begins with a TCP handshake. Hence these two factors contribute heavily to user-perceived performance of many network applications. Ping latency to the first responsive hop provides an estimate of the latency of the wireless hop.
+
+\paragraph{DNS lookup}
+For the DNS experiment, \mobiperf sends DNS requests to resolve a list of selected popular domain names. We use Alexa~\cite{Alexa}top sites to select the top URLs and the list we use was downloaded in 2009. By tuning the size of the list and going through the list sequentially twice, we ensure that during the second lookup the names are highly likely cached at the local DNS (LDNS) server in carrier networks but not on the phone based on observed latencies. This is achievable since compared to the phone the LDNS server typically has a larger DNS cache. 
+
+
+\paragraph{RTT and variation test}
+LTE has significantly smaller latency compared with 3G~\cite{tr25.913}, hence the network distance between users and the measurement servers for the wired Internet path becomes less negligible. Given that the GPS coordinates for M-Lab nodes are known, in \mobiperf, a nearest M-Lab node is selected for a user based on the current GPS location if available, or the IP address otherwise, with the help of a IP address to GPS coordinates mapping~\cite{maxmind}. Such a mapping is sufficient for our purpose of finding coarse-grained location estimates for server selection.
+
+To measure RTT and variation, \mobiperf repeatedly establishes a new TCP connection with the server and measures the delay between {\sf SYN} and {\sf SYN-ACK} packet. Both the median of these RTT measurements and the variation are reported to our central server. For some cellular ISPs, traffic may be redirected to a middlebox, which replies a {\sf SYN-ACK} packet to the client on behalf of the server. In this case, the measured RTT is between the client and the middlebox. However, this RTT is the user-perceived delay for TCP connection establishment and we think it is fine to use it for comparison purpose.
+
+To measure TCP handshake to server nodes in diverse physical locations, \mobiperf sends TCP {\em connect} requests to different M-Lab nodes distributed across the U.S. To characterize Ping latency, our tool Pings \url{www.google.com} with increasing TTL values starting from 1 and records the IP address and the corresponding RTT. \mobiperf also Pings different M-Lab nodes to obtain the delay distribution to diverse Internet locations. 
+
+\paragraph{TCP throughput}
+
+Packet traces are collected at the server side 
+to calculate TCP downlink and uplink throughput, RTT, and 
+retransmission rate. 
+
+
+
+
+
+Based on our previous experiences of developing , we design a new mobile network measurement tool for Android devices, called  , with higher accuracy and improved user experience. As a new feature, \FT allows users to switch among different network types, \ie 3G, WiFi and LTE. 
+
+
+
+\paragraph{Throughput test}
+Since single-threaded TCP measurement is more sensitive to packet loss and hence less accurate~\cite{sigcomm.broadband}, we use multi-threaded TCP measurement in \FT to estimate the {\em peak channel capacity}, \ie three nearest server nodes in M-Lab are selected for each user at runtime to start concurrent threads for throughput test.
+Despite the shared nature of M-Lab nodes with other test tools, it is unlikely that all three selected nodes are overloaded in terms of CPU and network.
+
+A throughput test lasts for 20 seconds, to balance across bandwidth usage, user waiting time and measurement accuracy. The initial 5 seconds are ignored empirically due to TCP slow start. The remaining 15 seconds are separated into 15 1-second bins. The average throughput for each bin is calculated and the median of all bins is the measured throughput. Compared with using average throughput, median more accurately estimates the steady peak throughput by reducing the impact of abnormal bins, \eg a very high bin due to initial buffering or a low bin due to temporary signal problem. Uplink and downlink tests share the same methodology.
+
+
+We have made \mobiperf~\cite{mobiperf} publicly available, which allows us to characterize cellular network performance in multiple cellular carriers at diverse locations over an extended duration.
 
 
 + Metrics
