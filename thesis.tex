@@ -3,10 +3,6 @@
 \RequirePackage{times}
 \usepackage{rac}
 
-
-\newcommand{\name}{ARO}
-\newcommand{\namee}{ARO }
-
 \newcommand{\MYIF}{\textbf{if }}
 \newcommand{\MYELSE}{\textbf{else }}
 \newcommand{\MYRETURN}{\textbf{return }}
@@ -24,6 +20,29 @@
 \usepackage{hyperref}
 \usepackage{breakurl}
 \usepackage{wasysym, pifont}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
 
 \usepackage{setspace}    % Allows you to specify the line spacing
 \doublespacing           % \onehalfspacing for 1.5 spacing, \doublespacing for 2.0 spacing.
@@ -110,10 +129,12 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 
 \input{net}
 
-
 \input{related}
 
 \input{conc}
+
+\newpage
+\input{appendix}
 
 \begin{singlespace}
 \bibliographystyle{aiaa}
