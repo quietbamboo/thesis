@@ -15,10 +15,10 @@ and FCC's broadband test~\cite{fccspeedtest}, only measure bandwidth and latency
 In the following of this chapter, we first discuss the design and implementation of \mobiperf, the tool to characterize cellular network performance in Section~\ref{sec:net.design}. Then we discuss the measurement results collected via \mobiperf and implications in Section~\ref{sec:net.result}.
 
 
-\nsection{Design and Implication of MobiPerf}
+\nsection{MobiPerf Design and Methodology}
 \label{sec:net.design}
 
-Inspired by previous work in the Internet, \eg~Netalyzr~\cite{netalyzr}, which collects measurement data from volunteers, we develop a measurement platform, \mobiperf~\footnote{\mobiperf~\cite{mobiperf} project was initiated in 2008 and the name of the measurement tool was \TT~\cite{mobiperf, mobisys.3gtest} at the time. With significant UI and methodology improvements, we changed the name to be \FT~\cite{4gtest} in 2011. In 2012, we further decided to change the tool name to be \mobiperf and made it open source~\cite{mobiperf.repo}. At the time this dissertation is being written, \mobiperf is under active development with joint efforts from University of Michigan, University of Washington, and M-Lab~\cite{mlab}.}, used by real users on their smartphones to build a comprehensive data set for cellular networks. The public deployment of \mobiperf overcomes the limitation of a single vantage point and short time duration for locally conducted measurements and provides a representative data set on cellular network performance in the real world.
+Inspired by previous work in the Internet, \eg~Netalyzr~\cite{netalyzr}, which collects measurement data from volunteers, we develop a measurement platform, \mobiperf, used by real users on their smartphones to build a comprehensive data set for cellular networks. The public deployment of \mobiperf overcomes the limitation of a single vantage point and short time duration for locally conducted measurements and provides a representative data set on cellular network performance in the real world.
 
 \mobiperf covers a more comprehensive set of metrics than existing public network performance measurement tools available in iOS or Android, such as DNS lookup, Ping to the first hop, \etc. We next describe the metrics we use for evaluating network performance and how we compute them. To minimize the impact of the performance limiting factors in the Internet path, we leverage the M-Lab~\cite{mlab} support and make \mobiperf always choose the closest server node(s) for measurement. \mobiperf server suite is deployed to 46 M-Lab nodes across the world, covering North America, Europe, Asia, and Australia.  Each node has 4-core 2.00 GHz Intel Xeon CPU and our virtual slice has 4GB memory and 100Mbps Ethernet network access, which ensures that the network bottleneck is unlikely on the wired network path. Specifically, 23 nodes are within the U.S., spreading across major cities in different parts of the country. 
 
@@ -36,31 +36,39 @@ To measure RTT and variation, \mobiperf repeatedly establishes a new TCP connect
 To measure TCP handshake to server nodes in diverse physical locations, \mobiperf sends TCP {\em connect} requests to different M-Lab nodes distributed across the U.S. To characterize Ping latency, our tool Pings \url{www.google.com} with increasing TTL values starting from 1 and records the IP address and the corresponding RTT. \mobiperf also Pings different M-Lab nodes to obtain the delay distribution to diverse Internet locations. 
 
 \paragraph{TCP throughput}
+Since single-threaded TCP measurement is more sensitive to packet loss and hence less accurate~\cite{sigcomm.broadband}, we use multi-threaded TCP measurement in \mobiperf to estimate the {\em peak channel capacity}, \ie three nearest server nodes in M-Lab are selected for each user at runtime to start concurrent threads for throughput test. Despite the shared nature of M-Lab nodes with other test tools, it is unlikely that all three selected nodes are overloaded in terms of CPU and network.
 
-Packet traces are collected at the server side 
-to calculate TCP downlink and uplink throughput, RTT, and 
-retransmission rate. 
+A throughput test lasts for 20 seconds, to balance across bandwidth usage, user waiting time and measurement accuracy. The initial 5 seconds are ignored empirically due to TCP slow start. The remaining 15 seconds are separated into 15 1-second bins. The average throughput for each bin is calculated and the median of all bins is the measured throughput. Compared with using average throughput, median more accurately estimates the steady peak throughput by reducing the impact of abnormal bins, \eg a very high-value bin due to initial buffering or a low-value bin due to temporary signal problem. Uplink and downlink tests share the same methodology. Packet traces are collected at the server side to calculate TCP retransmission rate. 
+
+\nsection{MobiPerf Deployment and User Statistics}
+
+\mobiperf~\cite{mobiperf} project was initiated in 2008 and the name of the measurement tool was \TT~\cite{mobiperf, mobisys.3gtest} at the time. We made it publicly available on different smartphone platforms, which allows us to characterize cellular network performance in multiple cellular carriers at diverse locations over an extended duration. With significant UI and methodology improvements, we changed the name to be \FT~\cite{4gtest} in 2011. In 2012, we further decided to change the tool name to be \mobiperf and made it open source~\cite{mobiperf.repo}. Initially, \mobiperf was supported for iOS, Android and Windows Phone platforms and later, due to time limit and OS constraints, we decided to focus our efforts on the Android platform. At the time this dissertation is being written, \mobiperf is under active development with joint efforts from University of Michigan, University of Washington, and M-Lab~\cite{mlab}, and it is being used as basis for research projects and commercial products of multiple organizations.
+
+\begin{figure}[t]
+\centering
+\IG{figures/srii/coverage_all2.eps}\\
+\ncaption{User coverage of \mobiperf}
+\label{fig:coverage.all}
+\end{figure}
+
+\begin{table} [t]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline
+ & Android & iOS & Win Mobile & All\\\hline
+User & 39.3K 39.7\% & 47.0K 47.4\% & 12.8K 12.9\% & 99.1K \\\hline
+Run & 273.8K 62.3\% & 127.0K 28.9\% & 38.7K 8.8\% & 439.5K \\\hline
+\end{tabular}
+\ncaption{User and run breakdown of different platforms}
+\label{tab:user.count}
+\end{center}
+\end{table}
+
+We publicly deployed the \mobiperf application in August, 2009, distributed via Apple's App Store, Google's Android Market and Microsoft's Windows Marketplace for Mobile. Ever since the initial deployment, we have been continuously improving and releasing updates for iOS and Android version of our app. Till April, 2011, 99.1K users from across the world have run our app for 439.5K times. The number of users and runs for three different platforms, including iOS, Android, and Windows Mobile, is listed in Table~\ref{tab:user.count}. The average number of runs for each Android user is larger than the other two platforms, because for the Android version of our app, we give an option to the users to periodically run the tests. We observe users from 179 countries or regions according to the collected GPS information. Since GPS information for Windows Mobile users is seldom available, for most top countries of the other two platforms, we do not observe any Windows Mobile users. GPS information may sometimes be unavailable as well on Android and iOS, due to signal problem or users not wishing to share their location information. Among all 93.3K users, 63.7K (68.27\%) have GPS readings and 52.24\% of them are from the U.S., and among these 63.7K users, about 1.0K (1.57\%) users have run our app in more than one countries or regions. We also observe more than 800 carrier names. However, carriers may adopt different names in different countries, making it difficult to accurately estimate the actual number of carriers. Figure~\ref{fig:coverage.all} shows the user coverage of \mobiperf, with one dot representing one run of \mobiperf. Given the wide coverage of regions, we believe our data set is fairly representative of the entire smartphone population, especially for North America with denser user distribution. In this study, our analysis mostly focuses on U.S. users.
 
 
 
 
 
-Based on our previous experiences of developing , we design a new mobile network measurement tool for Android devices, called  , with higher accuracy and improved user experience. As a new feature, \FT allows users to switch among different network types, \ie 3G, WiFi and LTE. 
-
-
-
-\paragraph{Throughput test}
-Since single-threaded TCP measurement is more sensitive to packet loss and hence less accurate~\cite{sigcomm.broadband}, we use multi-threaded TCP measurement in \FT to estimate the {\em peak channel capacity}, \ie three nearest server nodes in M-Lab are selected for each user at runtime to start concurrent threads for throughput test.
-Despite the shared nature of M-Lab nodes with other test tools, it is unlikely that all three selected nodes are overloaded in terms of CPU and network.
-
-A throughput test lasts for 20 seconds, to balance across bandwidth usage, user waiting time and measurement accuracy. The initial 5 seconds are ignored empirically due to TCP slow start. The remaining 15 seconds are separated into 15 1-second bins. The average throughput for each bin is calculated and the median of all bins is the measured throughput. Compared with using average throughput, median more accurately estimates the steady peak throughput by reducing the impact of abnormal bins, \eg a very high bin due to initial buffering or a low bin due to temporary signal problem. Uplink and downlink tests share the same methodology.
-
-
-We have made \mobiperf~\cite{mobiperf} publicly available, which allows us to characterize cellular network performance in multiple cellular carriers at diverse locations over an extended duration.
-
-
-+ Metrics
-+ Design and implementation of tools
 
 \nsection{Understanding 3G/4G Network Performance}
 \label{sec:net.result}
