@@ -103,7 +103,7 @@ Browser         & Safari & IE          & IE            & Browser App & IE  \\\hl
 Table~\ref{table:net.device} lists the devices used and carriers studied in the local controlled experiments. We studied four major carriers in the U.S., AT\&T, Sprint, Verizon, and T-Mobile. They split between UMTS/HSPA (AT\&T and T-Mobile) and EVDO (Sprint 
 and Verizon). AT\&T has the highest advertised downlink and uplink data rates. The actual data rates that a user can attain depend on many factors, such as signal strength, location, and background traffic. One of our goals is to understand how the actual data rates match the advertised ones and which factors have the biggest impact on network performance.
 
-\nsubsection{Comparison across carriers}
+\nsubsection{Comparison across Carriers}
 \label{sec:net.carrier}
  % figures of general network statistics from 3GTest
  
@@ -209,15 +209,66 @@ in Figure~\ref{fig:net.general}(f). Compared with Figure~\ref{fig:net.general}(b
 large packets with size close to MTU (\eg 1348 bytes in AT\&T) are 
 found to have 2 -- 4 times of the RTT for small packets.
 
+
+\nsubsection{Performance Comparison among Mobile Network Technologies}
+
+%\comment{cite 3GTest MobiSys paper and highlight difference: further breakdown into UMTS and CDMA, also contains data for a longer duration 19 months v.s. 9 months. Or maybe talk about this in Intro?}
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/srii/down_tp.eps} &
+\IGM{figures/srii/up_tp.eps} \\
+\small{(a) Downlink throughput} &
+\small{(b) Uplink throughput} \\
+\IGM{figures/srii/down_rtt.eps} &
+\IGM{figures/srii/down_tp_3g.eps} \\
+\small{(c) Downlink RTT} &
+\small{(d) Downlink throughput} \\
+\IGM{figures/srii/up_tp_3g.eps} &
+\IGM{figures/srii/down_rtt_3g.eps} \\
+\small{(e) Uplink throughput} &
+\small{(f) Downlink RTT} \\
+\end{tabular}
+\ncaption{Downlink/Uplink performance comparison among different types of networks}
+\label{fig:net.nettype}
+\end{figure*}
+
+We compare the cellular network performance among technology types. We first break down technology types into WiFi, UMTS family, CDMA family, EDGE and GPRS. UMTS and CDMA are considered as 3G, while EDGE and GPRS are two types of older technologies. 
+Within 3G family, we select 4 major network types, including HSDPA, UMTS (without HSDPA), 1xRTT and EVDO\_A, since these network types cover most 3G users. Notice that at the time of this part of study\comment{cite SRII tech report}, LTE has not come into market yet and we leave the study of LTE in Section~\ref{xxx}\comment{ref LTE network performance section}.
+
+Downlink throughput is compared in Figure~\ref{fig:net.nettype}~(a).
+WiFi has the best performance with median throughput of 1.46 Mbps. For
+3G network, UMTS family appears to outperform CDMA family, with median
+downlink throughput of 964 kbps compared to 368 kbps. EDGE lags
+with median downlink throughput 112 kbps and GPRS is the slowest at 45
+kbps. The ranking of downlink retransmission rate is consistent with
+that of downlink throughput, except that UMTS and CDMA have similar
+retransmission rate distribution. In
+Figure~\ref{fig:net.nettype}~(c), UMTS's median RTT is 495 ms,
+smaller than CDMA's 680 ms. This helps explain the throughput gap
+between UMTS and CDMA, since TCP throughput is lower with higher RTT
+and loss rate. Among 3G networks shown in
+Figure~\ref{fig:net.nettype}~(d), HSDPA has the highest median
+downlink throughput of 1.18 Mbps and 1xRTT has the smallest throughput of 115 kbps, since it is one of the earliest CDMA 3G technologies. Similarly, we observe high RTT in Figure~\ref{fig:net.nettype}~(f) and high retransmission rate for 1xRTT correlated with its low throughput.
+
+We closely study the variation of TCP downlink RTT, often known as jitter. It is an important metric to evaluate network performance for streaming video, VoIP, and online gaming applications, \eg high variation causes intermittent video playing, voice calls and lags for online games. In Figure~\ref{fig:net.nettype}(f), each data point in this figure corresponds to the standard deviation of all RTT samples in one downlink TCP flow, \ie one user's downlink experiment. Compared with WiFi, whose median of RTT standard deviation is 41 ms, UMTS has a higher value of 93 ms and 233 ms for CDMA. If applications running on smartphones fail to tolerate this high variation in RTT, user experience would be degraded.
+
+In Figure~\ref{fig:net.nettype}~(b) , the uplink throughput difference between UMTS and CDMA is less obvious compared with downlink. For example, at $50^{th}$ percentile, UMTS's uplink throughput is 110 kbps and CDMA's is 120 kbps. Within the 3G family, as shown in Figure~\ref{fig:net.nettype}~(e), all network types experience less than 150 kbps median uplink throughput.
+
+These results can be taken into consideration by network application developers to have better support of various network conditions.
+
+
+
+\nsubsection{Time of Day Correlation}
+\label{sec:net.tod}
+
 \begin{figure}[thb]
 \centering
 \IG{figures/mobisys10/tod.eps} \\
 \ncaption{Number of \mobiperf users vs. time of day}
 \label{fig:net.uservstod}
 \end{figure} 
-
-\nsubsection{Time of day correlation}
-\label{sec:net.tod}
 
 Understanding whether traffic patterns exhibit any time of day
 behavior is useful for improving the design of applications and mobile
@@ -229,6 +280,24 @@ For example, we can observe such a pattern in Figure~\ref{fig:net.uservstod}.
 To further understand its impact on performance, we resort to conducting local controlled experiments.
 
 To measure the network performance over a long time period, we created an internal version of \mobiperf and installed it on the smartphones listed in Table~\ref{table:net.device}. \mobiperf is modified to record the signal strength on the Samsung and Palm phones, and continuously conducts measurements every 10 minutes to collect one week's data (excluding weekends) in Ann Arbor, MI. We make sure that the phones are placed at the same location with excellent signal strength during the entire measurement study. Since the data is collected continuously for a long period of time, it can be used for characterizing the time-of-day effect. The results for the 5 contiguous weekdays are shown in Figure~\ref{fig:net.tod}. 
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/mobisys10/time_down.eps} &
+\IGM{figures/mobisys10/time_rtt.eps} \\
+\small{(a) TCP downlink throughput vs. time of day} & 
+\small{(b) TCP round trip time vs. time of day} \\ 
+\IGM{figures/mobisys10/time_loss.eps} &
+\IGM{figures/mobisys10/time_up.eps} \\
+\small{(c) TCP retransmission rate vs. time of day} &
+\small{(d) TCP uplink throughput vs. time of day} \\
+%\includegraphics[width=0.45\textwidth]{figures/net_signal/signal.eps} \\
+%\small{(d) TCP downlink throughput / signal strength vs. time of day}\\ 
+\end{tabular}
+\ncaption{Correlation between TCP performance and time of day (local controlled experiments)}
+\label{fig:net.tod}
+\end{figure*}
 
 First, time of day effect is less pronounced for uplink throughput 
 compared to downlink throughput, comparing Figure~\ref{fig:net.tod}(a) and (d).
@@ -258,25 +327,52 @@ threshold. This design will restrict the variation of RTT but incur
 more packet loss. %It is difficult to verify such hypothesis without visibility
 %into the 3G network internals.
 
+
 \begin{figure*}[t]
 \centering
 \begin{tabular}{cc}
-\IGM{figures/mobisys10/time_down.eps} &
-\IGM{figures/mobisys10/time_rtt.eps} \\
-\small{(a) TCP downlink throughput vs. time of day} & 
-\small{(b) TCP round trip time vs. time of day} \\ 
-\IGM{figures/mobisys10/time_loss.eps} &
-\IGM{figures/mobisys10/time_up.eps} \\
-\small{(c) TCP retransmission rate vs. time of day} &
-\small{(d) TCP uplink throughput vs. time of day} \\
-%\includegraphics[width=0.45\textwidth]{figures/net_signal/signal.eps} \\
-%\small{(d) TCP downlink throughput / signal strength vs. time of day}\\ 
+\IGM{figures/srii/down_tp_carrier.eps} &
+\IGM{figures/srii/down_rtt_carrier.eps} \\
+\small{(a) Downlink throughput} &
+\small{(b) Downlink RTT} \\
+\multicolumn{2}{c}{\IGM{figures/srii/down_rttdev_carrier.eps}}   \\
+\multicolumn{2}{c}{\small{(c) Downlink RTT standard deviation}}  \\
 \end{tabular}
-\ncaption{Correlation between TCP performance and time of day (local controlled experiments)} \label{fig:net.tod}
+\ncaption{Time of day pattern of downlink performance for major carriers in the U.S. (\mobiperf data set, large packets)}
+\label{fig:net.tod.carrier}
 \end{figure*}
 
+We further analyze the time-of-day pattern using the \mobiperf data set collected across locations. Figure~\ref{fig:net.tod.carrier} shows the
+aggregate time of day analysis of TCP downlink throughput, RTT, and
+jitter for all AT\&T, T-Mobile, and Verizon 3G users in the U.S. Each
+data point is median value of all data samples across locations in the
+U.S. within an hour based on user's local time. This analysis
+technique avoid potential bias by a specific small group of users or any particular locations.
+
+\begin{figure}[t]
+\centering
+\IG{figures/srii/rtt_local_att.eps}\\
+\ncaption{Delay in AT\&T 3G network (small packets)}
+\label{fig:net.tod.rtt.att}
+\end{figure}
+
+Figure~\ref{fig:net.tod.carrier}~(a) shows that AT\&T has the most clear time of day pattern for downlink throughput, confirming previous local controlled experiments. 
+%, with a maximum difference of around 100\% (3:00 AM vs. 12:00PM).
+Verizon has less obvious yet still observable diurnal pattern for
+downlink throughput and even less obvious for T-Mobile. TCP
+retransmission rate for these carriers stays low consistently at
+different hours, hence the diurnal pattern of TCP downlink RTT in
+Figure~\ref{fig:net.tod.carrier}~(b) explains the throughput fluctuation,
+especially for AT\&T. The standard deviation for TCP downlink RTT also
+demonstrates a clear diurnal pattern for AT\&T and Verizon, while less
+obvious for T-Mobile shown in Figure~\ref{fig:net.tod.carrier}~(c).
+
+These observations suggest that applications with intensive network download requirement and little tolerance on RTT jitter may experience worse performance during peak hours. Uplink and LDNS performance are relatively consistent across different hours of day, indicating that the infrastructure support is capable of handling peak hours for such operations. However, for downlink, network resource at peak hours becomes a bottleneck.
+
+Given that the downlink RTT in Figure~\ref{fig:net.tod.carrier} (b) is for large packets, mostly with a size of MTU, we also study the diurnal pattern of small packets. For T-Mobile, similar to Figure~\ref{fig:net.tod.carrier}~(b), we do not observe any time of day effect on RTT. For AT\&T, in Figure~\ref{fig:net.tod.rtt.att} showing RTT of small packets (100 bytes) with boxplot, at the median level, there is no diurnal pattern for RTT. At the $75^{th}$ percentile, 12:00PM and 1:00PM have larger RTT values, and at the $95^{th}$ percentile, hours between 10:00 AM and 6:00 PM clearly have much larger RTTs. This indicates that during peak hours, most small packets do not experience longer delay, but some (at least 5\%) experience much longer RTTs. By comparing with large packets, our local experiment suggests that small packets have less obvious, yet still observable diurnal pattern for AT\&T.
+
  
-\nsubsection{Signal strength effects}
+\nsubsection{Signal Strength Effects}
 \label{sec:net.signal}
 
 Signal strength is an important factor that affects 3G network
@@ -293,11 +389,11 @@ by the signal strength if the latter is above some threshold. Given
 these observations, we exclude the data points corresponding to poor 
 signal strength from the \mobiperf data set and controlled experiment data set.
 
-\nsubsection{Smartphone vs. laptop}
+\nsubsection{Smartphone v.s. Laptop}
 \label{sec:net.platform}
 
 To understand whether the computation capability of a smartphone
-limits its 3G performance, we set up a controlled experiment to
+limits its 3G network performance, we set up a controlled experiment to
 compare a smartphone (iPhone 3G) with a laptop (ThinkPad T42). The 
 laptop can access AT\&T's 3G network via a wireless data card, while 
 the iPhone measurement is conducted at the same location and the 
