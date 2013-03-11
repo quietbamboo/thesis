@@ -371,6 +371,56 @@ These observations suggest that applications with intensive network download req
 
 Given that the downlink RTT in Figure~\ref{fig:net.tod.carrier} (b) is for large packets, mostly with a size of MTU, we also study the diurnal pattern of small packets. For T-Mobile, similar to Figure~\ref{fig:net.tod.carrier}~(b), we do not observe any time of day effect on RTT. For AT\&T, in Figure~\ref{fig:net.tod.rtt.att} showing RTT of small packets (100 bytes) with boxplot, at the median level, there is no diurnal pattern for RTT. At the $75^{th}$ percentile, 12:00PM and 1:00PM have larger RTT values, and at the $95^{th}$ percentile, hours between 10:00 AM and 6:00 PM clearly have much larger RTTs. This indicates that during peak hours, most small packets do not experience longer delay, but some (at least 5\%) experience much longer RTTs. By comparing with large packets, our local experiment suggests that small packets have less obvious, yet still observable diurnal pattern for AT\&T.
 
+
+\nsubsection{Location and Performance Correlation}
+
+\begin{figure}[t]
+\centering
+\IG{figures/srii/heat_world.eps}\\
+\ncaption{Worldwide local DNS lookup time in 3G networks (ms)}
+\label{fig:net.heat.dns}
+\end{figure}
+
+We only look at worldwide local DNS lookup time in the \mobiperf data set. In Figure~\ref{fig:net.heat.dns}, for each cell with a size of 50 kilometers$\times$50 kilometers, the median DNS lookup time of all 3G users within this region is selected. We  can see that for most parts of the world, the DNS lookup time is around 150 ms to 250 ms. Regions including South Asia, Middle East, Eastern Europe and some regions in the middle of the U.S. experience higher DNS delays.
+%For those regions with large LDNS latency, websites which often use DNS based load-balancing using services such as Akamai may suffer longer delays due to relatively higher DNS overhead.
+
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/srii/heat_att.eps} &
+\IGM{figures/srii/heat_tm.eps} \\
+\small{(a) AT\&T} &
+\small{(b) T-Mobile} \\
+\IGM{figures/srii/heat_verizon.eps}&
+\IGM{figures/srii/heat_sprint.eps} \\
+\small{(c) Verizon} &
+\small{(d) Sprint}\\
+\end{tabular}
+\ncaption{Downlink throughput of major carriers in the U.S. (kbps)}
+\label{fig:net.heat.downtp}
+\end{figure*}
+
+For cellular networks, given that the infrastructure support differs
+across locations for different carriers, we intend to study how
+performance correlates with location. We compare TCP downlink performance of major U.S. carriers in Figure~\ref{fig:net.heat.downtp}. The plotted cell size is 50
+kilometers $\times$ 50 kilometers, excluding those without enough data points to show statistically meaningful results.
+%Also, for cells with median TCP downlink throughput larger than 1200 kbps throughput, they are set to be 1200 kbps for simplicity. 
+The coverage of each carrier shown in this figure is clearly affected
+by the popularity of our app among its customers. 
+Since we focus on the median performance at different locations, where
+we do have data, our measurements can provide a fairly representative
+sampled view of the cellular network performance across different
+locations. Comparing across carriers shows large variation in 
+performance across locations, with a few locations clearly having better
+downlink performance. Second, these locations of different carriers
+are typically large cities, such as New York, San Francisco, and Los Angeles. Third, for each
+carrier, the eastern part of the U.S. has higher user coverage than
+the western part, except for the state of California and
+Washington. These observations suggest that for regions with larger
+user base, carriers may have provided better infrastructure support and newer technology,
+compared with rural areas with fewer users.
+
  
 \nsubsection{Signal Strength Effects}
 \label{sec:net.signal}
@@ -403,7 +453,7 @@ similar, implying that the performance bottleneck is within the
 compute-intensive applications, the performance difference is
 more pronounced. We will study this in more details in \S\ref{sec:web.js}\comment{TBD}.
 
-\noindent\textbf{Summary:} The main observations of 3G network
+\noindent\textbf{Summary:} \comment{TBU} The main observations of 3G network
 performance are the following.
 
 \begin{enumerate}
