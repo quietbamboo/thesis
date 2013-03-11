@@ -46,9 +46,9 @@ A throughput test lasts for 20 seconds, to balance across bandwidth usage, user 
 
 \begin{figure}[t]
 \centering
-\IG{figures/srii/coverage_all2.eps}\\
+\IG{figures/srii/coverage_all2.eps}\\ %coverage_all.eps is the original eps figure, loading it is laggy
 \ncaption{User coverage of \mobiperf}
-\label{fig:coverage.all}
+\label{fig:net.coverage}
 \end{figure}
 
 \begin{table} [t]
@@ -58,20 +58,259 @@ A throughput test lasts for 20 seconds, to balance across bandwidth usage, user 
 User & 39.3K 39.7\% & 47.0K 47.4\% & 12.8K 12.9\% & 99.1K \\\hline
 Run & 273.8K 62.3\% & 127.0K 28.9\% & 38.7K 8.8\% & 439.5K \\\hline
 \end{tabular}
-\ncaption{User and run breakdown of different platforms}
-\label{tab:user.count}
+\ncaption{\mobiperf User and run breakdown of different platforms}
+\label{tab:net.user}
 \end{center}
 \end{table}
 
-We publicly deployed the \mobiperf application in August, 2009, distributed via Apple's App Store, Google's Android Market and Microsoft's Windows Marketplace for Mobile. Ever since the initial deployment, we have been continuously improving and releasing updates for iOS and Android version of our app. Till April, 2011, 99.1K users from across the world have run our app for 439.5K times. The number of users and runs for three different platforms, including iOS, Android, and Windows Mobile, is listed in Table~\ref{tab:user.count}. The average number of runs for each Android user is larger than the other two platforms, because for the Android version of our app, we give an option to the users to periodically run the tests. We observe users from 179 countries or regions according to the collected GPS information. Since GPS information for Windows Mobile users is seldom available, for most top countries of the other two platforms, we do not observe any Windows Mobile users. GPS information may sometimes be unavailable as well on Android and iOS, due to signal problem or users not wishing to share their location information. Among all 93.3K users, 63.7K (68.27\%) have GPS readings and 52.24\% of them are from the U.S., and among these 63.7K users, about 1.0K (1.57\%) users have run our app in more than one countries or regions. We also observe more than 800 carrier names. However, carriers may adopt different names in different countries, making it difficult to accurately estimate the actual number of carriers. Figure~\ref{fig:coverage.all} shows the user coverage of \mobiperf, with one dot representing one run of \mobiperf. Given the wide coverage of regions, we believe our data set is fairly representative of the entire smartphone population, especially for North America with denser user distribution. In this study, our analysis mostly focuses on U.S. users.
+We publicly deployed the \mobiperf application in August, 2009, distributed via Apple's App Store, Google's Android Market and Microsoft's Windows Marketplace for Mobile. Ever since the initial deployment, we have been continuously improving and releasing updates for iOS and Android version of our app. Till April, 2011, 99.1K users from across the world have run our app for 439.5K times. The number of users and runs for three different platforms, including iOS, Android, and Windows Mobile, is listed in Table~\ref{tab:net.user}. The average number of runs for each Android user is larger than the other two platforms, because for the Android version of our app, we give an option to the users to periodically run the tests. We observe users from 179 countries or regions according to the collected GPS information. Since GPS information for Windows Mobile users is seldom available, for most top countries of the other two platforms, we do not observe any Windows Mobile users. GPS information may sometimes be unavailable as well on Android and iOS, due to signal problem or users not wishing to share their location information. Among all 93.3K users, 63.7K (68.27\%) have GPS readings and 52.24\% of them are from the U.S., and among these 63.7K users, about 1.0K (1.57\%) users have run our app in more than one countries or regions. We also observe more than 800 carrier names. However, carriers may adopt different names in different countries, making it difficult to accurately estimate the actual number of carriers. Figure~\ref{fig:net.coverage} shows the user coverage of \mobiperf, with one dot representing one run of \mobiperf. Given the wide coverage of regions, we believe our data set is fairly representative of the entire smartphone population, especially for North America with denser user distribution. In this study, our analysis mostly focuses on U.S. users.
+
+
+\nsection{3G Network Characterization}
+\label{sec:net.3g}
+%purpose
+We first focus on characterizing the performance of commercial 3G networks with the \mobiperf data set, complemented by local controlled experiments.
+
+\nsubsection{Comparison across carriers}
+\label{sec:net.carrier}
+ % figures of general network statistics from 3GTest
+ 
+\begin{figure*}[th!]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/mobisys10/all_all_thru_down_cdf_cmp.eps} &
+\IGM{figures/mobisys10/all_all_rtt_down_cdf_cmp.eps} \\
+\small{(a) CDF of downlink TCP throughput} &
+\small{(b) CDF of downlink TCP round trip time} \\
+\IGM{figures/mobisys10/all_all_thru_up_cdf_cmp.eps} &
+\IGM{figures/mobisys10/all_all_lr_down_cdf_cmp.eps} \\
+\small{(c) CDF of uplink TCP throughput} &
+\small{(d) CDF of downlink TCP retransmission rate} \\
+\IGM{figures/mobisys10/ping.eps} &
+\IGM{figures/mobisys10/1sthop.eps} \\
+\small{(e) CDF of Ping latency to landmark servers} &
+\small{(f) CDF of Ping latency to the first hop} \\
+\IGM{figures/mobisys10/dns.eps} & 
+\IGM{figures/mobisys10/handshake.eps} \\
+\small{(g) CDF of DNS lookup time} & 
+\small{(h) TCP handshake time to landmark servers} \\
+\end{tabular}
+\ncaption{TCP performance comparison among carriers (data from deployed application \mobiperf, considering only U.S.)}
+\label{fig:net.general}
+\end{figure*}
+ 
+Figures~\ref{fig:net.general}(a) illustrates measured TCP downlink
+throughput. Given stable TCP throughput is roughly inversely
+proportional to RTT and to the square root of packet loss 
+rate~\cite{Padhye:TCPModel:sigcomm1998}, we also analyze RTT and 
+retransmission rate. In Figure~\ref{fig:net.general}(b), all carriers 
+show comparable RTT distributions, with T-Mobile showing slightly 
+larger RTT values and correspondingly lower downlink TCP 
+throughput. Various reasons contribute to large RTT in 3G networks, 
+\eg~queueing delays at the base station or other internal nodes, such as RNC, SGSN, and GGSN in UMTS networks. Large RTTs may also be due to packet loss recovered through link layer retransmission, which we do not have direct information about.
+
+Figure~\ref{fig:net.general}(c) plots measured TCP uplink throughput.
+Unlike downlink throughput, AT\&T and T-Mobile have lower uplink
+throughput compared with Sprint and Verizon. One of the reasons 
+could be the lack of support for UMTS/HSUPA on the phones used for 
+AT\&T and T-Mobile. Even the latest version of iPhone 3GS does not 
+claim to support HSUPA. 
+%Sprint and Verizon's 3G networks based on EVDO technologies do not have these problems. 
+The median uplink throughput for AT\&T and T-Mobile ranges from 
+200 kbps to 300 kbps, while that for Sprint and Verizon is around 
+400 kbps. 
+
+Figure~\ref{fig:net.general}(d) shows that Verizon and Sprint exhibit
+slightly higher TCP retransmission rate, matching observations from 
+our local experiments. %This likely results in lower downlink TCP throughput. 
+On average, AT\&T's downlink throughput outperforms that of the 
+other carriers due to its relatively lower RTT and loss rate. The 
+median of TCP downlink throughput for all carriers ranges from 500 
+kbps to 1 Mbps. Median RTT varies from 300 ms to 500 ms, suggesting 
+400 ms is a representative delay value to emulate 3G networks. AT\&T 
+and T-Mobile have a median retransmission rate of 0\%, while that 
+for Sprint and Verizon is 0.7\%.
+
+Figures~\ref{fig:net.general}(e)(f) show that Ping latency to the 
+first responsive hop is close to that to landmark servers, suggesting
+that the first responsive hop consisting of 3G wireless link 
+contributes to most of the delay along the end-to-end network path. 
+Note that Ping latency to the first responsive hop actually refers 
+to the first IP hop responding to ICMP probing. For AT\&T and 
+T-Mobile, the first IP hop, when TTL is set to 1, does not respond
+in most cases.
+Only the second IP hop replies with a private IP address. For 
+Sprint and Verizon, the first IP hop does reply with a public IP 
+address. The median latency to the first responsive hop ranges 
+from 150 ms to 200 ms, while that to landmark servers is between 
+180 ms and 250 ms. We observe that both the Ping latency and TCP 
+handshake time are smaller than RTT values measured in TCP downlink 
+experiments. 
+%likely due to
+%the queueing delay imposed on larger packets for downlink measurements
+%at the internal nodes of 3G networks such as the base-station.
+
+
+%We attempt to focus on DNS lookup performance of local DNS servers when results
+%are cached at these servers to eliminate variability of external
+%lookups.
+%We exclude lookups that appear to be satisfied directly by
+%the client locally with no network traffic or answered with very small
+%delays. 
+Figure~\ref{fig:net.general}(g) shows DNS lookup performance. We design 
+the experiment in a way that all DNS lookups are cached at the LDNS 
+server but not locally on the phone (\S\ref{sec:3GTest}). This allows 
+us to more accurately estimate the delay to the LDNS servers. 
+The LDNS servers studied tend not to respond to ICMP packets, making 
+it challenging to directly measure the network delay between the 
+phone and LDNS server. From the results, we found that all carriers 
+exhibit similar trend with median values close to 200 ms. Given that 
+the DNS lookup delay is already close to Ping latency to the first 
+responsive hop, there is limited room for improving DNS lookup 
+performance.
+
+As shown in Figure~\ref{fig:net.general}(h), the median of TCP handshake 
+delay ranges from 160 ms to 200 ms, close to the Ping latency to the 
+first responsive hop in Figure~\ref{fig:net.general}(f). We also observe 
+that the relative ranking among all carriers is consistent with that 
+in Figure~\ref{fig:net.general}(f). Compared with Figure~\ref{fig:net.general}(b), 
+large packets with size close to MTU (\eg 1348 bytes in AT\&T) are 
+found to have 2 -- 4 times of the RTT for small packets.
+
+\begin{figure}[thb]
+\centering
+\IG{figures/mobisys10/tod.eps} \\
+\ncaption{Number of \mobiperf users vs. time of day}
+\label{fig:net.uservstod}
+\end{figure} 
+
+\nsubsection{Time of day correlation}
+\label{sec:net.tod}
+
+Understanding whether traffic patterns exhibit any time of day
+behavior is useful for improving the design of applications and mobile
+network infrastructure. %Despite some dedicated resources allocated to
+%each user, there is still resource sharing among users, especially
+%those within close physical proximity. 
+We expect smartphone users to have diurnal patterns in their behavior. 
+For example, we can observe such a pattern in Figure~\ref{fig:net.uservstod}.
+To further understand its impact on performance, we search for such a 
+pattern in the data collected during 5 contiguous weekdays as an initial 
+investigation. The data set is from \emph{3GTest-Local} described in
+\S\ref{sec:setup_net} with results shown in Figure~\ref{fig:net.tod}. 
+
+First, time of day effect is less pronounced for uplink throughput 
+compared to downlink throughput, comparing Figure~\ref{fig:net.tod}(a) and (d).
+This is likely due to higher demand 
+for downlink capacity by popular applications such as web browsing 
+and video streaming. Second, we observe an obvious time pattern for 
+AT\&T's downlink throughput. At night and early morning hours, between 
+2AM and 8AM, the downlink throughput can reach 1 Mbps. However, the 
+downlink throughput of lower than 500 kbps is observed at other times. 
+This phenomenon is possibly due to the large number of iPhone users 
+and the large traffic volume brought by various network applications.
+For Sprint and Verizon, we observe similar though less prominent trend 
+compared to that for AT\&T. For T-Mobile, the TCP downlink throughput 
+is more stable, which we conjecture is due to the fact that its 3G 
+service has only recently become available at our location.
+
+Figures~\ref{fig:net.tod}(b)(c) indicate that RTT and 
+retransmission rate exhibit time of day pattern for some carriers. 
+For AT\&T, the downlink throughput is found to be mostly affected by 
+RTT values, likely to be caused by queueing delays in AT\&T's 3G 
+networks. RTT varies from 300 ms during late nights to as high as 
+700 ms at peak times. For Verizon and Sprint, the RTT values are 
+more stable, though with varying TCP retransmission rate. One 
+possible explanation is that in Verizon and Sprint's 3G networks, 
+shared queues would drop packets once the queue length exceeds a
+threshold. This design will restrict the variation of RTT but incur 
+more packet loss. %It is difficult to verify such hypothesis without visibility
+%into the 3G network internals.
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/mobisys10/time_down.eps} &
+\IGM{figures/mobisys10/time_rtt.eps} \\
+\small{(a) TCP downlink throughput vs. time of day} & 
+\small{(b) TCP round trip time vs. time of day} \\ 
+\IGM{figures/mobisys10/time_loss.eps} &
+\IGM{figures/mobisys10/time_up.eps} \\
+\small{(c) TCP retransmission rate vs. time of day} &
+\small{(d) TCP uplink throughput vs. time of day} \\
+%\includegraphics[width=0.45\textwidth]{figures/net_signal/signal.eps} \\
+%\small{(d) TCP downlink throughput / signal strength vs. time of day}\\ 
+\end{tabular}
+\ncaption{Correlation between TCP performance and time of day
+  \emph{(3GTest-Local)}} \label{fig:net.tod}
+\end{figure*}
+
+ 
+\nsubsection{Signal strength effects}
+\label{sec:net_signal}
+
+Signal strength is an important factor that affects 3G network
+performance, since higher signal-to-noise ratio (SNR) allows higher 
+bit rate. We therefore also carried out experiments to understand
+this correlation. Since it is not easy for us to control the signal
+strength, we continuously monitor signal strength and TCP downlink
+throughput for a week. We highlight 
+our major observations here. When the signal strength is too weak, 
+TCP connections will disconnect. When signal strength is at some 
+middle range, we observe clear correlation between signal strength 
+and TCP downlink throughput. TCP downlink throughput is not affected 
+by the signal strength if the latter is above some threshold. Given 
+these observations, we exclude the data points corresponding to poor 
+signal strength from the {\em 3GTest-Local} data set.
+
+\nsubsection{Smartphone vs. laptop}
+\label{sec:net_platform}
+
+To understand whether the computation capability of a smartphone
+limits its 3G performance, we set up a controlled experiment to
+compare a smartphone (iPhone 3G) with a laptop (ThinkPad T42). The 
+laptop can access AT\&T's 3G network via a wireless data card, while 
+the iPhone measurement is conducted at the same location and the 
+same time. We found that the distribution of downlink throughput is 
+similar, implying that the performance bottleneck is within the 
+3G network instead of on the phone. However, for other 
+compute-intensive applications, the performance difference is
+more pronounced. We will study this in more details in \S\ref{sec:web_js}.
+
+\noindent\textbf{Summary:} The main observations of 3G network
+performance are the following.
+
+\begin{enumerate}
+\item Typical values for 3G throughput range from 500 kbps to 1~Mbps
+for downlink, and 200 kbps to 400 kbps for uplink, both lower than 
+the advertised rates.
+
+\item Network performance differs across all carriers. For downlink 
+RTT and throughput, the differences among carriers are evident.
+
+\item Sprint and Verizon have higher TCP retransmission rate 
+compared with AT\&T and T-Mobile.
+
+\item Large packets can have 2--4 times RTT of small packets.
+
+\item Some carriers show clear time of day patterns on weekdays, 
+especially for AT\&T's downlink throughput.
+
+\item For simple TCP downloading/uploading, the performance 
+bottleneck is within the 3G network.
+
+\item 3G wireless delay dominates the end-to-end RTT.
+\end{enumerate}
+
+Our observations suggest that the low uplink throughput and large
+RTT of current 3G networks raise challenges for offloading computation 
+into the cloud. Network application designers should avoid chatty 
+protocols and minimize total bytes to transfer. 3G operators need to 
+examine their queueing and link layer retransmission policies to 
+reduce latency in wireless links. 
 
 
 
-
-
-
-\nsection{Understanding 3G/4G Network Performance}
-\label{sec:net.result}
 + Results
 + Implications (compare across network types, compare over time)
 
