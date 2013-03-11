@@ -71,6 +71,38 @@ We publicly deployed the \mobiperf application in August, 2009, distributed via 
 %purpose
 We first focus on characterizing the performance of commercial 3G networks with the \mobiperf data set, complemented by local controlled experiments.
 
+\begin{table} [!t]
+\footnotesize
+\begin{center}
+\begin{tabular}{|l||c|c|c|c|c|}\hline
+%\begin{tabular*}{1\textwidth}%
+%     {@{\extracolsep{\fill}}|l||c|c|c|c|}\hline
+Referred to as   & iPhone & Palm        & Samsung          & G2 & HTC \\\hline\hline
+Carrier         & AT\&T     & Sprint         & Verizon    & T-Mobile & AT\&T \\\hline
+Network         & UMTS      & EVDO           & EVDO       & UMTS     & UMTS \\\hline
+Advertised Downlink(Mbps)$^\star$ & 0.7-1.7 & 0.6-1.4      & 0.6-1.4        & 0.6-1.0  & 0.7-1.7 \\\hline
+Advertised Uplink(Mbps)$^\star$  & 0.5-1.2 & 0.35-0.5      & 0.5-0.8       & 0.3-0.7  & 0.5-1.2 \\\hline\hline
+Vendor          & Apple     & Palm           & Samsung    & HTC      & HTC \\\hline
+Device          & iPhone & Treo800w      & SCHi760        & Android G2       & TyTnII \\\hline
+Memory (MB)     & 128     & 128          & 64             & 192      & 128 \\\hline
+Processor (ARM) & 1176      & 1136  & 920T    & 1136EJS & 1136EJS \\\hline
+CPU frequency (MHz) & 620       & 333            & 400    & 528      & 400 \\\hline
+OS              & iPhone OS 2.1    & WM 6.1$^\dag$         & WM 6.1        & Android 1.6 & WM 6.1 \\\hline
+Browser         & Safari & IE          & IE            & Browser App & IE  \\\hline
+\end{tabular}
+\ncaption{Device specifications and 3G network carriers$^\natural$}
+\label{table:net.device}
+\begin{tabular}{l}
+\\{\small $^\star$All advertised data rate was for the time in 2009.}
+\\{\small $^\dag$WM stands for Windows Mobile}
+\\{\small $^\natural$At the time of this piece of study (2009), these devices represent state of the art of smartphones.}
+\end{tabular}
+\end{center}
+\end{table}
+
+Table~\ref{table:net.device} lists the devices used and carriers studied in the local controlled experiments. We studied four major carriers in the U.S., AT\&T, Sprint, Verizon, and T-Mobile. They split between UMTS/HSPA (AT\&T and T-Mobile) and EVDO (Sprint 
+and Verizon). AT\&T has the highest advertised downlink and uplink data rates. The actual data rates that a user can attain depend on many factors, such as signal strength, location, and background traffic. One of our goals is to understand how the actual data rates match the advertised ones and which factors have the biggest impact on network performance.
+
 \nsubsection{Comparison across carriers}
 \label{sec:net.carrier}
  % figures of general network statistics from 3GTest
@@ -95,7 +127,7 @@ We first focus on characterizing the performance of commercial 3G networks with 
 \small{(g) CDF of DNS lookup time} & 
 \small{(h) TCP handshake time to landmark servers} \\
 \end{tabular}
-\ncaption{TCP performance comparison among carriers (data from deployed application \mobiperf, considering only U.S.)}
+\ncaption{TCP performance comparison among carriers (data from deployed application \mobiperf, only considering U.S.)}
 \label{fig:net.general}
 \end{figure*}
  
@@ -194,10 +226,9 @@ network infrastructure. %Despite some dedicated resources allocated to
 %those within close physical proximity. 
 We expect smartphone users to have diurnal patterns in their behavior. 
 For example, we can observe such a pattern in Figure~\ref{fig:net.uservstod}.
-To further understand its impact on performance, we search for such a 
-pattern in the data collected during 5 contiguous weekdays as an initial 
-investigation. The data set is from \emph{3GTest-Local} described in
-\S\ref{sec:setup_net} with results shown in Figure~\ref{fig:net.tod}. 
+To further understand its impact on performance, we resort to conducting local controlled experiments.
+
+To measure the network performance over a long time period, we created an internal version of \mobiperf and installed it on the smartphones listed in Table~\ref{table:net.device}. \mobiperf is modified to record the signal strength on the Samsung and Palm phones, and continuously conducts measurements every 10 minutes to collect one week's data (excluding weekends) in Ann Arbor, MI. We make sure that the phones are placed at the same location with excellent signal strength during the entire measurement study. Since the data is collected continuously for a long period of time, it can be used for characterizing the time-of-day effect. The results for the 5 contiguous weekdays are shown in Figure~\ref{fig:net.tod}. 
 
 First, time of day effect is less pronounced for uplink throughput 
 compared to downlink throughput, comparing Figure~\ref{fig:net.tod}(a) and (d).
@@ -241,13 +272,12 @@ more packet loss. %It is difficult to verify such hypothesis without visibility
 %\includegraphics[width=0.45\textwidth]{figures/net_signal/signal.eps} \\
 %\small{(d) TCP downlink throughput / signal strength vs. time of day}\\ 
 \end{tabular}
-\ncaption{Correlation between TCP performance and time of day
-  \emph{(3GTest-Local)}} \label{fig:net.tod}
+\ncaption{Correlation between TCP performance and time of day (local controlled experiments)} \label{fig:net.tod}
 \end{figure*}
 
  
 \nsubsection{Signal strength effects}
-\label{sec:net_signal}
+\label{sec:net.signal}
 
 Signal strength is an important factor that affects 3G network
 performance, since higher signal-to-noise ratio (SNR) allows higher 
@@ -261,10 +291,10 @@ middle range, we observe clear correlation between signal strength
 and TCP downlink throughput. TCP downlink throughput is not affected 
 by the signal strength if the latter is above some threshold. Given 
 these observations, we exclude the data points corresponding to poor 
-signal strength from the {\em 3GTest-Local} data set.
+signal strength from the \mobiperf data set and controlled experiment data set.
 
 \nsubsection{Smartphone vs. laptop}
-\label{sec:net_platform}
+\label{sec:net.platform}
 
 To understand whether the computation capability of a smartphone
 limits its 3G performance, we set up a controlled experiment to
@@ -275,7 +305,7 @@ same time. We found that the distribution of downlink throughput is
 similar, implying that the performance bottleneck is within the 
 3G network instead of on the phone. However, for other 
 compute-intensive applications, the performance difference is
-more pronounced. We will study this in more details in \S\ref{sec:web_js}.
+more pronounced. We will study this in more details in \S\ref{sec:web.js}\comment{TBD}.
 
 \noindent\textbf{Summary:} The main observations of 3G network
 performance are the following.
@@ -302,6 +332,7 @@ bottleneck is within the 3G network.
 \item 3G wireless delay dominates the end-to-end RTT.
 \end{enumerate}
 
+\comment{TBU}
 Our observations suggest that the low uplink throughput and large
 RTT of current 3G networks raise challenges for offloading computation 
 into the cloud. Network application designers should avoid chatty 
