@@ -265,7 +265,7 @@ These results can be taken into consideration by network application developers 
 
 \begin{figure}[thb]
 \centering
-\IG{figures/mobisys10/tod.eps} \\
+\IGML{figures/mobisys10/tod.eps} \\
 \ncaption{Number of \mobiperf users vs. time of day}
 \label{fig:net.uservstod}
 \end{figure} 
@@ -488,7 +488,112 @@ reduce latency in wireless links.
 
 
 
-+ Results
-+ Implications (compare across network types, compare over time)
+\nsection{LTE 4G Network Characterization}
+\label{sec:net.lte}
 
-talk about results from public deployment, also talk about the results in local controlled experiments via mobiperf, such as mobility test. This is another part of results for cellular network performance.
+During the time of study for the previous section, \ie in 2009, LTE 4G network has not yet come into commercial market. In 2011, with growing popularity for the commercial LTE network, we decided to study it and compare it with existing cellular network technologies and WiFi technology.
+
+\begin{figure}[t]
+\centering
+\IGML{figures/mobisys12/gps.eps} \\
+\ncaption{\mobiperf user coverage in the U.S between Oct 15, 2011 and Dec 15, 2011}
+\label{fig:net.gps}
+\end{figure}
+
+A special version of \mobiperf, branded as \FT (in the following, we do not distinguish \FT from \mobiperf) was initially released on Android Market on 10/15/2011. Till 12/15/2011, there has been altogether 3294 global users and 13768 runs. In the analysis, we focus on 2292 users and 7063 runs inside the U.S., among which 380 are LTE users with 982 runs. We check the distribution of \mobiperf users for different network types. For example, in Figure~\ref{fig:net.gps}, the coverage of LTE, WiMAX, and WiFi are mostly similar, covering 39, 37 and 44 states in the U.S., respectively. We also observe that other networks have similar coverage across the U.S. This indicates that \mobiperf data set enables fair comparison on the distribution of performance metrics for different mobile networks in the U.S. 
+
+Similar to our previous study for 3G networks in 2009, we complement \mobiperf with local controlled experiments.
+We use an HTC phone with LTE data plan from a large cellular ISP for controlled experiments. It has 768 MB RAM memory and 1 GHz Qualcomm MSM8655 CPU, running Android 2.2.1. We also use a laptop equipped with LTE USB Modem. It has 8GB memory and 2.53 GHz Intel Core Duo CPU, running Mac OS X 10.7.2.
+
+\nsubsection{Comparing LTE to other mobile networks}
+\label{sec:net.4gtest}
+
+\begin{figure*}[t]
+\centering
+\IGL{figures/mobisys12/perf.eps} \\
+\ncaption{\mobiperf result analysis based on network type$^\star$}
+\label{fig:net.4gtest}
+\begin{tabular}{l}
+\\{\footnotesize $^\star$Each network type corresponds to the data of one cellular ISP, except for WiFi which has data of various ISPs.}
+\end{tabular}
+\end{figure*}
+
+
+%In the analysis, we do not differentiate carriers for WiFi networks for simplicity. For cellular carriers, we anonymize them to be Carrier 1, 2, 3 and 4, which are major cellular carriers in the U.S. 
+Figure~\ref{fig:net.4gtest} summarizes the performance comparison among various mobile networks based on \FT data set. We present anonymized data based on the technology type. The box plot for each metric shows the 95th, 75th, 50th, 25th and 5th percentile among all measurements for each network type. We observe that LTE network has a high downlink and uplink throughput, with the median to be 12.74Mbps and 5.64Mbps, respectively, which is much higher than WiFi's 4.12Mbps (downlink) and 0.94Mbps (uplink), as well as 4.67Mbps (downlink) and 1.16Mbps (uplink) for WiMAX. The 3G family, including eHRPD, EVDO\_A and HSDPA clearly lag behind LTE. We also observe relatively high variation on LTE throughput for different users at different locations, and even for the same user at the same location across different runs. 
+
+%\comment{the following two sentences are meaningless for the paper: delete?}  This variation is likely caused by congestion at the base station, core network, Internet path, and experiment servers. We make our best efforts to reduce this variation in \FT with the throughput measurement methodology described in \S\ref{sec:method.4gtest}. 
+%For example, for some users (including ourselves), 25Mbps or larger downlink throughput is observed sometimes, though not often.
+%, packet loss, distance between UE and server, as well as the signal strength
+%Typically, LTE is observed to have downlink throughput 7.63Mbps$\sim$19.71Mbps and uplink throughput 2.27Mbps$\sim$11.40Mbps (25th and 75th percentile, respectively).
+
+In terms of RTT and RTT jitter, LTE with the median RTT 69.5ms and RTT jitter 5.6ms is comparable to WiFi's 64.5ms (RTT) and 7.9ms (RTT jitter). Similar to throughput comparison, WiMAX also lags behind LTE with median RTT to be 125.0ms and RTT jitter to be 21.0ms. For 3G networks, compared with our previous results obtained in 2009, median RTT has been reduced from a median of 400ms to below 200ms, some even has a median of 78ms (HSDPA 2), close to LTE RTT. RTT jitter for 3G networks are all larger than 10ms.
+
+
+To summarize, Figure~\ref{fig:net.4gtest} provides a fair comparison on performance distribution among different mobile networks, from which we observe that LTE significantly improves network throughput as well as RTT and jitter, making it comparable to or even better than WiFi for throughput. WiMAX lags behind LTE, followed by HSDPA, eHRPD and EVDO\_A networks.
+
+
+\nsubsection{One-way delay and impact of packet size}
+\label{sec:net.owd}
+
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/len_lte.eps} \\
+\ncaption{OWD/RTT v.s. packet size in LTE network (controlled experiments)}
+\label{fig:net.len.lte}
+\end{figure}
+
+%\begin{figure}[h]
+%\centering
+%\includegraphics[width=0.48\textwidth]{../figures/singletrip/len_wifi.eps} \\
+%\ncaption{OWD/RTT v.s. packet size in WiFi network (each point has 100 samples)}
+%\label{fig:len.wifi}
+%\end{figure}
+%reason for larger uplink OWD in LTE?
+
+To understand the \textbf{impact of packet size on one-way delay} \textbf{(OWD)}, uplink and downlink OWD is measured with varying packet size. For each packet size, 100 samples are measured, and we make sure that packets are not fragmented. OWD is measured between the test laptop and the test server. A GPS Receiver~\cite{gps} is connected to the test laptop, which uses the received GPS messages for time synchronization. The test server is also time-synced with another GPS clock. The maximum error of our setup is less than 1ms.
+
+With this setup, we measure uplink/downlink OWD for both LTE and WiFi networks.  Experiment in WiFi shows that both uplink and downlink OWD are around 30ms with little correlation with packet size, and RTT is stable around 60ms. However, for LTE, Figure~\ref{fig:net.len.lte} shows that uplink OWD is clearly larger than downlink OWD. We also observe that uplink OWD for LTE slightly increases as packet size grows, while the median of downlink OWD stays more stable around 30ms. The median RTT ranges from 70ms to 86ms as packet size increases. In summary,  RTT in LTE is more sensitive to packet size than WiFi, mainly due to uplink OWD.
+
+%\comment{Why is this so?  Why do we care?}
+%\nsubsection{Time of day correlation}
+%\begin{figure}[h]
+%\centering
+%\IG{../figures/tod/tod.eps} \\
+%\ncaption{LTE performance v.s. time of day}
+%\label{fig:tod}
+%\end{figure}
+%In our previous study~\cite{mobisys.3gtest}, we have observed that for some carriers, 3G performance has some correlation with time of day, due to the congested network and users' diurnal pattern. In this study, we seek to understand the time of day correlation with LTE network performance.
+
+%In Figure~\ref{fig:tod}, we periodically run \FT for 48 hours in two randomly selected days. RTT's median value remain stable at 68ms across different hours, though with some variation. For downlink and uplink throughput, variation across different hours is observed, however, there is no strong correlation with time of day. Based on this observation, it could be inferred that with its new appearance in the market, LTE currently does not have too many users and has well-provisioned resources available. We intend to keep monitoring this time of day correlation with LTE performance, and see with the fast growing user base, whether the network would become overloaded.
+
+\nsubsection{Mobility}
+\label{sec:net.speed}
+
+%In Section 7.3 of Requirements for Evolved UTRA and Evolved UTRAN, it is specified that 
+Requirements for LTE~\cite{tr25.913} specifies that mobility across the cellular network should be supported and optimized for low mobile speed from 0$\sim$15 km/h. Higher mobile speed of 15$\sim$120 km/h should be supported with high performance. In this paper, we carry out one of the first studies to quantify the impact of mobile speed for a commercial LTE network.
+
+\begin{figure}[h]
+\centering
+\IG{figures/mobisys12/speed.eps} \\
+\ncaption{LTE performance at different speeds}
+\label{fig:net.speed}
+\end{figure}
+
+As shown in Figure~\ref{fig:net.speed}, we measure RTT and downlink/uplink throughput with \mobiperf at three different mobile speeds: stationary, 35mph and 70mph, highway speed limit. All experiments are done in the same car for fair comparison. Given that \mobiperf takes less than 2 minutes to finish, handover seldom happens during a single test and we filter out samples with cell ID changed during the test. Previous work~\cite{mobicom.bartendr} has shown that signal strength varies across locations and has a non-negligible impact on performance, so we only select sample points with the similar signal strength for fair comparison.
+
+We observe that RTT remains stable at different speeds, with small variation. Uplink and downlink throughput both have high variation of 3$\sim$8Mbps. Comparing throughput at different speeds, there is no clear difference, given the high variation. Our experiments show that at least at our test location, there is no major performance downgrade at high speed for LTE, satisfying the requirements in~\cite{tr25.913}.
+
+%We also notice that experiment outdoor, \ie in a car, shows higher throughput for both downlink and uplink compared with indoor experiment. This is largely due to higher average signal strength outdoor. 
+
+In addition, we also study the correlation between LTE performance and \textbf{time of day}. We periodically run \mobiperf for 48 hours in two randomly selected days. RTT's median value remain stable at 68ms across different hours. 
+%Notice that we do not use the \mobiperf results from real users to study this time of day pattern, because those results may also contain user-specific and location-wise factors which affect the performance and are hard to be excluded. 
+For downlink and uplink throughput, variation across different hours is observed; however, there is no strong correlation with time of day. This may imply that, at our location, LTE currently does not have too many users and has well-provisioned resources available. 
+
+To summarize, with both global experiments, via \mobiperf, and local controlled experiments, we observe that LTE has significantly improved network performance over 3G, making it comparable to, if not better than, WiFi.
+
+
+
+
+
