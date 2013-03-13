@@ -44,6 +44,7 @@ Figure~\ref{fig:trace.zoom} is a 125$\times$ zoom-in view of Figure~\ref{fig:tra
 
 
 \nsection{Power Model Construction}
+\label{sec:power.model}
 This section summarizes the construction of the new LTE power model, as well as the 3G and WiFi model measured from the same LTE phone. We then compare energy efficiency in bulk data transfer for different networks and validate LTE power model in the end.
 
 \begin{table}[t]
@@ -122,8 +123,8 @@ Based on these observations, LTE is less energy efficient during idle state and 
 
 
 
-\nsubsection{Power model for data transfer}
-\label{sec:updown}
+\nsubsection{Power Model for Data Transfer}
+\label{sec:power.updown}
 Previous work on 3G UMTS power modeling either treats DCH power state to have a fixed power value~\cite{codes.powertutor, mobisys.aro}, or assumes energy per bit to be the same constant for both uplink and downlink~\cite{imc.tailender}. These assumptions might be reasonable given that 3G has relatively low data rates. However, for LTE, we observe that device power is much higher during high speed data transmission (up to 3300mW for uplink) relative to the base power (1060mW) in \RC, and there is significant difference between downlink and uplink power levels at the same data rate. In this paper, we propose a new comprehensive power model for LTE empirically derived in a commercial LTE network.
 
 We start with measuring device power states with controlled uplink or downlink throughput. The impact of TCP {\sf ACK} packets, which are small in size, is minor, thus ignored.
@@ -162,7 +163,7 @@ P = \alpha_u t_u + \alpha_d t_d+ \beta = (\alpha_u - \alpha_d)t\epsilon + \alpha
 When $t$ is a constant, $P$ grows linearly with $\epsilon$ and the slope is $(\alpha_u - \alpha_d)t$. Figure~\ref{fig:up.down} shows two curves of $t = 1$Mbps and $t = 2$Mbps, both having a strong linear pattern and the slope is less than 5\% off the expected value.
 
 
-\nsubsection{Energy efficiency for bulk data transfer}
+\nsubsection{Energy Efficiency for Bulk Data Transfer}
 \label{sec:power.bulk}
 
 \begin{figure}[t]
@@ -181,7 +182,7 @@ First, energy per bit decreases as bulk data size increases, largely because wit
 %3G and LTE require 34.77 and 1.62 times the energy of WiFi, respectively, and for uplink, 3G/WiFi ratio is 20.16 and LTE/WiFi ratio is 2.53.
 %\comment{I thought these numbers are interesting and should be included in the intro: in particular, you should have small transfer (1 packet) vs. bulk transfer energy per bit comparision}
 
-\nsubsection{Power model validation}
+\nsubsection{Power Model Validation}
 \label{sec:power.validation}
 
 \begin{table}[h]
@@ -214,9 +215,64 @@ The error rate is increased if the impact of downlink and uplink throughput is i
 In this section, in addition to comparing energy per bit in bulk data transfer for different networks, we construct a new LTE power model and validate its accuracy, which is the basis for the following analysis.
 
 
+\nsection{Trace-driven Analysis Methodology}
+To compare energy consumption for different networks using real user traces and evaluate the impact of setting LTE parameters, we devise a systematic methodology for trace-driven analysis, which is applied to a comprehensive user trace data set, named \UMICH.
+
+\nsubsection{\UMICH~Data Set for Analysis}
+
+\UMICH~data set is collected from 20 smartphone users for five months, 05/12/2011 $\sim$ 10/12/2011, totaling 118 GB.
+These participants consist of undergraduate and graduate students from 8 departments at University of Michigan. The 20 participants are given Motorola Atrix (11 of them) or Samsung Galaxy S smartphones (9 of them) with unlimited voice, text and data plans, all running Android 2.2. As stated in our study consent form, we keep collected data and users' identities strictly confidential\footnote{This user study has been approved by the University of Michigan IRB-HSBS \#HUM00044666.}.
+%They are encouraged to take advantage of all the features and services of the phones.
+
+Custom data collection software developed by us are deployed on the 20 smartphones. It continuously runs in the background and collects full packet traces in tcpdump format including both headers and payload. Both cellular and Wi-Fi traces are collected without any sampling performed. The data collector incurs no more than 15\% of CPU overhead, although the overhead is much lower when the throughput is low (\eg less than 200 kbps).
+
+We also build a data uploader that uploads the data to our server when the phone is idle as indicated by low network throughput. The upload is suspended by detected network activity of user applications. The entire data collection and uploading process is transparent to the users.
+
+\nsubsection{Trace-driven Modeling Methodology}
+\label{sec:method.sim}
+We build a network model and power model analysis framework for the trace-driven analysis, totaling about 8,000 lines of code in C++.
+
+%\paragraph{Trace parser} is for reading binary packet trace files in libpcap~\cite{tcpdump} format. We use a simple data structure that only store the most important fields of a packet and reduce the total data size from 118GB to under 16GB which fits into memory. However, the trace parser can be easily improved to support larger data size that is impossible to be fully loaded into memory, given that it parses packets sequentially and sorting packets is easy with proper file structure design during data collection stage. The output of trace parser is an array of packets with ascending timestamps.
+
+\paragraph{Network model simulator} takes the binary packet trace files in libpcap~\cite{tcpdump} format and preprocesses the data following the same methodology as previous study~\cite{imc.3g}, for the purpose of removing existing delays imposed by state promotions and extracting the actual traffic patterns, \eg for the purposing of simulating the trace in another network. It then applies a specific network model to the processed traces and adjusts timestamps for some packets, since different network models have different delay behavior due to state machine differences. There are two reasons for a packet's timestamp to be adjusted, promotion delay and DRX waiting time.  We use the same methodology to adjust timestamp for promotion delay as previous study~\cite{imc.3g}. In LTE network, if there is no packet for over $T_{tail}$ time, when the next packet $P$ arrives, an extra delay $T_{pro}$ is inserted before $P$. In terms of DRX waiting time, if a downlink packet $P'$ comes at time $T_{P'}$ and UE is in DRX mode, either in \RC or \RI, there is no DRX waiting time if $P'$ arrives inside any DRX on duration; otherwise, $P'$ would experience an extra delay of $T_n - T_{P'}$, where $T_n$ is the start time of the next DRX on duration after $T_{P'}$. The parameters for different network models are listed in Table~\ref{tab:power}, obtained from local experiments. We also empirically assume that UE goes into complete sleep with 0 power usage after being idle for $T_{tail2}$ (1 minute). Notice that $T_{tail2}$ is not actually observed in our experiments and is only used to bound the total idle energy and simplify our analysis.
+
+%, UE should have been in \RI already upon $P$'s arrival, and hence a promotion to \RC is triggered by $P$. A
+%\comment{the original trace doesn't contain any such delays? because it's a WiFi trace? please explain.}
+%If one packet within a TCP flow is delayed in the simulator, \eg a TCP SYN packet, all subsequent packets dependent on it in that flow are delayed. Similarly, if one flow gets delayed in a web transaction, \eg downloading {\sf index.html} when loading a website, all other flows dependent on it get delayed as well. Arguably, once the user gets delayed on one application, following applications usage might be delayed as well, which however it not always true.
+%Given the inherent difficulty of understanding the inter-flow dependency in the user traces, in the simulation, we assume for simplicity that, if one packet gets delayed, all future packets of this user get the same delay.
+
+The output of network model simulator is an array of packets with adjusted timestamps, in ascending order, as well as the RRC and DRX states of UE at any time.
+
+\paragraph{Power model simulator} takes the output of network model simulator and calculates the energy consumption based on the power model, detailed in Section~\ref{sec:power.model}. We break down the total energy into four components: {\em promotion}, {\em data transfer}, {\em tail}, and {\em idle}.
+
+For promotion energy, both promotion delay $T_{pro}$ and average promotion power $P_{pro}$ are fixed. If a trace includes $N$ promotions, promotion energy is given by $NT_{pro}P_{pro}$.
+
+For idle energy in \RI, assume that DRX cycle is $T_{pi}$ (with base power $P_{b}$) and on duration is $T_{oni}$ (with on power $P_{oni}$), energy consumption of an duration of $t_{idle}$ is given by
+\begin{equation*}
+\lfloor \frac{t_{idle}}{T_{pi}} \rfloor \Big(T_{oni} P_{oni} + (T_{pi} - T_{oni}) P_{b}\Big) + E_{res}
+\end{equation*}
+where the remaining energy $E_{res}$ can be calculated as
+\[E_{res} = \left\{ 
+\begin{array}{l l}
+T_{res}P_{oni} & \mbox{if$\quad T_{res} \le T_{oni}$}\\
+T_{oni}P_{oni} + (T_{res}-T_{oni}) P_{b} & \mbox{if$\quad T_{res} > T_{oni}$}\\ 
+\end{array} \right. \]
+with
+\begin{equation*}
+T_{res} = t_{idle} - T_{pi}\lfloor \frac{t_{idle} }{T_{pi}} \rfloor
+\end{equation*}
+
+Tail energy is more complex for LTE since \RC has three modes as in Figure~\ref{fig:sm}\comment{update reference}, while 3G and WiFi do not have DRX in connected mode. We simulate the transitions among Continuous Reception, Short DRX and Long DRX to calculate tail energy, in a similar way of idle energy calculation. Note that we only count tail energy when the tail is complete, otherwise, the energy is considered as data transfer energy, \ie if one packet $P$ is observed before UE demotes to \RI at the end of the tail, the energy between $P$ and the previous packet is still considered as data transfer energy.
+ 
+For data transfer energy, we propose a novel model. Assume uplink throughput is $t_u$ (Mbps) and downlink throughput is $t_d$ (Mbps), the instant power level (mW) of UE is
+\begin{equation*}
+\label{for:updown}
+P = \alpha_u t_u + \alpha_d t_d+ \beta
+\end{equation*}
+Validation of this formula is in \S\ref{sec:power.updown}. 
+%Given that packet header length (at most 52 bytes with TCP header 32 bytes and IP header 20 bytes) is much smaller than MTU (1428 bytes for our setup), and that TCP ACK packets are much smaller and typically fewer than data packets, we simply consider payload throughput in our power model, without considering header length and ACK packets.
+We simply consider payload throughput in our power model, without considering header length and {\sf ACK} packets due their small impact. Since TCP instant throughput changes frequently, in order to accurately estimate the instant power levels, we divide the trace into small time windows with size $W$ seconds and within each window, throughput $t_u$ and $t_d$ are calculated, which determine the power $P$. $W$ is set to be 1 second empirically in our setup and the total energy is not sensitive to the choice of $W$ as long as $W$ is larger than a few RTTs and smaller than most flow durations. 
+
+
 \nsection{User Trace Based Tradeoff Analysis}
-
-\nsubsection{trace-driven network/power simulation methodology (validation)}
-\S3.3
-
-\nsubsection{\S6.1, 6.2, 6.3}
+\S6.1, 6.2, 6.3
