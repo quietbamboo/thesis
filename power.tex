@@ -151,7 +151,6 @@ WiFi & 283.17 & 137.01 & 132.86 & 2.07\\\hline
 By looking at $\alpha_u/\alpha_d$, we notice that uplink power increases faster than downlink for all three networks types. This is expected because sending data requires more power than receiving data for wireless data access~\cite{ieee.mimo}. LTE has the largest gap of $\alpha_u/\alpha_d = 8.44$ among three network types. This is largely because $\alpha_d$ for LTE is quite small. For 3G, both $\alpha_u$ and $\alpha_d$ are larger than LTE. $\beta$ is the base power when throughput is 0, with the ranking of LTE $>$ 3G $>$ WiFi. This is consistent with the tail base power comparison in Table~\ref{tab:power}. We notice that $\beta$ is slightly higher than the tail base for all networks types. This is possibly because of the overhead of switching transmitters or receivers into high speed mode.
 
 
-
 For simultaneous uplink and downlink transfers, given that transmitters and receivers are separate, we conjecture that the power level (mW) is given by the following formula:
 \begin{equation*}
 P = \alpha_u t_u + \alpha_d t_d+ \beta
@@ -274,5 +273,150 @@ Validation of this formula is in \S\ref{sec:power.updown}.
 We simply consider payload throughput in our power model, without considering header length and {\sf ACK} packets due their small impact. Since TCP instant throughput changes frequently, in order to accurately estimate the instant power levels, we divide the trace into small time windows with size $W$ seconds and within each window, throughput $t_u$ and $t_d$ are calculated, which determine the power $P$. $W$ is set to be 1 second empirically in our setup and the total energy is not sensitive to the choice of $W$ as long as $W$ is larger than a few RTTs and smaller than most flow durations. 
 
 
-\nsection{User Trace Based Tradeoff Analysis}
-\S6.1, 6.2, 6.3
+\nsection{User trace based tradeoff analysis}
+\label{sec:simulation}
+
+In this section, we apply the LTE power model to \UMICH data set and compare energy efficiency with 3G and WiFi, with detailed break down of the total energy. We then study the tradeoff of configuring different LTE parameters via our analysis framework.
+
+\subsection{Energy efficiency comparison}
+\label{sec:sim.total}
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/energy_ratio.eps} \\
+\ncaption{Power model simulation: energy ratio}
+\label{fig:energy.ratio}
+\end{figure}
+
+%Given that LTE has comparable RTT with WiFi as discussed in \S\ref{sec:net}, we use WiFi traces in \UMICH~data set to simulate the LTE model. We also simulate 3G and WiFi model with 3G and WiFi traces, respectively. Assume the total payload of 3G traces in \UMICH~data set is $S_{3g}$ bits, and $S_{wifi}$ for WiFi traces. Also assume that the simulated energy usage for LTE, WiFi and 3G power model is $E_{lte}$, $E_{wifi}$ and $E_{3g}$, respectively, the energy ratio of LTE/WiFi is defined as $(E_{lte}/S_{wifi})/(E_{wifi}/S_{wifi})=E_{lte}/E_{wifi}$, and that for 3G/WiFi is calculated as $(E_{3g}/S_{3g})/(E_{wifi}/S_{wifi})$. 
+
+We use the \UMICH data set to simulate the LTE, WiFi and 3G model. Assume that the simulated energy usage for LTE, WiFi and 3G power model is $E_{lte}$, $E_{wifi}$ and $E_{3g}$, respectively, the energy ratio of LTE/WiFi is defined as $E_{lte}/E_{wifi}$, and that for 3G/WiFi is calculated as $E_{3g}/E_{wifi}$. With the same traces, we can make fair comparison among different power models to understand their energy efficiency.
+
+In Figure~\ref{fig:energy.ratio}, we compare the energy efficiency of different networks for the 20 users both individually and in aggregate (summing up for all users). We first observe that LTE power model consumes significantly more energy than WiFi. The ratio of LTE/WiFi ranges from 16.9 to 28.9 and the aggregate ratio for all users is 23.0. Notice that the gap between LTE and WiFi is larger compared with the bulk data transfer experiments in \S\ref{sec:power.bulk}. This is because, for bulk data transfer, LTE's high throughput could compensate the low energy efficiency, compared with real traces, which do not saturate the link capacity. Second, for 3G/WiFi ratio, the range is between 10.8 and 18.0, and in aggregate, 3G/WiFi ratio is 14.6, lower than LTE. In summary, the energy efficiency for LTE is lower than 3G, with WiFi having a much higher energy efficiency. Notice that in this work, we do not consider AP association energy for WiFi networks due to the lack of such information, so $E_{wifi}$ is an underestimate. However, we believe that AP association does not happen very often and the impact is not significant.
+
+%We observe that for some users, their 3G traces include more small data transfers than average, which increase the energy per bit for their 3G energy.
+%In summary, there is non-negligible application usage differences among different users, even between the same user in 3G network and in WiFi network, which results in variation in energy comparison among different networks. In aggregate, energy per bit for LTE is as high as 24.2 times of WiFi, and 3G is 12.8 times of WiFi.
+
+\subsection{Energy consumption break down}
+\label{sec:sim.breakdown}
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/energy_breakdown.eps} \\
+\ncaption{Break down of energy usage in analysis}
+\label{fig:energy.breakdown}
+\end{figure}
+
+\begin{figure*}[tp]
+\centering
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/Ta2i.eps}
+\ncaption{\small Impact of the LTE tail timer $T_{tail}$}
+\label{fig:ta2i}
+	\end{minipage}
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/T1.eps}
+\ncaption{\small Impact of DRX inactivity timer $T_i$}
+\label{fig:t1}
+	\end{minipage}
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/Tpl.eps}
+\ncaption{\small Impact of the DRX cycle in \RC~($T_{pl}$)}
+\label{fig:tpl}
+	\end{minipage}
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/Tpi.eps}
+\ncaption{\small Impact of DRX cycle in \RI~($T_{pi}$)}
+\label{fig:tpi}
+	\end{minipage}
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/burst_interval.eps}
+\ncaption{\small CDF of Inter-burst delay for \UMICH~data set}
+\label{fig:inter.burst}
+	\end{minipage}
+	\begin{minipage}[b]{.49\textwidth}
+\centering
+\includegraphics[width=.99\textwidth]{figures/mobisys12/packet_inter_delay.eps}
+\ncaption{\small CDF of Inter-packet delay for \UMICH~data set}
+\label{fig:inter.packet}
+	\end{minipage}
+\end{figure*}
+
+To further understand the energy consumption, with the methodology discussed in \S\ref{sec:method.sim}, it is decomposed into promotion energy, data transfer energy, tail energy, and idle energy in Figure~\ref{fig:energy.breakdown} with results for aggregate analysis and 6 sample users. These energy values are calculated including the UE base power.
+
+Promotion energy contributes to a small portion ($<4$\%) of the total energy for all networks, \ie in aggregate, its contribution is only 1.2\%, 2.5\% and 2.6\% for LTE, WiFi, and 3G, respectively. In terms of idle energy, WiFi has significantly higher percentage than LTE and 3G, despite small average power difference at idle state across networks, \ie 31.1mW~\footnote{The idle power for LTE network is calculated as the average power of a DRX cycle in \RI, and similarly for WiFi and 3G networks.} for LTE, 13.0mW for WiFi and 15.3mW for 3G. This is explained by WiFi's smaller total energy, making its idle energy contribution relatively higher.
+%Since we assume that UE remains idle for the same time before complete sleep, total idle energy difference among different networks is also small. 
+
+Aggregate data transfer energy percentage is 47.1\%, 42.1\% and 46.2\% for LTE, WiFi and 3G, respectively. The variation across users is high, \eg for LTE network, it ranges from 22.0\% to 62.3\%, due to traffic pattern differences across users.
+
+Surprisingly, the biggest energy component for LTE network is tail, rather than data transfer. The average tail energy for LTE and 3G is 48.2\% and 48.1\% respectively compared to 7.2\% for WiFi. Our observation for 3G is consistent with previous study~\cite{imc.tailender}. Combined with high data transfer energy due to the higher power levels, tail energy lowers the energy efficiency of LTE and 3G compared to WiFi.
+
+
+%Performance penalty: show a CDF of extra delay for all packets in WiFi/LTE networks.
+%Evaluate the power saving, additional delay distribution on existing parameters and compare the ATT with Verizon if there is any difference.
+%Break down into individual user and even individual app to understand the typical cause for I2A promotions (similar to Feng’s 3G study), and which parameter settings are better for what kind of traffic patterns.
+
+\subsection{Impact of LTE parameters}
+\label{sec:sim.parameter}
+
+Similar to \S\ref{sec:sim.total}, we use WiFi traces in the \UMICH~data set to study the impact of LTE parameter configuration on radio energy $E$, channel scheduling delay $D$, and signaling overhead $S$. $E$ is the simulated total energy consumed by UE. Since most energy is consumed by radio interfaces, with display energy excluded, we approximate this total energy as radio energy. $D$ is the sum of scheduling delay for all packets, resulting from two factors: waiting for the next DRX cycle's on duration for a downlink packet and waiting for $T_{pro}$ during \RI~to \RC promotion. $S$ is the overhead of the LTE network for serving this UE. $S$ has different definitions in our study given that different parameters studied affect signaling load in different ways, \eg $T_{tail}$ affects mostly the state promotions, and $T_{pi}$ affects the total on duration in \RI. $D$ and $E$ directly affect end users via application delay and battery life time;  $S$ is of interest to cellular ISPs for supporting large user base at low cost.
+
+\nsubsubsection{Impact of LTE tail timer $T_{tail}$}
+
+
+In Figure~\ref{fig:ta2i}, we study the impact of LTE tail timer $T_{tail}$, with $S$ defined to be the total number of \RI~to \RC~promotions. $T_{tail}$ varies from 1 second to 30 seconds. $T_D$ is the default configuration of 11.58 seconds for $T_{tail}$ in the measured LTE network with the corresponding values of $E$, $D$ and $S$ calculated as $E_D$, $D_D$ and $S_D$, respectively. When $T_{tail}$ is set to be $T'$, similarly, we get $E'$, $D'$ and $S'$. The change relative to the default setting is calculated as $\Delta(E) = (E' - E_D) / E_D$, and similarly for $\Delta(D)$ and $\Delta(S)$. $\Delta$s for each $T_{tail}$ values are plotted in Figure~\ref{fig:ta2i} and they are all 0 at $T_D$.
+
+As expected, a larger $T_{tail}$ value reduces both $D$ and $S$, at the cost of $E$.
+We observe that $\Delta(S)$ and $\Delta(D)$ curves are almost identical, since most channel scheduling delay results from idle to active promotions. In addition, the impact of $T_{tail}$ on the radio energy $E$ is significant. For example, when $T_{tail}$ is set to be 30 seconds, total radio energy $E$ increases by 55\%, while for $T_{tail}=1$ second, $E$ decreases by 65\%, at the cost of 143\% $\Delta(D)$ and 169\% $\Delta(S)$. This indicates that $T_{tail}$ is a very important parameter for LTE network.
+
+
+In previous study~\cite{mobisys.aro}, traffic bursts attribute to low efficiencies of radio resource and energy utilization in 3G UMTS network, due to tail time. Given that LTE has similar tail time, we analyze the bursts in the \UMICH data set. We follow the same definition of a {\sf burst} as in~\cite{mobisys.aro}, which is a sequence of consecutive packets whose inter-arrival time is less than a threshold $\delta$, with $\delta$ set to be 1.5 seconds, since it is longer than common cellular RTTs~\cite{mobisys.3gtest}. From ISP's perspective, $T_{tail}$ should not be smaller than majority of the inter-burst delays; otherwise, a larger number of promotions would be triggered. 
+
+%We define a {\sf burst} $B$ to be a sequence of consecutive packets, $P_1, P_2, \cdots, P_n$, with ascending timestamps ($T_1 \leq T_{2} \leq \cdots \leq T_n$), such that for $1 \leq i \leq (n-1)$, $T_{i+1} - T_i \leq \Theta$, where $\Theta$ is the burst threshold empirically set to be 1.5 seconds, which is verified to have a negligible impact on our conclusions. Assume $P_0$ is the immediate packet before $P_1$ and $P_{n+1}$ is the immediate packet after $P_n$, we have $T_1 - T_0 > \Theta$ and $T_{n+1} - T_n > \Theta$, otherwise, $P_0$ or $P_{n+1}$ would belong to burst $B$.
+
+We study the inter-burst delay in the 3G and WiFi traces of \UMICH~data set in Figure~\ref{fig:inter.burst}. For 3G traces, 67.3\% inter-burst delays are smaller than the default value of $T_{tail}$ (11.58 seconds), and 55.4\% for WiFi traces. Compared with WiFi traces, 3G traces have smaller inter-burst delays. We also observe the inter-burst delay distribution for different users have non-negligible differences. This makes us believe that a per-UE based dynamic $T_{tail}$ configuration mechanism, adapting to traffic patterns, provides a better chance for optimizing radio resource efficiency and balancing energy utilization. Notice that this approach is inside the radio access network and transparent to UE. Previous study on 3G UMTS network also points out two possible approaches to deal with the tail effect with support from UE, \ie applications proactively alter traffic patterns based on the state machine behavior without interaction with the network, or cooperate with the radio access network in allocating radio resources by fast dormancy~\cite{fast.dormancy.1, fast.dormancy.2}. These approaches remain to be applicable solutions for the tail problem in LTE.
+
+%\comment{I don't see the differences of the two approaches: both require UE to adapt, what about the network adapts based on the UE behavior (UE specific timer settings)? please give citation.}
+
+%Second, in general, small bursts are dominant, \ie 43.4\% bursts in 3G and 51.7\% bursts in WiFi has $\leq 100$ms burst length. Based on the burst duration CDF, the default setting of $T_{tail}$ covers 98.4\% bursts for 3G trace and 99.2\% bursts for WiFi trace in \UMICH. From this point of view, $T_{tail}$ is currently set to be a conservative and high value, if we simply consider burst coverage. A range between 5 seconds and 15 seconds is reasonable, and if $T_{tail}$ is set to be less than 5 seconds, we would see a sharp increase in the number of bursts that the tail fails to cover. However, there is no simple conclusion on which value is ``optimal'' for $T_{tail}$ and similarly for other parameters, depending on the system goals and requirements. 
+
+\nsubsubsection{Impact of DRX inactivity timer $T_i$}
+
+Figure~\ref{fig:t1} shows the tradeoff of setting DRX inactivity timer $T_i$. Signaling overhead $S$ is defined as the sum of the continuous reception time and DRX on durations in \RC, since during these time slots, UE exchanges control messages with eNB (base station of LTE network)~\cite{4gbook}. A larger $T_i$ keeps UE in continuous reception longer and reduces the scheduling delay for downlink packets, \ie no DRX waiting time, at the cost of higher energy usage, since continuous reception has higher power level than DRX idle state. $T_D$ is the default value 100ms.
+
+We observe that $T_i$ has negligible impact on $E$, with only 2\% $\Delta(E)$ as $T_i$ is set to be 1 second. Different from $E$, $S$ is significantly affected by $T_i$.
+For $D$, when $T_i$ is set to be small than 100ms, $\Delta(D)$ grows up to 80\%. However, even when $T_i$ is set to be as large as 1 second, $D$ is only reduced by 16\%. This can be partly explained by Figure~\ref{fig:inter.packet} that 88.6\% packet pairs has $\leq 100$ms inter-packet delay for 3G traces and 92.3\% for WiFi traces in the \UMICH~data set. Decreasing $T_i$ causes more packets arrive outside of continuous reception, which may experience DRX delay. Hence similar to $T_{tail}$, the setting of $T_i$ is also affected by the traffic pattern, \ie inter-packet delay distribution, which may differ across users.
+
+%$T_i$ should not be set to be less than 25ms to prevent a large number of packets from experiencing DRX delay.% (Figure~\ref{fig:inter.packet}).
+
+\nsubsubsection{Impact of DRX cycle in \RCB}
+
+In \RC, Short DRX cycle timer $T_{is}$ determines the transition from Short DRX to Long DRX. Given that we already vary the DRX cycle to understand its impact, for simplicity, we assume $T_{is}$ to be 0, \ie the DRX cycle in \RC~refers to Long DRX cycle $T_{pl}$.
+
+In Figure~\ref{fig:tpl}, $S$ is defined similarly as in Figure~\ref{fig:t1}, \ie the sum of continuous reception time and DRX on durations. $T_D$ is 40ms, the default setting for $T_{pl}$. First, we notice that compared with $T_D$, when $T_{pl}$ is set to be 100ms, energy saving $\Delta(E)$ is minor (0.2\%) with 13.0\% reduction in $S$, at the cost of 40\% increase in $D$. So $T_{pl}$ is not recommended to be set much higher than $T_D$ unless ISP prioritizes $S$ reduction.  When $T_{pl}$ is set to be a small value, for example 2ms, $E$ increases by 21.9\% and $D$ reduces by 18.1\%, with a significant increase in $S$ of 412.9\%. Especially for ISPs with fast growing LTE user volume and congested radio access network, DRX cycle in \RC~is not recommend to be set to too small values. We omit the simulation results for Short DRX cycle $T_{ps}$ and Short DRX timer $T_{is}$, since reducing $T_{ps}$ or increasing $T_{is}$ has similar effect of decreasing $T_{pl}$, \ie resulting in a shorter average DRX cycle, and their impact is similar as in Figure~\ref{fig:tpl}.
+
+\subsubsection{Impact of DRX cycle in \RIB}
+
+Similarly to \RC, we study the impact of DRX cycle in \RI. Under this setting, signaling overhead $S$ is defined to be the total on duration of DRX cycles in \RI, during which control messages are exchanged between UE and eNB~\cite{4gbook}. In Figure~\ref{fig:tpi}, the default setting 1.28s is shown as $T_D$. The impact of $T_{pi}$ on $E$ is not significant when $T_{pi}$ is larger than $T_D$, with 0.7\% energy saving when $T_{pi}$ set to be 2.0s, which also brings in 21.3\% increase in $D$ and 31.7\% reduction in $S$. When $T_{pi}$ is set to be 100ms, the energy overhead is 26.2\%, with 40.7\% reduction in $D$ and up to 1147.2\% increase in $S$.
+
+Similar to $T_{pl}$, $T_{pi}$ causes significant signaling overhead when set to be too small. Default values for both $T_{pl}$ and $T_{pi}$ are reasonable settings and adjustment around the default configurations results in moderate impact on channel scheduling delay and negligible impact on radio energy.
+
+In this section, we observe that LTE consumes up to 23 times the total energy of WiFi in the simulation, and the tail problem in 3G UMTS network is still a key contributor for the low energy efficiency for LTE. Similar to 3G network, $T_{tail}$ remains a key parameter for LTE. In addition to the UE-participated approaches including proactive traffic shaping and fast dormancy proposed by previous study~\cite{imc.3g}, we discuss a possible approach to solve the tail problem in LTE network, which dynamically adapts $T_{tail}$ to traffic pattern at a per-UE base, being transparent to UE. Similar observations are shared by the other LTE parameters and we leave the feasibility study of such dynamic parameter configuration framework for LTE as future work.
+
+%\comment{give citation?  I thought Feng's work--ToP also proposed this.} TOP does not include this approach
+%\comment{summarize highlight findings. recommendation adjust parameters, reference 3G optimization papers. UE adapts to network, and network adapts to network. fast dormancy for LTE should cite. (will check fast dormancy spec does it say LTE?)}
+
+
+%\comment{study the overhead of On Duration}
+
+%New policies to evaluate (baseline is assuming that when network is completely aware of all the user packet patterns):
+%\begin{itemize}
+%\item A fixed but maybe better configuration by looking at all users’ traffic patters? Need to compare traffic pattern similarities across all users. Supposedly, big diversity!
+%\item Adaptive policy per user (DRX setting adapt to each user’s last X seconds or last N packets, etc.)
+%\comment{point out the energy ratio is less when we tune parameter timer to be ...}
+%\end{itemize}
