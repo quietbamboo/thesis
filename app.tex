@@ -110,8 +110,261 @@ its already good performance compared to other devices.
 
 
 	+ Web based application running time breakdown.
+\nsection{Methodology for Measuring Web Browsing Performance}
+\label{sec:app.method}
+
+In this section, we present our methodology for measuring web browsing application performance over 3G networks. By analyzing the performance of web applications, we examine the effects of various factors on the overall application performance.
+
+Unlike most previous works, we directly measure application 
+performance on devices that consumers really use with 3G service 
+provided by four major cellular carriers in the U.S., this helps us 
+understand the client side factors and their impact on application 
+performance. The novelty of our measurement methodology stems from 
+our approach of approximately replicating the 3G network condition 
+for controlled experiments using WiFi to enable reproducibility, 
+and isolating the impact of each factor. These techniques are 
+non-trivial given the complexity of mobile devices and network 
+environment, and essential for eliminating interaction across factors. 
+
+Web browsing is one of the most popular smartphone applications. The 
+process of visiting a webpage can be quite complex given the dynamic 
+nature of the content, often generated from Javascript, resulting in 
+multiple concurrent TCP connections. Content can also be customized 
+based on mobile device and carrier network.
+
+Web browsing performance depends on various factors, \eg~DNS lookup 
+time, TCP handshake time, TCP transfer time, Javascript execution 
+time, and content size. To study the effect of these factors, we 
+carefully design controlled experiments to modify a single factor 
+at a time while keeping others the same. We first describe the metrics 
+used to evaluate web browsing performance, followed by the controlled 
+experiments to measure these metrics.
+
+\nsubsection{Metrics}\label{sec:method_web_metrics}
+
+\paragraph{Page loading time:} It is the time between the first DNS packet 
+and the last data packet containing payload from the server during a 
+page loading. It reflects the overall performance perceived by a user. 
+Note that a browser needs to further parse and render a webpage after 
+it is loaded. This additional processing cannot be fully included in 
+page loading time due to a lack of visibility of the browser internals. 
+Nonetheless, this is still a key indicator of user-perceived performance 
+when loading a webpage. 
+
+%For the rest of the paper, page loading time refers to page downloading time.
+
+\paragraph{Javascript execution speed:} Many webpages contain 
+Javascripts, and hence Javascript execution speed has significant
+impact on page rendering time. 
+
+%Page rendering time depends on the client execution speed.
+%We use JavaScript execution time as a measure of client execution speed since a large portion 
+%of webpage content consists of JavaScripts.
+
+
+\paragraph{Page size:} The total number of unique bytes downloaded. 
+It can be used to compute {\it average throughput} and to detect 
+content variation and customization. 
+%Page size is important to understand content customization
+%for each platform. 
+We found that in typical web browsing, even the same URL can have different 
+page sizes when accessed from different platforms. We cope with this 
+effect by taking snapshots of URLs and replicate their content on our 
+local web server.
+
+%\paragraph{Connection completion ratio} denotes the percentage of complete TCP
+%connections. A TCP connection starts with a SYN packet and ends with a
+%FIN packet, a RST packet, or 
+%a timeout. We consider a connection to be complete if it ends with a FIN. 
+%We discard a page download sample if its complete connection ratio is low 
+%(\eg $<95\%$). 
+
+%\paragraph{Loss rate \& RTT} are extracted from the trace for each TCP 
+%connection. We aggregate the loss rate (denoted as $p$) and the 
+%RTT of individual connections to produce an overall measure of network 
+%performance of a page download. Given that TCP throughput can be modeled as 
+%$\frac{MSS}{RTT\times\sqrt{p}}$ where $MSS$ is the maximum segment 
+%size~\cite{Padhye:TCPModel:sigcomm2008}, 
+%the download time of a connection of size $S$ can be estimated as 
+%$\frac{S\times RTT\times \sqrt{p}}{MSS}$. Since the download time of a connection 
+%is proportional to $S$, $RTT$, and $\sqrt{p}$, we use 
+%$\frac{\sum(S_i \times RTT_i)}{\sum S_i}$ and 
+%$(\frac{\sum{(S_i \times \sqrt{p_i})}}{\sum S_i})^2$ as the average RTT and loss 
+%rate of a page download.
+%\paragraph{Packet inter-arrival time}
+
+\paragraph{Browser concurrency:} Most modern browsers support concurrent 
+TCP connections to a single web domain. The maximum number of concurrent 
+TCP connections to a domain varies across different browsers. Usually, 
+higher concurrency enables better bandwidth utilization which in turn 
+leads to shorter page loading time.
+
+
+\paragraph{DNS lookup time:} A browser sometimes needs to look up the IP
+address of a domain name before establishing a TCP connection with the
+web server. Since the content of a webpage can be hosted in multiple 
+domains, a browser may have to perform a DNS lookup for each domain. 
+
+%DNS lookup time is important because DNS lookups can increase page loading time.
+%Since DNS lookup requests are handled by local DNS (LDNS)
+%servers, we also compute the average DNS lookup time as a measure of LDNS server 
+%performance.
+
+\paragraph{TCP handshake time:} Each TCP connection starts with a
+three-way handshake during which no data is transferred. More TCP 
+handshakes for a single page loading often lead to longer page loading 
+time.
+
+\paragraph{TCP idle time \& transfer time:} Given a TCP connection, 
+an {\it idle period} is defined to be a period of at least $T$ second 
+with no network activity. The remaining time periods within the 
+connection are {\it transfer periods}. An idle period usually 
+corresponds to the local processing delay or server processing 
+delay. Given the limited CPU power and memory on smartphones, the 
+TCP idle time is likely to be dominated by local processing delay, 
+\eg between the receipt of a response and transmission of the next 
+request, often caused by HTML rendering and JavaScript execution.
+
+\nsubsection{Controlled experiments}\label{sec:web_controlled}
+
+%To comprehensively study the effect of the factors described above, 
+We create a list of popular URLs from Alexa Top 500 Global Sites~\cite{Alexa}. These websites 
+are visited using smartphones via 3G networks. From the collected 
+packet trace, we infer various metrics such as page loading time.
+To study the effect of each factor influencing the web browsing
+performance, we host static copies of these popular URLs on our 
+local web server. The content is replicated to ensure that all the 
+phones download the same content and all HTTP requests are sent to 
+the local server. To control the network conditions, we uniformly 
+use WiFi across all phones while varying one factor at a time. 
+The WiFi link is lightly loaded and has stable throughput and RTT. 
+To produce network conditions comparable to 3G, we artificially 
+introduce delay and packet loss at our server. We study the impact 
+of the following factors on web browsing performance:
+
+\paragraph{Impact of network:} To study the effect of network
+conditions on page loading time, we vary the RTT and loss rate 
+on our server. %We examine the
+%packet traces collected on the phone to calculate page loading time.
+
+\paragraph{Impact of concurrency:} To study the effect of 
+concurrency, we control the maximum number of concurrent TCP 
+connections to a web domain on the server side. %Packet traces are 
+%collected on the phone to calculate page loading time and browser concurrency. 
+Because a phone also limits the maximum number of concurrent 
+connections per domain, we create a special webpage in which 
+each web object is hosted in a unique domain on the same web 
+server. This effectively allows us to bypass the concurrency 
+limit imposed by the phones. Note that this is necessary as we 
+do not have the permission to directly modify the concurrency 
+limit on the phone.
+
+
+% contains many web objects that can be downloaded in 
+%parallel. 
+
+
+
+%By setting an unique DNS alias for each Web object for all
+%replicated URLs, the client side limit on parallelism is
+%removed, and the actual parallelism is now limited only
+%by the Web content.
+
+\paragraph{Impact of compression:} To study the tradeoff between 
+network overhead and computation overhead, we configure our web
+server into two modes, one uses compression, while the other does 
+not. We compare the page loading time under these two modes.
+%The default configuration
+%for the \emph{Apache} Web server we use
+%is to compress all textual objects. 
+%To compare Web browsing performance with and without compression,
+%given 
+% We collect the packet traces in two
+%cases to calculate the average page loading time.
+
+\paragraph{Impact of Javascript execution speed:} To evaluate 
+Javascript execution speed on different phones, we use a 
+benchmark~\cite{sunspider} consisting of 26 different Javascripts. 
+The benchmark is hosted on our web server and accessed by phones 
+via WiFi so that the downloading time is negligibly small. We 
+measure the total execution time of these Javascripts. 
+
+\paragraph{Impact of the data URL scheme:} We also study the effect 
+of the data URL scheme~\cite{rfc2397}, a recently-proposed mobile 
+webpage design technique. We compare the time to load a webpage 
+constructed using and without using the data URL scheme. 
+\newline
+\newline
+\newline
+
+%One such example is , which
+%we evaluate by creating a special webpage and hosting it on our local server. 
+%Clients access this webpage and collect packet trace which is used to
+%calculate average page loading time.
+
+\nsubsection{Analysis methodology}\label{sec:method_net_analysis}
+
+We next describe how to analyze the traces collected from controlled
+experiments to compute the desired metrics. We calculate the page 
+loading time of each URL as defined in \S\ref{sec:method_web_metrics} 
+and the average page loading time of all the selected URLs. To measure 
+Javascript execution time, we modify the Javascripts to display their 
+execution time when their execution finishes. We use the
+{\em average concurrency} as a measure of browser concurrency. The
+average concurrency of a page loading is calculated by dividing the 
+total duration of all the TCP connections by the page loading time. 
+
+For each TCP connection, TCP handshake time is calculated as the time
+between the first \emph{SYN} and \emph{SYN-ACK} packets. TCP idle time 
+is measured by scanning the connection for durations of more than 
+\emph{T} seconds of no network activity. \emph{T} should be larger 
+than the maximum RTT values and we will discuss the choice of $T$ in 
+\S\ref{sec:setup}. TCP transfer time is what remains for the
+connection excluding handshake and idle time. 
+We also calculate the response time of all the DNS lookups $T_{dns}$. 
+
+%given the difficulty of
+%estimating the total time for the three-way handshake. 
+
+Since each web browsing session often consists of multiple concurrent
+TCP connections, to estimate the contribution of each factor to the 
+overall performance, we logically serialize all DNS lookups and TCP 
+connections. This is possible for mobile web browsing since no HTTP 
+pipelining is observed on any phones. After serialization, we get a 
+total time $T_{total}$ which is the sum of each connection's duration. 
+Assuming the actual page loading time is $T^{*}_{total}$, the
+normalized DNS lookup time $T^{*}_{dns}$ is calculated as
+$T^{*}_{total} * T_{dns} / T_{total}$. This metric shows the 
+overall weight of DNS lookup in the actual page loading time. The
+normalized TCP handshake time, TCP idle time and TCP transfer time 
+are calculated in a similar way. 
+%We also get a temporary total time for
+%DNS lookup ($T_{dns}$) by adding up the response time of each DNS
+%lookup.
+%For concurrent DNS lookups with the same request, only the response time of the first DNS
+%request is counted because subsequent DNS lookups will not affect performance.	
+	
+	
+	
 
 	+ Video/audio streaming applications (sigcomm submission, mobisys10)
+%\nsubsection{Measuring streaming video performance}\label{sec:streaming}
+%
+%Streaming video is another popular application on smartphones. We measure 
+%streaming video performance by playing a video on a phone. From the 
+%collected packet trace, we calculate the downloading size of the video by 
+%adding up the payloads for all the packets from the server to phone while 
+%excluding the retransmitted packets. 
+%
+%\nsubsection{Measuring VoIP performance}\label{sec:voip}
+%
+%We use a popular VoIP application to call a wired computer from a 
+%smartphone and play a piece of clip on both sides simulating 
+%conversations. We collect packet trace at the phone side to calculate 
+%throughput. Given that different volume may lead to different data size,
+%throughout the experiment, we keep the volume to be the same.
+
+
 
 	+ Screen status's impact on traffic pattern
 
