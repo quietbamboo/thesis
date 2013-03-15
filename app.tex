@@ -316,7 +316,610 @@ are calculated in a similar way.
 %For concurrent DNS lookups with the same request, only the response time of the first DNS
 %request is counted because subsequent DNS lookups will not affect performance.	
 	
-	+ Web based application running time breakdown. Results from mobisys10
+	+ Web based application running time breakdown. move \S6 from mobisys10 here
+	
+	
+	
+	
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/mobisys10/web_rtt.eps} &
+\IGM{figures/mobisys10/web_loss.eps}\\
+\small{(a) Effect of round trip time on web browsing} &
+\small{(b) Effect of downlink packet loss rate on web browsing} \\
+\IGM{figures/mobisys10/web_para.eps} &
+\IGM{figures/mobisys10/web_compress.eps}\\
+\small{(c) Effect of parallelism on web browsing} & 
+\small{(d) Effect of compression on web browsing} \\
+\end{tabular}
+\ncaption{Factors impacting web browsing performance}
+\label{fig:web_factor}
+\end{figure*}
+
+
+\nsection{Web Browsing Performance Study}
+\label{sec:web}
+
+%%Motivation of the work
+Given the previous discussions on the performance of 3G networks, we 
+now examine one of the most popular applications on smartphone, 
+namely web browsing, in addition to two other popular mobile 
+applications, streaming video and VoIP in \S\ref{sec:other}. Note 
+that many factors jointly determine user perceived performance, as 
+an application may not fully utilize available network bandwidth due 
+to limited processing power or memory on the 
+phone~\cite{Zhuang:A3:Mobicom2006}.
+
+%%briefly take about methodology
+\iffalse
+In previous sections, we already described the experimental
+methodology (\S\ref{sec:method_web}) and the setup
+(\S\ref{sec:web_setup}). The overall idea behind all
+our experiments is trying to understand the impact
+of each factor on web performance, so we change
+one variable at a time while fixing all other variables.
+\fi
+
+%%highlights of our findings
+Our study shows that the available 3G bandwidth is often not fully
+utilized for web browsing, and several modifications can be applied 
+to current web browsers on smartphones to make better use of
+available network resources, \eg increasing the limit on concurrent
+TCP connections per domain, optimizing Javascript engines \etc We 
+also evaluate the effectiveness of a few content optimization 
+techniques, including compression and the recently-proposed data 
+URL scheme~\cite{rfc2397}.
+
+In the following, we study the impact of network condition, browser
+concurrency, compression, and Javascript execution speed on web 
+performance. We then break down the page loading time into several 
+major components and identify the performance bottleneck for some 
+mobile devices (\S\ref{sec:web_real}).
+
+%network
+\nsubsection{Network Effects on Web Browsing}
+\label{sec:web_net}
+
+To understand how network condition affects web browsing, we fix the 
+web content, server configurations, browser concurrency and only vary 
+the network condition. We emulate the 3G network condition by 
+injecting packet delay and loss on the WiFi network path as described 
+in \S\ref{sec:method}.
+
+Figure~\ref{fig:web_factor}(a) shows that page downloading time increases
+linearly with the RTT between smartphone and our local web server. 
+The downloading time is computed by averaging across 20 replicated 
+URLs, with each URL visited 3 times. This is expected as throughput 
+is inversely proportional to RTT. No additional packet loss is 
+introduced since packet loss is observed to be rare in 3G 
+networks, as shown in the previous section. The base RTT in our WiFi network is between 30 ms and 50 ms. 
+The x-axis in Figure~\ref{fig:web_factor}(a) shows the actual RTT 
+after injecting extra delay. We can observe that under the same 
+network condition, downloading time varies across phones though the 
+relative ranking remains consistent. Note that web browsing cannot 
+fully utilize the available network bandwidth, due to the overhead
+imposed by page execution 
+and rendering on the phone.
+
+Figure~\ref{fig:web_factor}(b) shows the effect of varying downlink
+packet loss rate for a fixed RTT value of 400 ms. Again the ranking 
+in downloading time across phones is consistent. For small packet 
+loss rate, \eg~2\%, there is little performance degradation. However, 
+with 10\% loss rate, the page downloading time increases up to 35 
+seconds. In summary, smartphone web browsing performance heavily 
+depends on network delay and loss conditions.
+
+
+%parallel
+\nsubsection{Concurrent TCP Connections}
+\label{sec:web_parallel}
+
+3G network's downlink throughput as measured normally ranges from 500 
+kbps to 1 Mbps for the carriers we studied (Figure~\ref{fig:general}(a)). 
+We used the phones to visit the chosen URLs and found that the average 
+throughput is only between 20 kbps and 50 kbps, indicating that 
+more concurrent TCP connections can potentially improve web browsing 
+performance.
+
+Current web browsers on smartphones already allow concurrent 
+connections. In browser's settings, there is a parameter specifying 
+the maximum number of concurrent TCP connections per domain. On 
+Windows Mobile phones, it is a registry value named 
+{\em MaxConnectionsPerServer} with a default value of 4. When we 
+set the value to be smaller than 4, we observe decreased 
+concurrency. However, when we increase the value to be larger than 
+4, the concurrency does not increase accordingly. This implies there 
+exists another setting on maximum allowed concurrency per domain, 
+which we cannot configure. For iPhone and GPhone, we are unable to 
+set this parameter either. We design controlled experiments to measure 
+the default concurrency setting on different platforms and found it 
+to be 4 for all the phones studied. 
+
+We also found that no HTTP 
+pipelining support is present on these platforms.
+%Analyzing the packet traces we collected, we found that TCP connection reuse is common,however, 
+Web objects are fetched sequentially within a persistent connection,
+and browser will not send a new HTTP request before data transfer
+of the previous request completes. %Studying the impacts of
+%adding HTTP pipelining support to smartphone browsers is one of
+%our future directions.
+We analyzed the 20 popular URLs and found that there are 10.8 images 
+embedded in each page on average, along with several other types of 
+embedded objects, such as Javascript, CSS files, \etc Those websites 
+which do not have a mobile version, tend to have even more objects. 
+
+%Parallelizing the download of objects hosted 
+%on different servers will allow the browser to make
+%better use of the link capacity since the TCP establishment
+%time of each TCP flow can be in parallel with 
+%the downloading of other objects and multiple concurrent TCP flows
+%would have a better chance to saturate the link.
+%However, if too many connections are opened concurrently, given
+%the limited resources on smartphones, such as CPU and memory, and
+%the limited bandwidth for 3G networks, the overall performance of 
+%Web browsing could be degraded by the context switching overhead
+%and the extra workload to manage and maintain those parallel connections.
+%When two objects are hosted on the same server, the browser also has
+%a decision to make: to download them one after another by reusing the same
+%TCP connection, or to download them concurrently by having two concurrent
+%TCP connections to the server. From the server's perspective, the approach
+%of reusing connection is preferred, since the server's workload is smaller. 
+%However, determining which approach of the two can achieve better performance on
+%smartphones is not trivial, and the answer is dependent on the CPU and bandwidth
+%utilization, as well as the object size \etc 
+%If simply downloading two large objects, 
+%concurrent connection approach would have better performance;
+%while reusing connection approach could be better if the CPU and bandwidth utilization
+%on smartphones is already very high, or if the objects are relatively small in size,
+%because in this case, the overhead of an extra TCP connection establishment will
+%be less negligible.
+
+%To understand whether the concurrency setting is appropriately 
+%configured to optimize web browsing performance, 
+%This suggests the 
+%benefit of higher parallelism than the default setting.
+
+%The study on the default settings of today's mobile browsers
+%and the characteristics of today's mobile websites shows some
+%possibility of improving mobile Web browsing performance by
+%tuning related parameters. We argue that, even though
+%the CPU, memory and bandwidth resources are limited on 
+%smartphones, properly increasing the parallelism in
+%today's mobile browsers' default settings may still improve
+%the Web browsing performance.
+
+To understand how concurrency affects web browsing performance, we
+devised a set of experiments, with results shown in 
+Figure~\ref{fig:web_factor}(c). %Since the default setting for max
+%parallel connections per server on all browsers studied is 4, 
+We first vary the maximum concurrent connections allowed at the server 
+side from 1 to 4. We observe a significant performance degradation 
+across all platforms with more restricted concurrency. Under the 
+restriction of a single connection per domain, web browsing is 3.5 
+to 4.5 times slower compared to that under the default setting. This 
+indicates that today's mobile browsers already benefit much from 
+concurrency.
+
+To understand whether further increasing concurrency will improve 
+performance, we make use of DNS aliasing 
+(\S\ref{sec:web_controlled}) to bypass the concurrency limit on 
+the phone since we are unable to change this setting directly.
+%With the help of this technique, the client side
+%parallelism limit is removed and the maximum parallelism
+%is only restricted by the content, which
+%corresponds to the \emph{OPT} results in
+%\comment{In Figure~\ref{fig:web_factor}(c), OPT stands for the cases 
+%that we do not limit the maxmium allowed concurrent connections at the 
+%server side.}
+Figure~\ref{fig:web_factor}(c) shows that the phones can indeed
+attain a higher level of concurrency. For example, iPhone and G2 
+can establish up to 9 concurrent connections for some content-rich 
+URLs. The concurrency for other phones are slightly lower (6 to 7), 
+likely due to their slower rendering and execution speed.
+%We can also observe that without
+%the client side parallelism limitation, the Web browsing
+%performance can be further improved by 30\%. 
+Generally, an improvement of 30\% is observed when concurrency limit
+on the phone is removed.
+%\comment{compare against the page downloading 
+%time when the maximum observed concurrency is 4}. %While the optimal concurrency setting
+%is dependent on factors such as content, execution speed, and network
+%conditions, 
+This means that given the selected popular URLs, and given 
+current network condition (with RTT of 400 ms), the default
+concurrency setting on mobile browsers appears to be too
+conservative. Allowing higher concurrency can help phones
+make better use of available bandwidth and decrease page downloading time.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% URL analysis table
+\begin{table*} [t!]
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\hline
+URL & Text\footnotemark[1] & Image & Size(KB) & Original(KB)\footnotemark[2] & Compress\footnotemark[3] & GZIP & Lines\footnotemark[4] & Redirect & Sever IPs\\
+\hline
+\hline
+www.google.com & 4 & 1 & 79.2 & 77.6 & 2.56 & \checkmark & 14 & - & 2\\\hline
+m.bing.com & 4 & 3 & 42.9 & 218.1 & 1.46 & - & 2 & - & 1\\\hline
+maps.google.com & 6 & 10 & 479.8 & 656.0 & 2.78 & \checkmark & 8 & - & 4\\\hline
+mapquest.com & 6 & 13 & 135.1 & 1326.35 & 1.96 & \checkmark & 752 & 2 & 6\\\hline
+xhtml.weather.com & 22 & 9 & 41.4 & 977.3 & 2.53 & - & 70 & 4 & 2\\\hline
+%www.wikipedia.org & 2 & 14 & 125.8 & 1.92 & \checkmark & 522 & - & 2\\\hline
+m.youtube.com & 5 & 3 & 77.6 & 490.1 & 2.34 & \checkmark & 231 & - & 3\\\hline
+m.ebay.com & 4 & 3 & 58.6 & 484.0 & 2.17 & - & 1 & - & 1\\\hline
+m.facebook.com & 4 & 1 & 19.7 & 399.1 & 2.81 & \checkmark & 7 & 2 & 2\\\hline
+m.myspace.com & 3 & 2 & 14.6 & 600.2 & 2.6 & \checkmark & 98 & 1 & 2\\\hline
+m.fox.com & 4 & 26 & 306.6 & 2083.0 & 1.16 & \checkmark & 297 & - & 4\\\hline
+mobile.craigslist.org & 3 & 0 & 113.8 & 113.8 & 3.58 & \checkmark & 652 & - & 1\\\hline
+\end{tabular}
+\\
+\begin{tabular}{l}
+{\scriptsize $^1$This column shows the number of text objects including HTML, JavaScript and CSS files}\\
+{\scriptsize $^2$This column shows the total size of the original website for each mobile URL, for example, www.bing.com for the row of m.bing.com}\\
+{\scriptsize $^3$This column shows the compression ratio for mobile URLs, total size in no compression mode / total size in compression mode}\\
+{\scriptsize $^4$This column shows the total number of lines in the index page indicating whether minification is used}\\
+\end{tabular}
+\ncaption{Characteristics of today's popular mobile websites}
+\label{tab:url}
+%\end{footnotesize}
+\end{center}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys10/web_js.eps}\\
+\ncaption{Script execution speed for different platforms}
+\label{fig:web_js}
+\end{figure}
+
+%compression
+\nsubsection{Content compression} \label{sec:web_compress}
+%By add two header fields \texttt{Content-Encoding} and \texttt{Accept-Encoding}, HTTP/1.1 supports content compression. To deploy the compression, HTTP interactivity between the request and response is introduced. In the interactivity, The browser declares the acceptable compression algorithms in \texttt{Accept-Encoding} field in the HTTP \texttt{GET} request like:
+%\newline \noindent
+%\texttt{
+%GET / HTTP/1.1\\
+%Accept: */*\\
+%Accept-Language: en-us\\
+%Accept-Encoding: gzip,deflate\\
+%User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows CE; IEMobile 7.11) VZW:SCH-i760 PPC 240x320\\
+%Connection: Keep-Alive\\
+%}
+%When the server replies, the HTTP header looks like:\\
+%\noindent
+%\texttt{
+%HTTP/1.1 200 OK\\
+%Content-Type: text/html; charset=UTF-8\\
+%Content-Encoding: gzip\\
+%Content-Length: 3228\\
+%}
+%In the above example, the browser tells the server that it supports content encoding in gzip, or deflate. 
+%For each HTTP request, the client informs the Web server whether
+%compression is supported and the server then decides whether and how
+%to compress various Web objects. 
+
+Compression can dramatically reduce web content size. For text objects, 
+such as HTML, CSS, Javascript, PHP, \etc, the object size can be reduced 
+by around 70\%. Usually, a web server does not compress image objects.
+We calculate the compression ratio for the popular URLs in column 
+{\em Compress} of Table~\ref{tab:url}, showing that the content size 
+can be reduced by more than 50\% for most of the URLs we studied.
+
+While compression reduces the bytes transferred over the network, 
+decomression will increase computation overhead on the phone. To
+understand this tradeoff, we vary RTT covering the measured range
+and compare the web browsing performance in compressed and 
+uncompressed modes. In Figure~\ref{fig:web_factor}(d), we exclude the 
+results for HTC and Palm phones as they show similar trends. We 
+observe that compression consistently helps to improve web performance,
+irrespective of the RTT values. It is especially helpful under 
+poor network condition.
+%\comment{because the network more likely becomes 
+%the bottleneck than compresssion computation at that time}.
+For example, it reduces iPhone's page 
+downloading time by 30\% when RTT is 800ms. 
+
+%In Table~\ref{tab:url}, we listed the webpage size and the compression ratio for some popular mobile websites. Take {\em m.facebook.com} as an example of the smaller webpage, its compression ratio is as high as 2.81, but its total page size is only 19.7 KB, while {\em m.fox.com} has a small compression ratio 1.16, but a higher compression space due due to the larger content size 306.6 KB.
+%
+%In order to understand the impact of compression on mobile platforms, we controlled the compression mode of {\em Apache} on our server, and compared the page downloading time under two cases when we enable or disable the compression. In the comparison, we also artificially controlled the RTT changing from 0ms to 900ms so that it covered the 3G throughput range. 
+%In summary, we verify that compression helps improve Web browsing
+%performance by up to 30\%. There is still such opportunity remaining
+%as we observe in the actual 3G Web browsing experiments, some text
+%content from some servers are sent as uncompressed, as discussed later
+%in \S\ref{sec:web_server}.
+
+%We think enabling compression for transferring textual files is a
+%good practice for mobile Web servers.
+
+
+
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys10/web_dataurl.eps}\\
+\ncaption{Evaluation for data URL scheme}
+\label{fig:web_dataurl}
+\end{figure}
+
+
+
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{c}
+\IG{figures/mobisys10/url10.eps} \\
+\small{(a) Web browsing breakdown for \url{m.ebay.com} (\emph{URL a})} \\
+\IG{figures/mobisys10/url19.eps}\\
+\small{(b) Web browsing breakdown for \url{mapquest.com} (\emph{URL b})} \\ 
+\end{tabular}
+\ncaption{Web browsing anatomy for two popular mobile websites}
+\label{fig:web_real}
+\end{figure*}
+
+%js
+\nsubsection{Javascript execution}
+\label{sec:web_js}
+
+%Webpage consists of HTML tags which describe how the text should be formatted when a browser displays it on the screen. 
+%These tags act as instructions which are interpreted by browser and merged with the text to produce a formatted display.
+%This process is called HTML rendering. A significant number of HTML tags are JavaScript tags.
+Given the limited processing power on smartphones, HTML rendering 
+and Javascript execution may become the bottleneck for web browsing. 
+Several factors jointly determine the page processing speed, 
+including CPU frequency, memory, OS, and browser.
+%(the actual CPU frequency is also
+%related with the specific dynamic frequency scaling policies
+%of the device), 
+Even for the same OS, such as Windows Mobile 6.1, phone vendors 
+can have different builds for different models of phones.
+
+We measured Javascript execution time on different phones using a
+benchmark consisting of 26 different Javascripts~\cite{sunspider}.
+Figure~\ref{fig:web_js}(a) shows the total time taken to execute 
+the benchmark on different phones. The results demonstrate that
+execution time is 20--80 times longer on smartphones than on desktop
+computers. Among the smartphones, G2 has the best performance 
+followed by iPhone. For example, G2 is 3 times faster than the HTC
+phone. Such performance gap helps explain the differences in the
+page loading time of G2 and iPhone compared to that of the Samsung 
+and Palm phones under the same network conditions in 
+Figure~\ref{fig:web_factor}. Large Javascript execution time leads 
+to more TCP idle time and under-utilization of network bandwidth.
+
+This experiment shows that network is not the only bottleneck for 
+web browsing performance. Phone itself also plays a major role, 
+underscoring the necessity of measuring application performance
+on real smartphones. Web designers should avoid using complex
+Javascripts when building mobile versions of their websites. 
+%In order to
+%improve client execution speed, OS vendors as well as hardware
+%vendors should make joint optimizations.
+
+
+%Server configuration and content optimization
+\nsubsection{Server configuration \& content optimization}
+\label{sec:web_server}
+
+Server configurations and content optimization are important factors 
+for web browsing performance. One type of server configuration is 
+the maximum concurrent connections with a client. In 
+\S\ref{sec:web_parallel}, we found that mobile browsers set a
+default concurrency limit of 4 per domain. However, we did not observe 
+any web servers limit the concurrency per client to be smaller than 4, 
+likely because servers have the incentives to attain good web browsing 
+experience. The compression configuration is similarly important, with 
+the identified setting of the URLs studied shown in the {\em GZIP} 
+column in Table~\ref{tab:url}. Despite the fact that compression almost 
+always improves web browsing performance (\S\ref{sec:web_compress}), 
+we found some websites do not enable it by default.
+
+Various content optimization techniques also help improve web 
+browsing performance on smartphones. Most popular websites already 
+customize their contents for mobile users, with more concise texts 
+and fewer and smaller images, \eg via code 
+minification~\cite{minification}, image scaling, \etc We study in 
+particular code minification which refers to the elimination of 
+redundant characters, such as spaces, tabs, line breaks, \etc The 
+size reduction varies from 5\% to 25\% for the URLs studied. 
+Column {\em Lines/index} in Table~\ref{tab:url} shows the number of 
+lines in the index page of a website, providing a hint for whether 
+minification is used. The number of lines will be small for index
+pages treated with minification. It seems that half of the URLs use 
+this technique to optimize their contents.
+
+Another type of optimization helps reduce the number of HTTP 
+requests used to fetch contents, including the data URL 
+scheme~\cite{rfc2397}, CSS3, \etc The general idea is to eliminate 
+TCP connections and HTTP requests for small objects, such as the 
+corner image of a page. 
+%comment{Since TCP has slow-start behavior, it is inefficient to download a small object using an extra TCP connection.}
+We set up a controlled experiment to 
+demonstrate the effectiveness of the data URL scheme, under which 
+small images are integrated with the main HTML page rather than 
+linked as separate objects (\S\ref{sec:setup_web}). 
+%When a browser downloads the HTML page, the images 
+%are downloaded together.
+In our experiment, we found that the images are actually 1.3--1.5 
+times of its original size under the data URL scheme. 
+%comment{Nonetheless, due to the elimination of TCP connections and HTTP request overhead, data URL scheme still helps.}
+Figure~\ref{fig:web_dataurl} shows that it cuts page loading
+time by about 20\%.
+
+The data URL scheme has not been ubiquitously supported. In fact, 
+%comment{among the phones we studied},
+only the browser of iPhone and G2 supports it. We also did not 
+observe any URLs we studied adopt this technique, possibly due to the 
+concern of a lack of browser support. Without browser support, the 
+image represented by the data URL scheme will be displayed as a 
+default error image.
+
+Redirection (HTTP response code 301 and 302) is another issue which
+may adversely impact web browsing performance. For mobile web browsing, 
+this issue becomes more pronounced given the large RTTs in 3G networks. 
+In column {\em Redirect} of Table~\ref{tab:url}, we found that some 
+websites have multiple levels redirections. For example, 
+\url{m.weather.com} will be redirected to \url{xhtml.weather.com} and 
+then to \url{mw.weather.com}. In some cases, users are redirected to 
+another URL which is quite similar to the original one. In other 
+cases, web objects have been moved to a new location, and the original 
+URL simply redirects the incoming requests to the new location. We 
+think some of these redirections are unnecessary and can be eliminated 
+with better webpage design.
+
+%a.png actual 247 data 378  1.5
+%b.png actual 18319 data 24460  1.3
+%
+%about 1.33 times page size
+%original: 187K vs. 248K  (data url)
+%but data url benifit from html compression, for original pages, images can't benifit from gzip
+%
+%loading time:
+%Data url vs. Original
+%iPhone: 2.98 vs. 3.87
+%G2: 1.6 vs. 1.99
+%Samsung / Palm: doesn't support
+%
+
+
+%\comment{2. write about redirection. 301 Moved Permanently; 302 Moved Temporarily(original describing phrase; 302 Found; (1 or multiple redirection, waste of bandwidth though small(many users), waiting time, several RTT}
+%\comment{example for redirect: www.google.com no redirection but different content see table 3}
+
+
+
+
+%breakdown
+\nsubsection{Web browsing via 3G networks}
+\label{sec:web_real}
+
+%Studying Web browsing on smartphones using 3G networks visiting
+%real mobile websites, we can conclude that 3G network performance is not
+%the only bottleneck. Content optimization for mobile
+%users, server configurations, as well as client execution speed
+%are also important factors.
+
+Figure~\ref{fig:web_real} shows the case study for two groups of
+URLs listed in Table~\ref{tab:url}. \emph{Group A} corresponds to 
+the URLs that have concise and simple contents, \eg \url{m.ebay.com}
+(\emph{URL a}) contains 7 objects with a total size of 58.6 KB.
+Many of these websites are search engines or portals to social
+networking sites, including \url{www.google.com}, \url{m.bing.com},
+\url{m.myspace.com}, and \url{m.facebook.com}. \emph{Group B} 
+consists of websites with rich contents, \eg \url{mapquest.com}
+(\emph{URL b}) has 19 objects with a total size of 135.1 KB. Other
+websites in the group include online map (\url{maps.google.com}), 
+information exchange (\url{mobile.craigslist.org}), and news 
+(\url{m.fox.com} and \url{m.cnn.com}).
+
+There are two sets of data in Figure~\ref{fig:web_real}. One set is
+collected when each smartphone visits the real URLs via 3G networks. 
+To eliminate the differences in downloaded contents and network 
+conditions, each phone also visits the replicated URLs via WiFi with
+an RTT of 400 ms to emulate the typical 3G network conditions.
+
+It is clear that all smartphones experience smaller page loading
+time for the simple URL in Figure~\ref{fig:web_real}(a) compared with 
+that for the content-rich URL in Figure~\ref{fig:web_real}(b). We 
+break down the page loading time into four parts: TCP transfer, 
+TCP idle, DNS lookup, and TCP handshake. The size of \url{mapquest.com} 
+is larger than that of \url{m.ebay.com}, resulting in longer TCP 
+transfer time. Moreover, \url{mapquest.com} contains more contents 
+to render and more complex Javascripts to execute, leading to longer 
+TCP idle time. The DNS lookup time and TCP handshake time contribute
+to less than 10\% of page loading time, which are negligible.
+
+%so we can conclude that the
+%bottleneck consists mostly of network performance and client
+%processing speed.
+
+%Even though URL b has more objects to download than URL a,
+%if all objects are hosted on the same server, there will be
+%no extra DNS lookup overhead. Also since TCP connection to the
+%same server will be reused to download multiple objects,
+%the TCP handshake overhead will be small.
+%The reason for URL b's relatively high TCP handshake overhead
+%and DNS lookup overhead is due to the fact that
+%the objects in URL b is hosted on 6 different servers, while
+%only 1 server host URL a. DNS lookup of browsing URL b includes
+%www.mapquest.com, content.mqcdn.com, o.aolcdn.com, o.sa.aol.com.
+%From the domain names, we can infer that URL b already benefit
+%from the use of content delivery network (CDN), however,
+%this benefit is reduced when multiple CDN servers are involved
+%while causing DNS lookup overhead and TCP establishment overhead
+%since TCP connection cannot be reused across multiple servers.
+%There is a tradeoff between hosting contents on the same server
+%and on different servers, since hosting contents on different
+%servers will allow the client to benefit more from parallelism.
+%Based on our observations, it depends on the actual contents.
+
+We further observe that the Palm (Sprint), Samsung (Verizon), and 
+HTC (AT\&T) phones experience much longer page loading time for
+\url{mapquest.com} compare to iPhone (AT\&T) and G2 (T-Mobile). 
+This is likely due to their slower Javascript execution speed,
+as shown in Figure~\ref{fig:web_js}. 
+%larger slow down
+%as a result of the differences caused by network and client factors
+%for content-rich URLs compared with simple URLs.
+
+%compared with in Figure~\ref{fig:web_real}(a). 
+%Based on the results in Figure~\ref{fig:timeofday}(a),
+%we already know that T-Mobile and AT\&T supply relatively 
+%better 3G downlink capacity compared with Sprint and Verizon.
+%Since URL b has more data to transfer, the impact of network
+%performance difference becomes more obvious.
+%Similarly, in Figure~\ref{fig:web_js}(a), we know that
+%Samsung/IE and Palm/IE perform worse than iPhone/Safari and
+%G2/Browser, the performance gap will be more obvious
+%for URLs that have richer contents, such as URL b.
+
+%The reason for comparing with WiFi experiments visiting hosted content
+%on our local server as shown in Figure~\ref{fig:web_real} is to
+%account for differences in content and network conditions. Content can
+%differ even for the same URL due to server side content optimization
+%based on user agent. WiFi also eliminates the difference in network
+%condition across devices. 
+In the WiFi experiments, all the phones download the same contents and 
+experience the same network conditions. As a result, the TCP transfer
+time differences among all phones are small. However, we can still 
+observe significant page loading time differences, mostly due to the
+gap in TCP idle times. We further note that their relative ranking is 
+consistent with the ranking of Javascript execution speed in 
+Figure~\ref{fig:web_js}.
+
+%the speed difference in HTML rendering and JavaScript execution. This
+%is confirmed by noting that the client execution speed ranking shown
+%in  is consistent with the Web browsing
+%performance ranking for WiFi.
+
+%sum for Web browsing section
+\paragraph{Summary:} First, we found that higher browser concurrency 
+enables the phones to better utilize available network bandwidth, 
+hence reducing page loading time. Second, server configurations and 
+content optimization play a major role in web browsing performance. 
+Compression tends to always help under typical 3G network conditions. 
+However, a few popular websites are employing sub-optimal server 
+configurations and page designs. Third, we found the bottleneck 
+for web browsing performance often lies in the phone itself
+rather than in the 3G network.
+
+%client execution speed. %We also note that
+%client execution performance is not only determined by CPU frequency,
+%OS and browser can also have a significant effect on it.
+%\begin{figure}[t]
+%\centering
+%\includegraphics[width=0.4\textwidth]{figures/web_real/dns.eps}
+%\caption{CDF of DNS lookup time on all platforms} \label{fig:dns}
+%\end{figure}
+
+	
+	
+	
+	
+	
+	
 	
 
 	+ Video/audio streaming applications (sigcomm submission, mobisys10)
