@@ -35,21 +35,8 @@ ones with replicated, real web content under our control. The
 latter setup helps dissect and analyze the individual factors 
 that contribute to the overall web browsing performance.
 
-To overcome the limitation of a single vantage point for locally
-conducted measurements, we design and deploy a cross-platform
-measurement tool, called {\em 3GTest}, to measure network-level 
-performance, using basic metrics such as throughput, round trip 
-time (RTT), retransmission rate, \etc attracting more than 30,000 
-users all over the world, providing a representative data set on 
-the current 3G network performance. {\em 3GTest} enables us to 
-carry out local experiments informed by realistic 3G network 
-conditions across diverse locations and network carriers. As far 
-as we know, \emph{3GTest} is the first such cross-platform tool 
-available that comprehensively characterizes 3G network performance, 
-and our data set is also unique in that regard.
 
-In addition to shedding light on the overall application and network
-performance, we perform detailed analysis to identify and isolate
+In addition to shedding light on the overall application performance, we perform detailed analysis to identify and isolate
 factors that impact user-perceived performance to help carriers,
 phone vendors, content providers, and application developers gain 
 insight. For example, for carriers, we infer various network-level 
@@ -106,10 +93,10 @@ GPhone can improve by 20\% in our experiments, despite
 its already good performance compared to other devices.
 \end{enumerate}
 
-\nsection{Methodology for Measuring Web Browsing Performance}
+\nsection{Methodology and Setup for Measuring Web Browsing Performance}
 \label{sec:app.method}
 
-In this section, we present our methodology for measuring web browsing application performance over 3G networks. By analyzing the performance of web applications, we examine the effects of various factors on the overall application performance.
+In this section, we present our methodology and setup for measuring web browsing application performance over 3G networks. By analyzing the performance of web applications, we examine the effects of various factors on the overall application performance.
 
 Unlike most previous works, we directly measure application 
 performance on devices that consumers really use with 3G service 
@@ -136,7 +123,8 @@ at a time while keeping others the same. We first describe the metrics
 used to evaluate web browsing performance, followed by the controlled 
 experiments to measure these metrics.
 
-\nsubsection{Metrics}\label{sec:method_web_metrics}
+\nsubsection{Web Browsing Performance Metrics}
+\label{sec:app.web_metrics}
 
 \paragraph{Page loading time:} It is the time between the first DNS packet 
 and the last data packet containing payload from the server during a 
@@ -221,11 +209,12 @@ TCP idle time is likely to be dominated by local processing delay,
 \eg between the receipt of a response and transmission of the next 
 request, often caused by HTML rendering and JavaScript execution.
 
-\nsubsection{Controlled experiments}\label{sec:web_controlled}
+\nsubsection{Web Browsing Controlled Experiment Setup}
 
-%To comprehensively study the effect of the factors described above, 
-We create a list of popular URLs from Alexa Top 500 Global Sites~\cite{Alexa}. These websites 
-are visited using smartphones via 3G networks. From the collected 
+We select a list of 20 popular and representative URLs (based on Alexa Top 500 Global Sites~\cite{alexa}) including search engines, emails, online maps, social networking websites, \etc
+For most of the URLs, we use their mobile versions, specially optimized for smartphone users, as opposed to desktop versions. To facilitate repeated experiments, we write a program to invoke browser to visit each URL in turn with an interval of 120 seconds. Such interval is expected to be large enough to complete the page download. We used \emph{Apache} 2.0 HTTP server for hosting the replicated websites. We collect packet traces on iOS and Android using {\em tcpdump} and on Windows Mobile phones using {\em netlog}. We verify that the CPU utilization caused by trace collection is under 5\%. All the experiments are repeated at least 10 times.
+
+These websites are visited using smartphones via 3G networks. From the collected 
 packet trace, we infer various metrics such as page loading time.
 To study the effect of each factor influencing the web browsing
 performance, we host static copies of these popular URLs on our 
@@ -240,43 +229,35 @@ of the following factors on web browsing performance:
 
 \paragraph{Impact of network:} To study the effect of network
 conditions on page loading time, we vary the RTT and loss rate 
-on our server. %We examine the
-%packet traces collected on the phone to calculate page loading time.
+on our server. To introduce artificial delay and loss, we ran a user-level program 
+on the server. This program intercepts all packets destined to a 
+particular IP address and injects delay and random packet loss. We 
+controlled loss rate values from 0\% to 10\% and RTT values from 0~ms 
+to 800~ms. These values cover the major range of loss rate and RTT 
+values observed in 3G networks from our previous analysis. 
 
 \paragraph{Impact of concurrency:} To study the effect of 
 concurrency, we control the maximum number of concurrent TCP 
-connections to a web domain on the server side. %Packet traces are 
-%collected on the phone to calculate page loading time and browser concurrency. 
-Because a phone also limits the maximum number of concurrent 
-connections per domain, we create a special webpage in which 
-each web object is hosted in a unique domain on the same web 
-server. This effectively allows us to bypass the concurrency 
-limit imposed by the phones. Note that this is necessary as we 
-do not have the permission to directly modify the concurrency 
-limit on the phone.
+connections to a web domain on the server side by configuring the 
+\emph{Apache} server with the help of the {\em mpm\_prefork\_module}.
 
-
-% contains many web objects that can be downloaded in 
-%parallel. 
-
-
-
-%By setting an unique DNS alias for each Web object for all
-%replicated URLs, the client side limit on parallelism is
-%removed, and the actual parallelism is now limited only
-%by the Web content.
+Because a phone also limits the maximum number of concurrent connections per domain, we create a special webpage with 30 embedded objects in which each web object is hosted in a unique domain (a DNS alias) on the same web server. This effectively allows us to bypass the per-domain concurrency limit imposed by the phones. Note that this is necessary as we do not have the permission to directly modify the concurrency limit on the phone. For concurrency experiments, we use the RTT of 400 ms and the loss rate of 0\%. 
 
 \paragraph{Impact of compression:} To study the tradeoff between 
 network overhead and computation overhead, we configure our web
 server into two modes, one uses compression, while the other does 
 not. We compare the page loading time under these two modes.
-%The default configuration
-%for the \emph{Apache} Web server we use
-%is to compress all textual objects. 
-%To compare Web browsing performance with and without compression,
-%given 
-% We collect the packet traces in two
-%cases to calculate the average page loading time.
+Specifically, we use {\em SetOutputFilter}and {\em BrowserMatch} directives to specify whether compression is enabled for a specific type of browser, \ie compression is bypassed  by adding the following lines to the Apache config file:
+
+\begin{lstlisting}
+<Location />
+	SetOutputFilter DEFLATE
+	BrowserMatch Mozilla no-gzip
+</Location>
+\end{lstlisting}
+
+
+We fix the loss rate at 0\% and vary the RTT from 0 ms to 800 ms. Our goal is to understand whether compression is beneficial under different network conditions.
 
 \paragraph{Impact of Javascript execution speed:} To evaluate 
 Javascript execution speed on different phones, we use a 
@@ -289,20 +270,14 @@ measure the total execution time of these Javascripts.
 of the data URL scheme~\cite{rfc2397}, a recently-proposed mobile 
 webpage design technique. We compare the time to load a webpage 
 constructed using and without using the data URL scheme. 
-\newline
-\newline
-\newline
+Specifically, we construct a webpage with 20 images; 10 of them are of size 18KB and the remaining 10 are of size 0.241KB. We create two versions of this webpage, one with links to download the images and the other with the images embedded in the webpage itself. We could not carry out this experiment for Windows Mobile phones since IE does not support the data URL scheme in 2009.
 
-%One such example is , which
-%we evaluate by creating a special webpage and hosting it on our local server. 
-%Clients access this webpage and collect packet trace which is used to
-%calculate average page loading time.
 
-\nsubsection{Analysis methodology}\label{sec:method_net_analysis}
+\nsubsection{Analysis Methodology}
 
 We next describe how to analyze the traces collected from controlled
 experiments to compute the desired metrics. We calculate the page 
-loading time of each URL as defined in \S\ref{sec:method_web_metrics} 
+loading time of each URL as defined in Section~\ref{sec:app.web_metrics} 
 and the average page loading time of all the selected URLs. To measure 
 Javascript execution time, we modify the Javascripts to display their 
 execution time when their execution finishes. We use the
@@ -314,9 +289,10 @@ For each TCP connection, TCP handshake time is calculated as the time
 between the first \emph{SYN} and \emph{SYN-ACK} packets. TCP idle time 
 is measured by scanning the connection for durations of more than 
 \emph{T} seconds of no network activity. \emph{T} should be larger 
-than the maximum RTT values and we will discuss the choice of $T$ in 
-\S\ref{sec:setup}. TCP transfer time is what remains for the
-connection excluding handshake and idle time. 
+than the maximum RTT values. In our analysis, we choose \emph{T = 1} second, as we have seen that in cellular networks, even for 3G networks, RTT is smaller than 1 second in 99\% of the cases. Thus, if there
+are no network activities for 1 second or more, the phone should 
+be busy with some local processing, \eg rendering HTML pages or executing JavaScripts.
+TCP transfer time is what remains for the connection excluding handshake and idle time. 
 We also calculate the response time of all the DNS lookups $T_{dns}$. 
 
 %given the difficulty of
