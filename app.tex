@@ -895,7 +895,7 @@ Figure~\ref{fig:web_js}.
 %performance ranking for WiFi.
 
 %sum for Web browsing section
-\paragraph{Summary:} First, we found that higher browser concurrency 
+\paragraph{Summary:} First, we find that higher browser concurrency 
 enables the phones to better utilize available network bandwidth, 
 hence reducing page loading time. Second, server configurations and 
 content optimization play a major role in web browsing performance. 
@@ -915,29 +915,135 @@ rather than in the 3G network.
 %\end{figure}
 
 	
-	
-	
-	
-	
-	
-	
+\nsection{Other Mobile Applications}
+\label{sec:other}
 
-	+ Video/audio streaming applications (sigcomm submission, mobisys10)
-%\nsubsection{Measuring streaming video performance}\label{sec:streaming}
-%
-%Streaming video is another popular application on smartphones. We measure 
-%streaming video performance by playing a video on a phone. From the 
-%collected packet trace, we calculate the downloading size of the video by 
-%adding up the payloads for all the packets from the server to phone while 
-%excluding the retransmitted packets. 
-%
-%\nsubsection{Measuring VoIP performance}\label{sec:voip}
-%
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\multicolumn{2}{c}{\IGM{figures/mobisys10/videosize.eps}}\\
+\multicolumn{2}{c}{(a) Video content size} \\
+\IGM{figures/mobisys10/iphonetimeline.eps}&
+\IGM{figures/mobisys10/gphonetimeline.eps}\\
+(b) iPhone timeline for 2260-sec video &
+(c) G2 timeline for 2260-sec video \\
+\end{tabular}
+\ncaption{Streaming video performance: content size, download strategy}
+\label{fig:video}
+\end{figure*}
+
+In this section, we study two other popular mobile applications, streaming video and VoIP.
+
+Streaming video is another popular application on smartphones. We measure streaming video performance by playing a 37:40~minute video on the phones using the YouTube application. From the collected packet trace, we calculate the downloading size of the video by adding up the payloads for all the packets from the server to phone while excluding the retransmitted packets. 
+
+%Streaming media are multimedia that are constantly received by, and normally presented to,
+%an end-user while being delivered by a streaming provider. Streaming media can be Live media or
+%On demand media. We only concentrate on On demand streaming video in this paper. Playing a streaming
+%video on the client has two phases, downloading the video and processing the video to display it to the
+%user. Both these phases run in parallel. Since the size of streaming video is very large so network throughput 
+%is an important factor in determining the streaming video performance. Different streaming players use network 
+%layer protocols download the video\eg TCP, UDP, RTSP \etc We only look at TCP in this paper.
+%Client execution speed is another important factor which affects the performance of streaming media. 
+%It is important to study the effect of all these factors to determine the bottleneck in performance.
+%Unfortunately, due to lack of time we only made some preliminary observations regarding streaming video
+%application performance.
+
+\nsubsection{Streaming video}\label{sec:video}
+
+We downloaded a 37-minute long video using a YouTube player on 
+each phone. Figure~\ref{fig:video}(a) shows the size of the video
+downloaded using TCP via WiFi and 3G on each phone. As expected, 
+the video size is smaller for 3G than for WiFi, because both the 
+video server and 3G carrier can customize video based on network 
+conditions to ensure good user experience. Interestingly, the video 
+size for 3G also varies across carriers: it is the smallest for 
+T-Mobile, followed by AT\&T, Verizon, and Sprint. 
+%Since different carriers
+%download different content for the same video, streaming video
+%performance can be highly variable across different carriers.
+
+Figures~\ref{fig:video}(b)(c) show the representative time series 
+of video download throughput for iPhone and G2 via 3G networks.
+The timeline of iPhone exhibits a distinct pattern with clear pauses. 
+It initially downloads a portion of the video at a high rate, then 
+stops before downloading the remaining portions. We conjecture that 
+the download stops when the buffered content exceeds a certain 
+threshold, and resumes after the buffered content falls below another 
+threshold. The purpose is likely to accommodate the limited phone
+memory and to save energy usage associated with the 3G interface. 
+Another observation is that iPhone always terminates the TCP 
+connection every 10--20 seconds and then establishes a new one on 
+demand. We conjecture that iPhone attempts to put the 3G 
+interface into low power state to save energy. 
+
+In contrast, G2 shows a different behavior by periodically 
+downloading small chunks of the video every 10 seconds. The Samsung 
+and Palm phones behave similarly with a slightly longer interval of 
+20 seconds between downloads. This is likely motivated by the fact 
+that users sometimes do not watch the entire video and may skim 
+through certain parts of the video. Such downloading patterns can 
+also help conserve energy. Our initial study shows that the video 
+players on different phones employ different policies to fetch video. 
+This merits more detailed future study. 
+
+%constraints in energy and memory. 
+
+%while trying to satisfy resource
+%\begin{figure}[t]
+%\centering
+%\caption{Video content size comparison}
+%\label{fig:video_size}
+%\end{figure}
+
+
+
+
+\nsubsection{VoIP}\label{sec:voip}
+
+%\begin{figure*}[t]
+%\begin{tabular}{cc}
+%\centering
+%\includegraphics[width=0.45\textwidth]{figures/voip/voip_inter.eps} &
+%\includegraphics[width=0.45\textwidth]{figures/voip/voip_thru.eps} \\
+%\small{(a) CDFs of the inter-packet arrival time and inter-packet departure time} &
+%\small{(b) Downlink throughput varies with time} \\
+%\end{tabular}
+%\caption{VoIP performance} \label{fig:voip}
+%\end{figure*}
+
 %We use a popular VoIP application to call a wired computer from a 
 %smartphone and play a piece of clip on both sides simulating 
-%conversations. We collect packet trace at the phone side to calculate 
-%throughput. Given that different volume may lead to different data size,
-%throughout the experiment, we keep the volume to be the same.
+
+
+We carry out a simple VoIP experiment on the Samsung (Verizon) and 
+Palm (Sprint) phones given their uniform support for Skype. During 
+the experiment, the same 3-minute music file is played on both the phone and 
+the desktop, when the two are in a Skype call. The volume is kept 
+the same to have similar voice input. Figure~\ref{fig:voip} shows 
+that the throughput for both phones via 3G is nearly identical, as 
+the same coding rate is used. The throughput is higher under WiFi 
+than under 3G, as different amount of data is transferred depending 
+on the network being used. This reflects how Skype tries to vary 
+the encoding rate according to the network condition to achieve 
+good perceived voice quality.
+
+
+%Figure~\ref{fig:voip}(a) shows the inter-arrival time and inter-departure time from which we can study the difference originated from the platform. The inter-arrival time is the interval between two packets from our desktops to our phones, while the inter-departure time is the interval between two packets from our phones to our desktops. The only difference between inter-arrival time and inter-departure time is the platform that originates the traffic. However, from Figure~\ref{fig:voip}(a), we cannot say which one between the inter-arrival and inter-departure is better. The inter-packet arrival time of the Samsung phone is longer than its inter-departure, which is on the contrary on the Sprint phone. Figure~\ref{fig:voip_}(a) at least indicates that phone's processing ability is not the bottleneck for VoIP service.
+
+%In all, in our experiments, platform is not the bottleneck, but the network condition may affect the performance in terms of payload size. When the phone is using WiFi, the throughput is consistently higher than that in 3G. 
+%
+
+
+
+\begin{figure}[t]
+\centering
+%\includegraphics[width=0.45\textwidth]{figures/voip/voip_inter.eps} &
+\IG{figures/mobisys10/voip_thru.eps} \\
+%\small{(a) CDFs of the inter-packet arrival time and inter-packet departure time} &
+\small{Downlink throughput timeline for Skype} \\
+\ncaption{VoIP performance} \label{fig:voip}
+\end{figure}
+
 
 
 
