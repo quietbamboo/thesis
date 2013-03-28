@@ -167,7 +167,7 @@ For burst characterization, we first need to pick a value for \BT. Obviously, \B
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/cdf_ibt.eps} \\
+\IGML{figures/rp/cdf_ibt.eps} \\
 \ncaption{CDF of IBT for sampled/all users}
 \label{fig:cdf.ibt}
 \end{figure}
@@ -180,7 +180,7 @@ In Figure~\ref{fig:cdf.ibt}, we also compare the aggregate curve of all users wi
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/cdf_screenOn.eps} \\
+\IGML{figures/rp/cdf_screenOn.eps} \\
 \ncaption{CDF of IBT for different screen status}
 \label{fig:cdf.screen}
 \end{figure}
@@ -188,7 +188,7 @@ Choosing a proper value for \SBT is challenging, \ie a large \SBT reduces the ch
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/packetNum.eps} \\
+\IGML{figures/rp/packetNum.eps} \\
 \ncaption{Distribution of bursts grouped by \# of packets}
 \label{fig:packetNum}
 \end{figure}
@@ -197,12 +197,8 @@ Figure~\ref{fig:packetNum} shows the distribution of the number of packets of a 
 
 \nsubsection{Selecting Features for Burst Classification}
 
-To predict whether an \IBT is larger or smaller than \SBT, we naturally choose to look at the features of the burst preceding the \IBT. Based on our observation, the correlation between \IBT and the bursts further beyond the preceding burst is small, hence we do not use those bursts for training features. For the preceding burst, we look at the detailed features of the last three packets. The choice of three packets is because in most cases, bursts are small, and even for large bursts, we can tell the nature of a burst based on the last three packets, \eg TCP three-way handshake for connection establishment and termination. For each of the last three packets, we only look at header information, not the payload, since many of these packet either do not have any payload, or use encryption. The features of the last three packets~\footnote{If a burst contains less than three packets, all features for the missing packet(s) have a value of 0.} used for training are listed in Table~\ref{tab:feature} and we study some of them as follows. These features are selected empirically that are most relevant to \IBT.
-
-
 \begin{table}[t]
 \begin{center}
-\footnotesize
 \begin{tabular}{|c|c|c|}\hline
 Name & Symbol & Description\\\hline
 Packet direction & {\em Dir(i)$^{\star}$} & Downlink or uplink \\\hline
@@ -215,26 +211,30 @@ Protocol  & {\em Prot(i)} & Protocol field in the IP header\\\hline
  &  & which generates this packet\\\hline
 \end{tabular}
 \begin{tabular}{l}
-\\{\small $^\star$} {\em Dir(i)} (i = 1, 2 or 3) refers to the $i$-th to last packet,  \eg when i = 1, \\
-{\small} \ \ it refers to the last packet. Similar rule applies to all other features.
+\\{ $^\star$} {\em Dir(i)} (i = 1, 2 or 3) refers to the $i$-th to last packet,  \eg when i = 1, \\
+\ \ \ it refers to the last packet. Similar rule applies to all other features.
 \end{tabular}
-\label{tab:feature}
 \ncaption{Features for the last three packets of a burst}
+\label{tab:optimize.feature}
 \end{center}
 \end{table}
 
+To predict whether an \IBT is larger or smaller than \SBT, we naturally choose to look at the features of the burst preceding the \IBT. Based on our observation, the correlation between \IBT and the bursts further beyond the preceding burst is small, hence we do not use those bursts for training features. For the preceding burst, we look at the detailed features of the last three packets. The choice of three packets is because in most cases, bursts are small, and even for large bursts, we can tell the nature of a burst based on the last three packets, \eg TCP three-way handshake for connection establishment and termination. For each of the last three packets, we only look at header information, not the payload, since many of these packet either do not have any payload, or use encryption. The features of the last three packets~\footnote{If a burst contains less than three packets, all features for the missing packet(s) have a value of 0.} used for training are listed in Table~\ref{tab:optimize.feature} and we study some of them as follows. These features are selected empirically that are most relevant to \IBT.
+
+
 \begin{figure}[t]
 \centering
-\IG{figures/rp/cdf_dir1.eps} \\
+\IGML{figures/rp/cdf_dir1.eps} \\
 \ncaption{CDF of \IBT v.s. direction of the last packet}
 \label{fig:dir1}
 \end{figure}
+
 In Figure~\ref{fig:dir1}, CDF of \IBT for the two possible directions of the last packet is shown. In general, \IBT following a burst whose last packet is downlink is larger than that for uplink, \eg the median \IBT is 6.49 seconds for downlink and 3.79 seconds for uplink.
 %Intuitively, this is because when the last packet is uplink, to some extent, it indicates that UE is at a ``pending'' state awaiting for response from the server side and \IBT after such bursts are typically smaller.
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/cdf_port1.eps} \\
+\IGML{figures/rp/cdf_port1.eps} \\
 \ncaption{CDF of \IBT v.s. port of the last packet}
 \label{fig:port1}
 \end{figure}
@@ -242,7 +242,7 @@ Figure~\ref{fig:port1} shows the CDF of \IBTS of all users for the top 6 ports o
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/len1.eps} \\
+\IGML{figures/rp/len1.eps} \\
 \ncaption{Distribution of bursts grouped by packet length of the last packet}
 \label{fig:len1}
 \end{figure}
@@ -251,16 +251,17 @@ Figure~\ref{fig:len1} summarizes the number of bursts for different packet lengt
 
 \begin{figure}[t]
 \centering
-\IG{figures/rp/flags1.eps} \\
+\IGML{figures/rp/flags1.eps} \\
 \ncaption{Distribution of \IBT grouped by the type of the last packet}
 \label{fig:flag1.bar}
 \end{figure}
 
 In Figure~\ref{fig:flag1.bar}, the number of bursts for different {\em Flag(1)} is presented, sorted in a descending order from left to right. Specifically, for {\em Flag(1) == 0}, such bursts fall into two groups, UDP packets and ICMP packets. Besides UDP packets, we also observe strong correlation between {\em Flag(1)} and short \IBTS for SYN and PUSH-ACK packets, with 90.44\% and 90.72\% confidence, respectively.
 
-\begin{figure}[h]
+
+\begin{figure}[t]
 \centering
-\IG{figures/rp/cdf_appid1.eps} \\
+\IGML{figures/rp/cdf_appid1.eps} \\
 \ncaption{CDF of \IBT v.s. the application generating the last packet}
 \label{fig:appid1}
 \end{figure}
