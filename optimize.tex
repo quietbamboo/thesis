@@ -270,5 +270,106 @@ The last feature we look at for each packet is the application ID. Notice that t
 
 
 
+\nsection{Evaluation Methodology}
+\label{sec:method}
+
+We present the methodology for evaluating \NAME.
+
+\nsubsection{Evaluation Metrics}
+
+
+Given that 3G and 4G have similar tail mechanisms, we select the 4G LTE network as a representative and consistently use the same terms described below. Specifically, assuming a UE is used for some period $t$. We define the total radio energy usage of the UE in $t$ to be $E$. Notice that $E$ is one of the most significant components for UE's total energy usage, along with screen energy and CPU energy, \etc~\cite{mobisys.aro}. We then define the total duration of UE being in \RC to be $R$, to quantify the channel occupation time, since radio resource is only allocated to UE in \RC in the LTE network. $E$ and $R$ are approximately proportional, because the power level in \RC is much higher than that in \RI, and the radio energy $E$ energy is dominated by that in \RC: $E \approx PR$, where $P$ is the average power level in \RC, with small variation in most cases. For the rest of the paper, we only study $E$, and assume the channel occupation time $R$ is proportional to $E$.
+
+To quantify the state promotion overhead, we define signaling overhead $S$ as the number of state promotions, since one promotion corresponds to fixed number of signaling messages~\cite{radiojockey}. To save the radio energy $E$, UE would spend less time in \RC and hence there is a higher probability for RRC state promotions, resulting in increased $S$. The design goal of our system is to reduce $E$, while minimizing the increase of $S$. A state promotion also incurs a fixed delay ($T_{pro}$). Since the total of such delays is proportional to $S$, we do not use a separate metric to quantify the introduced delay by promotions. In addition, a state promotion requires fixed energy ($T_{pro}P_{pro}$), which is taken into consideration in calculating $E$.
+
+Assume a specific user trace is fed to the LTE network and power model simulator with all default settings, the values for $E$ and $S$ are $E_{d}$ and $S_{d}$, respectively (the subscript $_{d}$ stands for \textbf{d}efault). Then assume after the energy saving scheme is applied and the resulting $E$, $S$ values are $E'$, $S'$. We define $\Delta(T) = (T' - T_{d}) / T_{d}$, where $T = E, S$. $\Delta(S)$ is positive, while $\Delta(E)$ is always negative. For simplicity, we redefine $\Delta(E) = |E' - E_{d}| / E_{d}$, making it positive, representing the ratio of energy saved. In sum, the goal is to maximize $\Delta(E)$ while minimizing $\Delta(S)$.
+
+
+%\nsubsection{Trace-driven Analysis}
+
+%We first discuss the \UMICH data set used throughout this study, followed by the burst analysis, network modeling and power modeling methodology.
+
+\nsubsection{RRC and Radio Power Simulator}
+\label{sec:model}
+We build a 4G LTE RRC state machine simulator with the LTE power model for the trace-driven analysis.
+
+\paragraph{The LTE state machine simulator} takes as input the 3G packet trace. It first preprocesses the trace using the methodology introduced in previous work~\cite{imc.3g} by removing existing state promotion delays. The purpose is to decouple promotion delays introduced by the existing 3G state machine from the actual traffic patterns. Therefore the 3G trace can be simulated in a different (4G LTE) network. Subsequently, the simulator injects new promotion delays into the trace, then infers the RRC states experienced by the UE based on the timing, size, and direction of each packet, according to the 4G LTE state transition model depicted in Figure~\ref{fig:rrc}(b). The output of network model simulator is an array of packets with adjusted timestamps, as well as the RRC states of the UE at any given time.
+
+\paragraph{The power model simulator} takes as input the output of the state machine simulator and calculates the energy consumed by the 4G radio interface. The total energy consumption consists of four components: idle, promotion, tail, data transfer. In idle mode, the radio power consumption is very low (almost zero). For promotion energy, both the promotion delay and the average promotion radio power are fixed. The radio power consumed on the tail is also fixed, based on our measurement using a real LTE phone (detailed below).
+%For data transfer energy, we empirically observe that the power consumption has a strong linear correlation with the throughput. Specifically, assume uplink throughput is $t_u$ (Mbps) and downlink throughput is $t_d$ (Mbps), the instant power level (mW) of the UE is $P = \alpha_u t_u + \alpha_d t_d+ \beta$.
+
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline
+            & Power$^{a}$ (mW)        & Duration (ms) \\
+\hline
+Screen off       & $P_{base}$: 11.4$\pm$0.4      & N/A       \\
+Idle average$^{b}$   & $P_{idle}$: 31.1$\pm$0.4      & N/A       \\
+Promotion   & $P_{pro}$: 1210.7$\pm$85.6   & $T_{pro}$: 260.1$\pm$15.8 \\
+Tail average$^{b}$        & $P_{tail}$: 1075.5$\pm$3.3    & $T_{tail}$: 11576.0$\pm$26.1 \\
+\hline
+\end{tabular}
+\begin{tabular}{l}
+\\{$^a$} All power values include the base power with screen off.
+\\{$^b$} The average power is measured with DRX considered.
+\end{tabular}
+\ncaption{The LTE power model parameters measured from a real cellular ISP}
+%\comment{not considering throughput energy in this work, for simplicity, we do not consider the impact of throughput on power in this work, however, we observe that the throughput for most applications are small and the impact on the results is minor}
+\label{tab:lte_para}
+\end{center}
+\end{table}
+
+\paragraph{The parameters of the model} are measured by us using an HTC ThunderBolt smartphone with an LTE data plan of a large cellular ISP in the U.S. The phone has 768MB RAM memory and 1 GHz Qualcomm MSM8655 CPU, running Android 2.2.1. We use the Monsoon power monitor~\cite{monsoon} to measure the UE power consumption.
+%Then radio power was be approximated by subtracting the constant power baseline (11.4 mW) at the IDLE state from the overall UE power consumption reported by the power monitor.
+The measured parameters are summarized in Table~\ref{tab:lte_para}. We validate the LTE state machine and the power model simulator by comparing the radio energy measured by power monitor with simulated radio energy for four popular Android applications. The error rate is less than 6\%.
+
+\nsubsection{Prediction Framework Evaluation Methodology}
+\label{sec:method.eval}
+
+
+To evaluate the performance of the prediction framework, we need to calculate the prediction accuracy and the resulting $\Delta(E)$ and $\Delta(S)$.
+
+It is straightforward to calculate the prediction accuracy. Assume $n$ bursts are predicted and $n_{s}$ of them are followed by short \IBTS and $n_{l}$ are followed by long \IBTS ($n = n_{s} + n_{l}$). Then assume the prediction framework correctly predicts $n_{1}$ out of the $n_{s}$ \IBTS to be short and $n_{2}$ out of the $n_{l}$ \IBTS to be long, the prediction accuracy is $(n_{1} + n_{2}) / n$.
+
+For calculating $\Delta(E)$ and $\Delta(S)$ , if an \IBT is predicted to be short, the prediction framework would have no impact since it keeps UE stay in the high power tail and there is no change to the RRC state machine. When an \IBT is predicted to be long, the prediction framework would make UE demote to \RI to save energy.
+
+\begin{algorithm}[t]
+\caption{Update $\Delta(E), \Delta(S)$ for burst $B_{i}$}
+\begin{algorithmic}
+\STATE $P_{tail} \leftarrow $ power level at \RC tail
+\STATE $P_{idle} \leftarrow $ power level at \RI state
+\STATE $P_{pro} \leftarrow $ power level during promotion
+\STATE $T_{pro} \leftarrow $ promotion delay
+\IF{$ibt_{i}$ is predicted to be $>$ \SBT}
+\IF{$ibt_{i} \leq T_{tail}$}
+\STATE //Demote to \RI at time \BT $+$ $t_{0}$, save energy
+\STATE $\Delta(E) $ += $(P_{tail} - P_{idle}) (ibt_{i} - \BT) / E_{D}$
+\STATE //Extra idle to active promotion overhead
+\STATE $\Delta(E) $ $-$= $P_{pro} T_{pro} / E_{D}$
+\STATE $\Delta(S) $ += $1 / S_{D}$
+%\STATE $\Delta(D) $ += $T_{pro} / D_{D}$
+\ELSE
+\STATE //Demote to \RI at time \BT$+$ $t_{0}$, save energy
+\STATE $\Delta(E) $ += $(P_{tail} - P_{idle}) (T_{tail} - \BT) / E_{D}$
+\STATE //No extra promotion overhead
+\ENDIF
+\ELSE
+\STATE // $ibt_{i}$ predicted to be short, remain in the tail, no impact
+\ENDIF
+\end{algorithmic}
+\label{algo:update}
+\end{algorithm}
+
+
+
+Assume the current burst $B_{i}$ ends at time $t_{0}$ and the next burst $B_{i+1}$ comes at time $t_{1}$. At time $t_{0}+$\BT, when the existence of $B_{i}$ is detected by the prediction framework, it collects information about $B_{i}$ and predicts the \IBT following it, denoted as $ibt_{i}$, whose actual value is $t_{1}-t_{0}$. We also assume that the short burst threshold \SBT $\leq T_{tail}$, the tail timer. Otherwise, if \SBT $> T_{tail}$, the energy saving opportunity would be much less, since when an \IBT is predicted to be short, it is still possible that \IBT $> T_{tail}$, and it is an indication that the tail could be ended earlier to further save energy. Based on these definitions, we provide the detailed pseudocode of updating $\Delta(E)$ and $\Delta(S)$ for burst $B_{i}$ in Algorithm~\ref{algo:update}. If $ibt_{i} > T_{tail}$ and $ibt_{i}$ is predicted to be long, for the original state machine, the arrival of $B_{i+1}$ already triggers a promotion, so the prediction framework does not incur any extra promotion overhead. Otherwise, if $ibt_{i} \leq T_{tail}$, an extra promotion would occur.
+
+
+For using machine learning algorithms, we use MATLAB R2011b (7.13.0.564) running on a desktop with Intel Xeon CPU (3.16GHz) and 16GB memory, running Linux 2.6.38. With the same C++ benchmark programs, we observe that the running time on the studied Android device is around 4 times of the desktop. We use this ratio as a simple heuristic to estimate the training time and prediction time of different algorithms. To validate this heuristic, we compare the running time of SVM algorithm with MATLAB on the desktop and with OpenCV~\cite{opencv} and on Android on the same input, the performance ratio is also around 4. For simplicity, in the rest of our study, we rely on MATLAB and its implementation of different machine learning algorithms.
+
+
+
+
 
 	+ screen-aware optimization
