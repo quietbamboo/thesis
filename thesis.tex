@@ -47,21 +47,13 @@
 \usepackage{setspace}    % Allows you to specify the line spacing
 \doublespacing           % \onehalfspacing for 1.5 spacing, \doublespacing for 2.0 spacing.
 
-\if 0
-\def\UrlBreaks{\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J
-\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V
-\do\W\do\X\do\Y\do\Z\do\[\do\\\do\]\do\^\do\_\do\`\do\a\do\b
-\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n
-\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z
-\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,
-\do\?\do\'\do+\do\=\do\#}
-\fi
-
 \newcommand{\etc}{\emph{etc.}\xspace}
 \newcommand{\ie}{\emph{i.e.,}\xspace}
 \newcommand{\eg}{\emph{e.g.,}\xspace}
 \newcommand{\etal}{\emph{et al.}\xspace}
 \newcommand{\wrt}{\emph{w.r.t.}\xspace}
+\newcommand{\aka}{\emph{a.k.a.}\xspace}
+\newcommand{\viceversa}{\emph{vice versa}\xspace}
 \newcommand{\comment}[1]{{\color{red}[\textsf{#1}]}}
 
 \newcommand{\MR}[1]{\multirow{2}{*}{#1}}
@@ -71,15 +63,29 @@
 \newcommand{\hdf}[1]{\small{\textbf{\texttt{#1}}}\footnotesize}
 
 \newcommand{\UMICH}{$\sf\small{UMICH}$\xspace}
+\newcommand{\NAMEFULL}{${\textbf{\texttt{RadioProphet}}}$\xspace}
+\newcommand{\NAME}{${\textbf{\texttt{RP}}}$\xspace}
+\newcommand{\NAMES}{$\small{\textbf{\texttt{RP}}}\normalsize$\xspace}
 \newcommand{\RC}{$\small{\textbf{\texttt{RRC\_CONNECTED}}}\normalsize$\xspace}
 \newcommand{\RI}{$\small{\textbf{\texttt{RRC\_IDLE}}}\normalsize$\xspace}
 \newcommand{\RCB}{${\textbf{\texttt{RRC\_CONNECTED}}}\normalsize$\xspace}
 \newcommand{\RIB}{${\textbf{\texttt{RRC\_IDLE}}}\normalsize$\xspace}
+\newcommand{\RD}{$\small{\textbf{\texttt{CELL\_DCH}}}\normalsize$\xspace}
+\newcommand{\RF}{$\small{\textbf{\texttt{CELL\_FACH}}}\normalsize$\xspace}
+\newcommand{\RPCH}{$\small{\textbf{\texttt{CELL\_PCH}}}\normalsize$\xspace}
 \newcommand{\FT}{$\sf\small{4GTest}$\xspace}
 \newcommand{\TT}{$\sf\small{3GTest}$\xspace}
 \newcommand{\mobiperf}{$\sf\small{MobiPerf}$\xspace}
 \newcommand{\WG}{$\sf\small{Website~G}$\xspace}
 \newcommand{\WY}{$\sf\small{Website~Y}$\xspace}
+\newcommand{\NB}{Na\"{\i}ve Bayes\xspace}
+\newcommand{\MostRecent}{${\textbf{\texttt{MostRecent}}}\normalsize$\xspace}
+\newcommand{\PerUser}{${\textbf{\texttt{PerUser}}}\normalsize$\xspace}
+\newcommand{\AllUsers}{${\textbf{\texttt{AllUsers}}}\normalsize$\xspace}
+\newcommand{\IBT}{${\textbf{\texttt{IBT}}}$\xspace}
+\newcommand{\IBTS}{${\textbf{\texttt{IBT}}}$s\xspace}
+\newcommand{\BT}{${\textbf{\texttt{BT}}}$\xspace}
+\newcommand{\SBT}{${\textbf{\texttt{SBT}}}$\xspace}
 
 \newcommand{\IGL}{\includegraphics[width=0.995\textwidth]}
 \newcommand{\IG}{\includegraphics[width=0.818\textwidth]}
@@ -127,6 +133,7 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 \input{app}
 \input{tcp}
 \input{power}
+\input{optimize}
 
 \input{related}
 \input{conc}
