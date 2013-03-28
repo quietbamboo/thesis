@@ -370,6 +370,185 @@ For using machine learning algorithms, we use MATLAB R2011b (7.13.0.564) running
 
 
 
+\nsection{Evaluation Results}
+\label{sec:evaluation}
+
+In this section, we evaluate different prediction models for \IBT prediction using various machine learning algorithms, and analyze the impact on energy saving and signaling overhead. We then discuss the practicality for real deployment on either client side or network side.
+%followed by a case study our framework to a one-application scenario.
+
+\nsubsection{Accuracy v.s. Performance Metrics}
+
+%Talk about the impact of prediction, relation between $\Delta(E, S, D)$ and prediction accuracy.
+We start by discussing the impact of \IBT prediction accuracy on the energy saving $\Delta(E)$ and signaling load change $\Delta(S)$ when \NAME is deployed.
+
+
+\begin{figure}[h]
+\centering
+\IG{figures/rp/accuracy.eps} \\
+\ncaption{$\Delta(E), \Delta(S)$ v.s. prediction accuracy}
+\label{fig:accuracy}
+\end{figure}
+
+
+Given a sequence of bursts $B_{1}, B_{2}, \cdots, B_{n}$, let the \IBT after $B_{i}$ be $t_{i}$. Ideally, the prediction framework could accurately predict whether $t_{i} \leq $ \SBT. We calculate $\Delta(E)$ and $\Delta(S)$ as described in \S\ref{sec:method.eval} by varying the binary prediction accuracy. Figure~\ref{fig:accuracy} shows that $\Delta(E)$ and $\Delta(S)$ have a linear pattern as accuracy changes. When the accuracy is 0, namely all \IBTS are predicted to be wrong, there is little energy saving of 2.60\% with $\Delta(S) = 129.52\%$. The energy saving is so small because a large number of promotions also incurs significant promotion energy.
+% This is because when an actual short \IBT is predicted to be long, \NAME would demotes UE immediately. Though incurring extra promotion overhead, the total energy is still reduced.
+As accuracy increases, \NAME saves more energy with reduced $\Delta(S)$. In the optimal case, when the accuracy achieves 100\%, 59.80\% of the total energy could be saved while the signaling overhead increases by 85.37\%. The signaling overhead is not 0, because for \IBTS smaller than $T_{tail}$ but larger than \SBT, even if the prediction is correct, triggering fast dormancy would still incur an extra state promotion. Such overhead is inherent for any optimization technique, such as a smaller static $T_{tail}$ setting and RadioJockey. The design goal of \NAME is to approach this optimal case.
+
+\nsubsection{Prediction Model Comparison}
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}\hline
+$\alpha=$ & 100 & 500 & 1000 & 2000 & 5000\\\hline
+$\beta=1$ & 81.52\% & 83.73\% & \textbf{84.15\%} & 82.4\% & 80.15\%\\\hline
+$\beta=2$ & 80.05\% & 81.37\% & 82.87\% & 81.95\% & 80.00\%\\\hline
+$\beta=5$ & 79.75\% & 80.91\% & 81.37\% & 81.03\% & 79.31\%\\\hline
+$\beta=10$ & 79.40\% & 80.01\% & 80.89\% & 80.01\% & 78.98\%\\\hline
+$\beta=20$ & 78.94\% & 79.62\% & 80.17\% & 79.54\% & 78.66\%\\\hline
+\end{tabular}
+\ncaption{Tuning $\alpha$, $\beta$ for \MostRecent prediction model}
+\label{tab:alphabeta}
+\end{center}
+\end{table}
+
+For \IBT prediction, historical \IBT information is needed to train a prediction model. For \NAME, we propose to use the most recent historical information to train a model for each user, denoted as \MostRecent. Specifically, for each user, the most recent $\alpha$ bursts are used to predict the next $\beta$ bursts. We study the impact of changing $\alpha, \beta$ in Table~\ref{tab:alphabeta}, using the Ensemble {\em bagging}~\cite{ensemble_bagging} learning algorithm as an example (number of trees set to 20). We calculate the prediction accuracy for different ($\alpha$, $\beta$) settings. We observe that if $\alpha$ is too small, there is not enough history information for learning; in the opposite, if $\alpha$ is too large, the user is more likely to switch to new applications so old rules do not apply. Based on Table~\ref{tab:alphabeta}, we choose $\alpha = 1000$ and $\beta = 1$ that maximize the accuracy in the experimental measurement. In practice, $\alpha$ and $\beta$ could also be dynamically adjusted based on prediction history.
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|}\hline
+Name & Description & Accuracy\\\hline
+\MR{\MostRecent} & Use the most recent $\alpha$ bursts to &  \MR{84.15\%} \\
+& predict the next $\beta$ bursts for each user & \\\hline
+\MR{\PerUser} & Use $n$ historical bursts of a user to & \MR{80.78\%} \\
+& train a fixed model for this user & \\\hline
+\MR{\AllUsers} & Use $k$ historical bursts of all users & \MR{77.48\%} \\
+& train a fixed model for all users & \\\hline
+\end{tabular}
+\ncaption{Summary of prediction models}
+\label{tab:model}
+\end{center}
+\end{table}
+
+In Table~\ref{tab:model}, we compare the \MostRecent model with two other models, \PerUser and \AllUsers. For fair comparison, we use the same machine learning algorithm (Ensemble \emph{bagging}) as in Table~\ref{tab:alphabeta}. We set $\alpha = 1000$ and $\beta = 1$ for the \MostRecent model as discussed previously. Similarly, we set $n = 10,000$ for \PerUser and $k = 10,000$ for \AllUsers ($n$ and $k$ are defined in Table~\ref{tab:model}). The values of $n$ and $k$ here are empirically selected, which yield good prediction accuracy for each prediction model. We observe that \MostRecent has higher prediction accuracy than the other two modes, and \PerUser is more accurate than \AllUsers. This suggests that it is necessary to have a separate model based on the most recent history for each individual user.
+
+\nsubsection{Comparing Resource Optimization Approaches}
+
+\begin{table*}[t]
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+\MR{Name} & \MR{Description \& Configuration} & Training  & Prediction & \MR{Accuracy} & \MR{$\Delta(E)$} & \MR{$\Delta(S)$}\\
+& &  time$^a$ (ms) &  time$^b$ (ms) &  &  & \\\hline
+Fast dormancy 1s & Invoke fast dormancy after 1s idle time  & 0 & 0 & NA & 62.74\% & 214.89\% \\\hline
+Fast dormancy 3s & Invoke fast dormancy after 3s idle time  & 0 & 0 & NA & 40.85\% & 85.36\% \\\hline
+
+{\bf RadioJockey} & RadioJockey applied to & \MR{NA} & \MR{NA} & \MR{NA}  & \MR{30.08\%} & \MR{51.69\%}  \\
+Assume 100\% accurate &  background traffic$^c$ &  &  &  &  &  \\\hline
+{\bf RadioJockey} & RadioJockey applied to & \MR{NA} & \MR{NA} & \MR{NA}  & \MR{27.19\%} & \MR{52.00\%}  \\
+Assume 90\% accurate &  background traffic &  &  &  &  &  \\\hline
+
+{\bf MakeIdle} & MakeIdle: based on previous M packets, & \MR{NA} & \MR{NA} & \MR{NA}  & \MR{64.92\%} & \MR{305.20\%} \\
+M:1000, N:100 &  predict next N packets &  &  &  &  &   \\\hline
+{\bf MakeIdle} &  MakeIdle: based on previous M packets,  & \MR{NA} & \MR{NA} & \MR{NA}  & \MR{44.93\%} & \MR{195.2\%} \\
+M:10, N:10 &   predict next N packets &  &  &  &  &  \\\hline
+%\NAME: All Short & Predict all \IBTS to be short & 0 & 0 & 41.13\% & 0.00\% & 0.00\% & 0.00\%\\\hline
+%\MR{\NAME: 50\% Random} & Predict an \IBT to be short & \MR{0} & \MR{0} & \MR{50.00\%} & \MR{31.19\%} & \MR{107.44\%} & \MR{50.00\%}\\
+% & with a probability of 50\% & & & & & & \\\hline
+%\NAME: All Long & Predict all \IBTS to be long & 0 & 0 & 58.87\% & 62.74\% & 214.89\% & 100.00\%\\\hline
+\MR{\NAME: \NB} & \NB classification with {\em mvmn}:  & \MR{25.68} & \MR{9.84} & \MR{72.89\%} & \MR{48.03\%} & \MR{102.81\%} \\
+ & multivariate multinomial distribution  & & & & & \\\hline
+\MR{\NAME: Discriminant} & Discriminant analysis with  & \MR{151.36} & \MR{27.28} & \MR{75.40\%} & \MR{54.72\%} & \MR{118.93\%} \\
+ & discriminant type as {\em pseudoLinear} & & & & &\\\hline
+\NAME: Regression Tree & Binary decision tree for regression & 490.84 & 2.60 & 78.42\% & 57.75\% & 139.56\% \\\hline
+\NAME: Classification Tree & Binary decision tree for classification & 547.72 & 23.68 & 82.65\%  & 52.10\% & 101.64\% \\\hline
+\NAME: SVM & SVM with {\em Multilayer Perceptron} kernel & 591.2 & 1.64 & 66.38\% & 45.03\% & 141.17\% \\\hline
+\NAME: Ensemble & Method: {\em RobustBoost}; Error goal: 0.15 & \MR{2534.16} & \MR{412.8} & \MR{81.91\%} & \MR{56.30\%} & \MR{106.32\%} \\
+(RobustBoost) & weak leaner: decision tree; \# of trees: 20 &  &  &  &  & \\\hline
+\MR{\NAME: Ensemble (Bag)} & Method: {\em Bag}; type: classification & \MR{2504.2} & \MR{426.20} & \MR{84.15\%}  & \MR{56.55\%} & \MR{92.19\%} \\
+ & weak leaner: decision tree; \# of trees: 20  &  &  &  &  &  \\\hline
+\NAME: Optimal & Predict all IBTs correctly  & 0 & 0 & 100.00\% & 59.80\% & 85.36\% \\
+\hline
+\end{tabular}
+\begin{tabular}{l}
+\\{\small $^\star$} All evaluations in this table for \NAME are using {\em MostRecent} prediction model with $\alpha=1000$ and $\beta=1$.
+\\{\small $^a$} Training time refers to the median time to train one model with $\alpha=1000$ on the studied Android device.
+\\{\small $^b$} Prediction time refers to the time to predict one burst on the studied Android device. The median value is listed.
+%\\{\small $^c$} $\Delta(E)/\Delta(S)$ shows the average energy saving per unit signaling overhead. The higher this metric, the better.
+\\{\small $^c$} We use smartphone screen status to distinguish between foreground and background traffic.
+\end{tabular}
+\ncaption{Comparison of different optimization algorithms}
+\label{tab:ml}
+\end{center}
+\end{table*}
+
+
+In Table~\ref{tab:ml}, we compare various radio resource optimization techniques, including the basic fast dormancy with static timers, RadioJockey~\cite{radiojockey}, MakeIdle~\cite{makeidle} and \NAME using different machine learning algorithms. Using the network and power model simulators (\S\ref{sec:model}), we apply the above optimization techniques to the \UMICH data set. We ignore the overhead of invoking fast dormancy, since invoking fast dormancy from the client only requires sending one special message called {\em Signaling Connection Release Indication} (SCRI). In contrast, a state promotion from the idle state to the connected state involves 12 or 30 signaling messages~\cite{radiojockey}.
+
+\paragraph{Basic fast dormancy}: we simply change $T_{tail}$ to be a constant smaller than its original value.
+
+\paragraph{RadioJockey}~\cite{radiojockey}: it uses system call traces to predict the {\em end-of-session} (EOS) for background application with no user interaction, with the ideal usage scenario for a single application. For multiple concurrent applications, it invokes fast dormancy only if {\em i)} EOS of one application is predicted, and {\em ii)} there is no active session of any application. RadioJockey does not handle foreground traffic, because user interactions may violate the correlation between system calls and EOS~\cite{radiojockey}. Given that we do not have system call traces in the \UMICH data set, we assume that RadioJockey could predict the EOS for {\bf each} of the applications, even when multiple applications are running concurrently. This is a strong assumption, because the authors admit that the accuracy for prediction would be lower for concurrent applications, and RadioJockey does not use real traces to evaluate concurrent applications.
+
+\paragraph{MakeIdle}~\cite{makeidle}: it relies purely on packet timing without considering signaling overhead, \ie it tries to find a wait time $T_{wait}$ which maximizes the energy saving if $T_{tail}$ is set to be $T_{wait}$ for the previous $M$ packets, it then applies this $T_{wait}$ for the next $N$ packets. The range we search for an optimal $T_{wait}$ is $[0.5, 11.5]$, as suggested by the author.  No recommendations have been made for the values of $M$ and $N$, so we empirically select their values. MakeActive, proposed by the same set of authors tries to reduce the signaling overhead of MakeIdle. However, as we discuss in \S\ref{sec:related}, MakeActive is not a perfect fix without causing bad user experiences, especially for foreground traffic.
+
+\paragraph{\NAMEFULL}: we explore various machine learning algorithms with the \MostRecent prediction model ($\alpha=1000$ and $\beta=1$).
+%The features used for machine learning are listed in Table~\ref{tab:featureSum}. To validate our approach that groups all categories with less than 0.1\% of total bursts for each feature, we use \NB algorithm to compare the prediction accuracy. We observe that the accuracy improves from 68.99\% to 73.20\% after grouping for the features, and this is mainly due to the reduced over fitting problem.
+%To validate our random sampling evaluation method, we compare the performance of \NB algorithm at different sampling rate in Table~\ref{tab:sample}. The smallest sampling rate 0.1\% results in largest error for $\Delta(E)$, $\Delta(S)$ and $\Delta(D)$, all smaller than 4\%. This demonstrates the effectiveness of the random sampling approach. We use 0.5\% sampling rate for evaluation experiments for the rest of the paper.
+We explore both parametric learning and nonparametric learning algorithms. For parametric learning, we look at \NB classification and discriminant analysis. While for nonparametric learning, we compare decision tree, including regression tree and classification tree, SVM and Ensemble algorithms. All of them are off-the-shelf machine learning algorithms used widely.
+
+In Table~\ref{tab:ml}, we observe that ``fast dormancy 1s'' is an aggressive approach, saving 62.74\% of energy while incurring 214.89\% of signaling overhead. ``Fast dormancy 3s'' significantly reduces $\Delta(S)$ to 85.36\%, with less energy saving of 40.85\% as expected. For RadioJockey, by assuming the accuracy for predicting EOS for each background application to be 90\%, it saves 27.19\% of energy with 52.00\% of $\Delta(S)$.
+There is slight improvement when the accuracy increases to 100\%. However, we are not able to evaluate RadioJockey for foreground traffic on which the prediction accuracy is unknown. For MakeIdle, we pick two sample ($M, N$) settings. For ($1000, 100$), the energy saving is significant, but the additionally incurred signaling overhead has an unacceptable value of 305.20\%. Even for ($10, 10$), $\Delta(S)$ is as high as 195.2\%. This is because MakeIdle does not consider balancing between energy saving and signaling overhead~\footnote{Another orthogonal approach proposed by~\cite{makeidle} to reduce the signaling overhead (called MakeActive) is not applicable, as it requires traffic shifting that could result in unacceptably negative impact on user experience for foreground traffic.}.
+%Further investigation reveals that since MakeIdle purely relies on the packet timing as a feature for prediction without considering the traffic context, the chosen $T_{wait}$ is often suboptimal, \eg $T_{wait}$ is selected to be 0.5s
+
+For \NAME, in the optimal case assuming there is an oracle with complete knowledge of traffic, it saves 59.80\% of energy with 85.36\% of extra signaling overhead incurred. Note that this signaling overhead depends on the choice of \SBT and is inherent for any fast dormancy based optimization. For example, if there are two packets $P_{1}$ and $P_{2}$, such that $P_{2}$ arrives 11.5s after $P_{1}$ and there is no other packet in between, in the default setting where $T_{tail} = 11.6s$ (Figure~\ref{fig:rrc}), there is no state promotion between $P_{1}$ and $P_{2}$. However, if we want to eliminate the long radio-on period after $P_{1}$, we have to invoke fast dormancy at some time between $P_{1}$ and $P_{2}$, and then the extra state promotion at $P_{2}$ is inevitable. Among all explored machine learning algorithms, {\em ensemble (bag)} performs best, achieving 84.15\% of accuracy, 56.55\% of $\Delta(E)$ and 92.19\% of $\Delta(S)$.
+
+For the metric $\Delta(E)/\Delta(S)$, which quantifies how well the tradeoff between saving resources and incurring signaling load is handled, \NAME outperforms other algorithms. RadioJockey has comparable performance for background traffic, however, \NAME has good results for both background and foreground traffic from concurrent applications.
+
+\nsubsection{Selecting Burst Thresholds}
+
+In the previous subsections, we only examine one setting of \BT and \SBT, \ie \BT = 1s and \SBT = 3s. Here we study how different settings of these parameters affect the performance of \NAME. In the top half of Table~\ref{tab:param}, we select some combinations of \BT and \SBT values and compare them with the setting of $S_{0}$. We notice that $S_{1}$ sets \SBT to be 2s, which significantly increases $\Delta(S)$. Among all settings explored, $S_{4}$ yields the highest $\Delta(E)/\Delta(S)$.
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}\hline
+Settings (unit: sec) & Accuracy & $\Delta(E)$ & $\Delta(S)$ & $\frac{\Delta(E)}{\Delta(S)}$\\\hline
+$S_{0}$ \BT: 1 \SBT: 3 & 82.65\%  & 52.10\% & 101.64\%  & 0.513\\\hline
+$S_{1}$ \BT: 1 \SBT: 2 & 84.80\%  & 56.69\% & 158.99\%  & 0.357\\\hline
+$S_{2}$ \BT: 1 \SBT: 4 & 81.94\%  & 49.07\% & 83.34\%  & 0.589\\\hline
+$S_{3}$ \BT: 0.5 \SBT: 3 & 84.71\%  & 53.74\% & 100.36\%  & 0.535\\\hline
+$S_{4}$ \BT: 1.5 \SBT: 3 & 85.39\%  & 58.85\% & 93.75\%  & 0.628\\\hline
+$S_{5}$ \BT: 1/1.5 off/on & \MR{85.88\%}  & \MR{59.07\%} & \MR{91.01\%}  & \MR{0.649}\\
+\SBT: 2.5/3 off/on & & & &\\\hline
+\end{tabular}
+\begin{tabular}{l}
+\\{$^\star$} All evaluations in this table for \NAME are using {\em Classification Tree} with \\
+\ \ \ {\em MostRecent} prediction model ($\alpha=1000$, $\beta=1$).
+\end{tabular}
+\ncaption{Comparison of different parameter settings}
+\label{tab:param}
+\end{center}
+\end{table}
+
+As suggested by previous work~\cite{imc.screen}, a different parameter setting distinguishing screen-on and screen-off could yield better optimization results given their traffic pattern difference, because screen-off traffic is very likely to be generated by background applications without user interaction. A more aggressive setting could be applied to screen-off traffic to save energy without incurring much signaling overhead. Specifically, here a more aggressive setting means a smaller \BT, which gives \NAME an opportunity to predict \IBT earlier, and a smaller \SBT, which classifies more \IBTS into the long category hence resulting in more fast dormancy invocations. In Table~\ref{tab:param}, $S_{5}$ is an example of such screen-aware setting that yields good results. Compared with $S_{4}$, $S_{5}$ saves more energy with less signaling overhead incurred. In fact, $S_{5}$ achieves comparable optimization results as the optimal case shown in Table~\ref{tab:ml} does.
+
+In practice, given the training data, we can periodically search within a large range of \BT and \SBT values for an optimal setting. The setting can also be made dynamic and customized for users.
+
+To summarize, \NAME achieves radio energy saving by 59.07\%, at the cost of 91.01\% additional signaling overhead in LTE networks, outperforming previous proposals. Specifically, as shown in Table~\ref{tab:ml}, in order to achieve such energy saving (59\%), the additional signaling overheads incurred by MakeIdle and na\"{\i}ve fast dormancy are as high as 305\% and 215\%, respectively. The maximal energy saving achieved by RadioJockey is 27\% since it is only applicable to background traffic, ideally generated by a single application running in the background.
+
+\nsubsection{Discussions on Real Deployment}
+
+The proposed \NAME system is fully practical for today's smartphones. The overhead includes data collection, model training and prediction, and invoking fast dormancy. As discussed in previous work~\cite{radiojockey}, invoking fast dormancy incurs negligible overhead compared with state promotion. For ``fast dormancy 3s'', the total promotion energy is only 2.27\% of the total energy. Hence, it is reasonable to ignore the fast dormancy invocation overhead.
+
+\paragraph{Data collector}: unlike RadioJockey requiring system call traces for all applications, \NAME only need to monitor packet traces, which is also required by RadioJockey. The data collector runs in the background and does not interfere with other user applications. It incurs no more than 5\% of CPU overhead when collecting packet headers, although the overhead is much lower when the throughput is low (\eg less than 200 kbps). The additional power to run the data collector is less than 17.1mW most of the time, which is only 1.6\% of the tail power for the studied LTE network.
+%In fact, only packet headers are required by \NAME, and the overhead of data collector could be further reduced. \comment{update CPU number here with collecting only packet header}
+
+\paragraph{Model training and prediction}: the {\em Ensemble (RobustBoost)} and {\em Ensemble (Bag)} require about 2.5 seconds to train a model, which is not acceptable if the model needs to be rebuilt frequently. In practice, we could use {\em Classification Tree} for prediction, which requires 547.72ms to build the model and 23.68ms to predict. We measure that the power level with CPU 100\% used is 340.5mW. For \MostRecent model with $(\alpha, \beta) = (1000, 1)$, the total energy overhead is 2.41\%, which is also very small. Also, by changing $\beta$ to 2, we can reduce this overhead to 1.25\% with minor performance degradation. In practice, we could put the \NAME service into lower priority so that it does not compete for CPU cycles when the user applications are busy.
+
+In terms of the {\bf storage cost}, for the \MostRecent model, information of the $\alpha$ = 1000 historical bursts needs to be stored at the UE side, and according to our implementation, the storage of one burst is less than 200 bytes. So the total storage cost is only 200KB, negligible for modern smartphones.
+
+\nsection{Summary}
+
+In summary, we propose a novel, practical, and effective system called \NAMEFULL to address the radio resource deallocation problem for cellular networks. \NAME takes as input the most recent history information of UE traffic to build a prediction framework for traffic inter-burst time (\IBT), leveraging machine learning to predict \IBT based on a list of lightweight and carefully selected features. It performs resource deallocation only when \IBT is sufficiently long to ensure low signaling overhead. We demonstrate that \NAME can be implemented at the UE transparently to applications, with negligible energy overhead and fast response times. Using 7-month-data collected from 20 real users with accurate RRC and radio power simulator for LTE 4G networks, we evaluated the performance of \NAME. With 85.88\% of accuracy in predicting \IBTS, \NAME provides the option of saving radio energy by up to 59.07\%, at the cost of 91.01\% of additional signaling overhead. We believe the \NAME system represents a significant step in systematically optimizing energy and radio resource for 3G and 4G LTE networks.
+
 
 
 	+ screen-aware optimization
