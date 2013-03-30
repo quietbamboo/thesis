@@ -1,5 +1,7 @@
-\chapter{Related Work} \label{chap:related}
+\chapter{Related Work}
+\label{chap:related}
 
+~\cite{3gtest.tr}
 + on network performance characterization
 
 Our work is inspired by the Netdiff system~\cite{Mahajan:NSDI2008:NetDiff},
@@ -25,3 +27,150 @@ our work covers significantly more users from many different locations.
 + on TCP
 
 + on radio optimization
+
+\nsection{SRII}
+
+Existing studies have compared 3G and WiFi performance
+on smartphones~\cite{Gass:3GWiFi:PAM2010} and studied the influence
+of the packet size on the delay in 3G
+networks~\cite{Arlos:OneWay:PAM2010}. 
+%\comment{how is our work better than they?}
+In a previous study~\cite{Mahesh:Ephemera:IMC09}, the correlation among IP address, location and network latency has been analyzed for smartphones.
+Our previous study~\cite{mobisys.3gtest} has compared cellular network performance among carriers and shown indications that the network can be the bottleneck accounting for poor application performance. In this work, with data set collected for a period of 18 months and a large set of 10,000 unique users, we study cellular network performance along several important new dimensions, including network types, location, time, \etc This is the first work studying cellular networks with a data set covering such a long period.
+
+There are existing measurement applications such as Speedtest.net~\cite{speedtestnet} and FCC's broadband test~\cite{fccspeedtest} measuring throughput on end-user's devices, similar to our study. However, our study is more comprehensive looking at various network performance metrics including DNS lookup time and TCP retransmission rate. Netalyzr~\cite{netalyzr} carries out network measurement for Internet users, not for smartphone users.
+
+In our previous work~\cite{sigmetrics.cluster}, we made qualitative observations on the effectiveness of CDN service in cellular networks and the geographical coverage of LDNS servers. In this study, with a comprehensive end-to-end latency measurement data set, we quantify the effectiveness of adopting different CDN servers for cellular networks. We also provide fine-grained analysis of the geographical coverage of each individual IP address of LDNS servers and discuss the implication on performance and reliability.
+
+Existing work has built tools to infer traffic differentiation policies from either local experiments or public deployment~\cite{imc.netpolice, nsdi.glasnost, windrider}. And our work is among the first to uncover previously unknown policies in cellular networks. Our work is among the first attempts to systematically understand the network policy inside cellular networks.
+
+
+%and studying the traffic characteristics on mobile devices~\cite{Maier:Traffic:PAM2010}.
+%
+
+Our work is inspired by numerous network measurement studies~\cite{Chakravorty:WWAN:Mobicom2004, Zhuang:A3:Mobicom2006, Ionut:Serendipity:IMC09, Mahesh:Ephemera:IMC09}, \eg Trestian \etal characterized the relationship between users' application interests and mobility ~\cite{Ionut:Serendipity:IMC09}, Balakrishnan \etal examined the dynamics of cellular IP addresses in 3G networks~\cite{Mahesh:Ephemera:IMC09}, Zhuang \etal investigated application-aware acceleration to improve application performance~\cite{Zhuang:A3:Mobicom2006}, and Liu \etal studied the interaction between the wireless channels and applications~\cite{Liu:3GChannelAppl:Mobicom2008}. Unlike these studies, we analyze the network performance along diverse dimensions, \eg continents, geographic locations, carriers, platforms, cellular technology, and time.
+
+Previous studies~\cite{Liu:3GChannelAppl:Mobicom2008,Chakravorty:WWAN:Mobicom2004,Jang:3G:MICNET2009} use cellular network data cards or phones tethered through USB to measure network performance on desktop or laptop systems. In this study, the data is collected directly from end-users' devices, thus more accurately reflecting the real perceived performance and allowing us to study location-wise performance differences.
+
+
+
+\nsection{Mobisys10}
+
+Our work is inspired by the Netdiff system~\cite{Mahajan:NSDI2008:NetDiff},
+which established a benchmark for comparing performance of different
+ISPs. In our research, we attempt to establish an equivalent benchmark for 
+comparing network application performance on smartphones. Although some
+online comparisons are available, such as Speedtest.net~\cite{speedtestnet} 
+and FCC's broadband test~\cite{fccspeedtest}, which measure throughput and 
+latency in 3G networks, {\em 3GTest} covers a more comprehensive set of 
+metrics, %By collecting packet traces of~\cite{speedtestnet} and~\cite{fccspeedtest},
+%we found that they are measuring downlink and uplink throughput by transferring data,
+%as well as network latency by downloading a small file.
+including DNS lookup, Ping to the first hop, TCP handshake, and HTTP 
+request to landmark servers. Tan \etal carried out a similar measurement study on multiple commercial
+3G networks~\cite{wltan07}. However, their study is limited to one location
+(Hong Kong) and a few devices. Compared with their study, 
+our work covers significantly more users from many different locations.
+
+There have been several studies focusing on mobile users from the perspective of 
+applications, such as~\cite{Ionut:Serendipity:IMC09} which characterized 
+the relationship between users' application interests and mobility, 
+and~\cite{Mahesh:Ephemera:IMC09} which examined the possibility of 
+geolocating IP address in 3G networks. Other related measurement works of 
+cellular data networks include a study of the interaction between the 
+wireless channels and applications~\cite{Liu:3GChannelAppl:Mobicom2008},
+an investigation of application-aware acceleration to improve application 
+performance~\cite{Zhuang:A3:Mobicom2006}, a performance study of 
+multimedia streaming~\cite{Chesterfield:3GMultimedia:Monet2004}, and 
+performance analysis of TCP/IP over 3G network with rate and delay 
+variation~\cite{Mun:TCP/IP:Mobicom2002}. Our work complements 
+these works with different focus and methodology. 
+
+From the perspective of measurement methodology, our {\em 3GTest} 
+tool is among the earliest cross-platform 3G network performance 
+characterization tools for smartphones covering a diverse set of 
+performance metrics, even though the idea of taking measurements from
+voluntary users is not novel. For example, Netalyzr~\cite{netalyzr} 
+is one such tool focusing on desktop environment. Unlike previous studies,
+\eg~\cite{Liu:3GChannelAppl:Mobicom2008,Chakravorty:WWAN:Mobicom2004,Jang:3G:MICNET2009},
+which perform measurements on desktop or laptop systems, relying on
+cellular network data cards or phones tethered through USB as a
+modem, we evaluate application performance directly using
+phones as the measurement platform, thus more accurately reflecting
+the actual user experience.
+
+
+
+\nsection{Traffic}
+
+We summarize three categories of work in understanding smartphones and mobile networks. %We summarize them in three categories.
+
+\textbf{Characterizing Mobile Network Usage and Performance.}
+Prior efforts~\cite{falaki10_mobisys, shepard10, qian13_pam} deployed smartphone user studies and collected data from tens to hundreds of participating users. Those studies investigated various aspects including the diversity of smartphone users, the popularity of mobile applications, and the effectiveness of compression techniques on cellular traffic \etc. The 3G Test study~\cite{mobisys.3gtest} adopts another approach by publishing an app that actively measures various network performance metrics on users' handsets. Our study features a much larger user base of around 300K customers using the LTE networks whose characteristics are far from being well understood. Some previous studies also performed large-scale measurement of mobile networks and smartphones.
+Sommers \etal compared cellular and Wi-Fi performance using crowd-sourced data from \texttt{speedtest.net} covering 15 metro areas, focusing on throughput and latency~\cite{sommers12}. Xu \etal profiled diverse usage behaviors of smartphone applications~\cite{xu11_imc}. Qian \etal performed network-wide measurement studies of cellular periodic transfers~\cite{qian12_www}. In contrast, our investigated spectrum is more diverse, covering
+traffic characteristics, network performance, protocol interaction, bandwidth utilization, and application usage in the increasingly popular LTE networks. We also compare our results with those presented in~\cite{mobisys.3gtest} and~\cite{sommers12}. Some previous studies~\cite{gember11, chen12} also examined mobile handsets using Wi-Fi networks.
+
+\textbf{Cellular Resource Management and Cross-layer Interaction.} In cellular networks, there exists a radio resource control (RRC) state machine that manages the handset radio interface. It is the key coupling factor bridging the application traffic patterns and the lower-layer protocol behaviors. Previous studies~\cite{imc.3g} and~\cite{huang12_mobisys} examine the RRC state machine and its interaction with cellular traffic, for 3G UMTS and 4G LTE networks, respectively. We study for hundreds of thousands of users their state transition delay and transport-layer idle time, two key factors incurring signaling load and energy overhead, respectively, due to the LTE RRC state machine.
+Previous studies also examined the interplay between TCP and cellular networks. For example, Liu \etal studied the physical and MAC layers in 3G EvDO networks and their impact on TCP performance~\cite{Liu:3GChannelAppl:Mobicom2008}. Jiang \etal examined how large buffers in cellular networks contribute to significant TCP queuing delay~\cite{jiang12}. Our study brings new insight into the complex interaction between LTE and TCP, as detailed in~\S\ref{sec:char}.
+
+\textbf{Cellular Network Infrastructure.}
+%Using a data-driven approach, 
+Xu \etal characterized 3G data network infrastructures, leading to an observation that the routing of cellular data traffic is quite restricted as traffic must traverse through a small number of gateway nodes~\cite{sigmetrics.cluster}. %Yellowpage
+Wang \etal unveiled cellular carriers' NAT and firewall policies~\cite{sigcomm.nat}. %NetPiculet
+Balakrishnan \etal investigated IP address dynamics in 3G networks. They found that cellular IPs embed much less geographical
+information than wired IPs do~\cite{Mahesh:Ephemera:IMC09}. %IMC 09 Where¡¯s that Phone?
+In this work, characterizing LTE infrastructures is not our immediate focus, but we do have novel findings that they highly affect our measurement methodology and results as pinpointed in~\S\ref{sec:char} and~\S\ref{sec:estimate}.
+
+
+\nsection{Mobisys12}
+
+We summarize related work in three categories below.
+
+\textbf{Measuring 2G and 3G networks.} Prior study~\cite{imc.tailender} investigates the impact and the optimization of tail effects in 2G/3G networks. Previous work~\cite{imc.3g} characterizes the impact of RRC state machine on radio resources and energy by analyzing a dataset collected from a commercial UMTS network. Recent work~\cite{falaki10_imc} also investigates impact of traffic patterns on radio power management policy. Other measurement studies (\eg 3GTest~\cite{mobisys.3gtest}, LiveLab~\cite{shepard10}, and~\cite{falaki10_mobisys}) collect traces from real smartphone users, focusing on characterization at only IP and higher layers. None of them investigate resource management policy in 4G LTE networks.
+
+\textbf{Smartphone power modeling} has also been investigated by previous empirical measurements. The Bartendr project~\cite{mobicom.bartendr} studies the relationship between signal strength and smartphone radio power usage. PowerTutor~\cite{codes.powertutor} collects power traces for individual hardware components under controlled experiments then uses multi-variable regression to compute the coefficients for a linear power model considering all hardware components. ARO~\cite{mobisys.aro} employs an approach similar to~\cite{codes.powertutor} but focusing only on radio power usage. It performs more fine-grained simulation of transmission queues to capture state transitions. Our LTE power model is also empirically derived, but it differs from all aforementioned models in two aspects. First, it considers DRX in \RC, a new power management mechanism in LTE networks. Second, it further takes into account both uplink and downlink data rates, resulting in a more accurate estimation of the radio power consumption when the throughput is high, as is a common case in LTE networks.
+
+\textbf{DRX in 4G LTE networks.} Zhou \etal~\cite{vtc.drx} model the DRX mechanism as a semi-Markov process, with which they analytically study the effects of DRX parameters on the performance, as well as the tradeoff between the power saving and wake-up delay. Kolding \etal~\cite{iswcs.lte} also investigate the balance between throughput and power saving by changing the configuration of DRX parameters, using a web-browsing traffic model. Bontu \etal~\cite{ieee.drx} further considers the impact of DRX parameters on different applications with various delay sensitivities. Wigard \etal compares a long-DRX-only scenario and a scenario with both long and short DRX, in terms of throughput and power consumption. All above studies employing analytical models suffer from an inherent limitation: the expressiveness of an analytical model is quite limited and is unlikely to capture the characteristics of real-world traffic patterns using a statistical distribution with a few parameters. The existence of concurrent applications accessing the network further increases the difficulty of modeling the packet dynamics. In contrast, our work is the first empirical study to investigate the impact of the configurations of DRX parameters and tail timer. We overcome the above limitation by employing network traces from real smartphone users, thus more realistically revealing the complex tradeoffs incurred by various DRX parameters.
+
+%Lin Zhong why browsers are slow~\cite{hotmobile.web} 
+
+
+\nsection{Screen}
+Smartphones with cellular data access have become increasingly popular across the globe, with the wide deployment of 3G and emerging LTE~\cite{3gpp.lte} networks, and a plethora of applications of all kinds. Cellular networks are typically characterized by limited radio resources and significant device power consumption for network communications. The battery capacity of smartphones cannot be easily improved due to physical constraints in size and weight. Hence, battery life remains a key determinant of end-user experience. Given the limited radio resources in these networks and device battery capacity constraints, optimizing the usage of these resources is critical for cellular carriers and application developers.
+%, leading many consumers to treat battery life as an important criterion for choosing devices.
+
+In 3G and 4G cellular networks, the user equipment (UE) must stay in a high-power state, occupying radio resources for some required time before the allocated resource is released by the network, and then the UE enters a low power state. This required time period, also known as the Radio Resource Control (RRC) tail~\cite{imc.tailender}, is necessary and important for cellular networks to prevent frequent state promotions (resource allocation), which can cause unacceptably long delays for the UE, as well as additional processing overheads for the radio access network~\cite{poor, infocom_lee}. Today's cellular carriers use a static and conservative setting of the tail time in the order of many seconds, and previous studies have revealed this tail time to be the root cause of energy and radio resource inefficiencies in both 3G~\cite{imc.3g, imc.tailender, wts04, Chuah:Impacts:WCNC2002} and 4G networks~\cite{huang12_mobisys}. Various optimization solutions have been proposed to address this problem, \eg the use of fast dormancy~\cite{fast.dormancy.1, fast.dormancy.2, qian10_icnp} and client-side traffic shaping and scheduling~\cite{qian12_www, mobisys10_ra, imc.tailender}. In addition, specialized energy saving techniques for mobile applications have been proposed for specific applications~\cite{mobisys09_wang, mobisys08_kang} and for specific protocols~\cite{mobisys07_agarwal}.
+
+
+{\em  Fast dormancy (FD)}~\cite{fast.dormancy.1, fast.dormancy.2} is a mechanism in 3G networks for reducing the amount of tail time incurred by a device by quickly demoting it to a low energy RRC state without waiting for the tail timer to expire.
+
+
+
+
+\nsection{RadioProphet}
+
+%\textbf{Radio resource management} has become a critical topic given the explosive growth of cellular data traffic.
+
+We describe related work in four categories below.
+
+\textbf{Investigation of the inactivity timers in cellular networks.} Inactivity timers, which determine the tail times, are the most important parameters in cellular radio resource management. Previous works study the impact of inactivity timers on the UMTS network capacity~\cite{Chuah:Impacts:WCNC2002} and the UE energy consumption~\cite{Lee:Impact:WTS2004, Yeh:Energy:ITVT2009}.
+%by simulating the performance of web browsing.
+%propose analytical models to measure the energy consumption of user device under different timer values.
+Another study~\cite{imc.3g} makes a further step by characterizing the impact of operational state machine settings with real traces and conclude that the fundamental limitation of the current cellular resource management mechanism is treating all traffic according to the same RRC state machine \emph{statically and globally} configured for all users, therefore, it is difficult to balance various tradeoffs of resource utilization.
+
+\textbf{Adaptive resource release.}
+Distinct from using static timers, Liers~\etal~\cite{Liers:DynamicTimeout:PIMRC2005} propose to determine inactivity timers dynamically. %based on the current load, radio resources, and processing capability.
+However, they only address the problem from the perspective of network capacity as to reducing the call blocking and dropping rate, and the same timer values are applied globally to all UEs at any given time. In comparison, \NAME is based on fast dormancy where resource release is requested by each individual UE. Such fine-grained control leads to much more significant savings of the radio resource and the UE energy consumption.
+
+%The key challenge addressed by TOP is to handle  network activities of concurrently running applications.
+
+TOP~\cite{qian10_icnp} proposes to leverage fast dormancy to eliminate the tail whenever possible. It {\em \bf assumes} each individual application can predict an imminent long \IBT with reasonable accuracy, and fast dormancy is only invoked when the predicted aggregate idle time across all concurrent applications is long enough. While TOP provides framework and mechanism for optimization, it does {\em not} solve the problem of prediction. In this study, we solve the open research problem of predicting \IBTS. Unlike TOP being a proposed framework with unsolved assumptions, our system \NAME is a practical working system.
+
+MakeIdle~\cite{makeidle} uses packet timestamp information to calculate the optimal idle time before fast dormancy should be invoked that maximizes the energy saving. However, MakeIdle does not look at the application context and other useful features used in \NAME, resulting in worse performance as shown later. Moreover, MakeIdle algorithm does not consider the balance of energy saving and signaling overhead, and leaves the job of reducing the signaling overhead to another algorithm called MakeActive~\cite{makeidle}, based on shifting packets (batching). MakeActive does not work for foreground traffic, and even for background traffic, there is no guarantee that it would not affect user experience, since it may incur up to seconds extra delay. In this study, to minimize such negative impact on user experience, \NAME does not rely on any traffic shifting techniques, especially because the goal for the design of \NAME is to be working for all traffic, both foreground and background.
+
+RadioJockey\cite{radiojockey} is another closely related study. It uses system call traces to determine the {\em end-of-session} (EOS) for each application and triggers fast dormancy if there is no active session for any of the applications. However, RadioJockey only works for background application with no user interaction, and the authors point out that the prediction accuracy would be lower for foreground traffic since user interactions may violate the correlation between system call patterns and EOS; while for \NAME, there is no such limitation and we achieve even better performance for all traffic than RadioJockey for screen-off traffic. Also, RadioJockey treats different applications separately and could not predict the {\em start-of-session} (SOS), hence when there are multiple concurrent applications, the prediction accuracy would be jeopardized, with higher instrumentation and prediction overhead. Our approach uses aggregate traffic from all applications and does not suffer from these problems. Further, RadioJockey requires complete system call traces for all applications in addition to the network traces, which incurs higher overhead than \NAME. In the evaluation section later, we compare both MakeIdle and RadioJockey with \NAME and ignore MakeActive because it alters user traffic resulting in negative impact on user experience, which is not acceptable especially for foreground traffic.
+
+
+\textbf{Traffic scheduling} There exists various traffic scheduling algorithms (\eg piggyback, batching~\cite{qian12_www}, TailEnder~\cite{imc.tailender}, and Intentional Networking~\cite{higgins10}) for optimizing resource consumption in cellular networks. For example, in piggyback~\cite{qian12_www}, transfers can be shifted earlier, or be postponed till later, so that they can potentially be overlapped with non-target transfers, thus reducing the total tail time. TailEnder~\cite{imc.tailender} schedules transfers to minimize the energy consumption while meeting user-specified deadlines by delaying transfers and transmitting them together. The major limitations of these approaches is that they are only applicable to delay-tolerant traffic (RSS feeds, push notification \etc). \NAME can be applied to any type of traffic (in particular, delay-sensitive traffic triggered by users), and can be used together with the aforementioned scheduling techniques.
+
+\textbf{Traffic modeling and prediction} has be explored by various previous works. A linear prediction-based time series forecasting technique is used to predict future no-data intervals for multimedia data streaming~\cite{wcnc04}. Hidden Markov Models are also used for modeling and predicting traffic of several Internet applications~\cite{Dainotti20082645}. In our work, we look at the aggregate traffic, including all different applications, and predict whether inter burst time is longer than a threshold, which is a joint effect of packets generated by all applications, and hence is more challenging and better for practical use. This specific, yet important problem for energy and network resource saving has not been studied before in mobile platforms with a large real-world data set as ours.
