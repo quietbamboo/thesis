@@ -1,21 +1,22 @@
 \chapter{Related Work}
 \label{chap:related}
 
-~\cite{3gtest.tr}
-+ on network performance characterization
+In this chapter, we summarize related work in different categories.
 
-Our work is inspired by the Netdiff system~\cite{Mahajan:NSDI2008:NetDiff},
-which established a benchmark for comparing performance of different
-ISPs. In our research, we attempt to establish an equivalent benchmark for 
-comparing network application performance on smartphones. Although some
-online comparisons are available, such as Speedtest.net~\cite{speedtestnet} 
-and FCC's broadband test~\cite{fccspeedtest}, which measure throughput and 
-latency in 3G networks,  \mobiperf covers a more comprehensive set of 
-metrics, including DNS lookup, Ping to the first hop, TCP handshake, and HTTP request to landmark servers.
-Tan \etal carried out a similar measurement study on multiple commercial
-3G networks~\cite{wltan07}. However, their study is limited to one location
-(Hong Kong) and a few devices. Compared with their study, 
-our work covers significantly more users from many different locations.
+\nsection{Network and Application Performance Characterization}
+
+Netdiff system~\cite{Mahajan:NSDI2008:NetDiff} establishes a benchmark for comparing performance of different ISPs. In our research, we attempt to establish an equivalent benchmark for comparing network application performance on smartphones. Although there are some existing tools available for such comparison, such as Speedtest.net~\cite{speedtestnet} and FCC's broadband test~\cite{fccspeedtest}, which measure the throughput and latency in 3G networks, \mobiperf covers a more comprehensive set of metrics, including DNS lookup, Ping to the first hop, TCP handshake, and HTTP request to landmark servers. Existing studies have compared 3G and WiFi performance on smartphones~\cite{Gass:3GWiFi:PAM2010} and studied the influence of the packet size on the delay in 3G networks~\cite{Arlos:OneWay:PAM2010}. Tan \etal carried out a similar measurement study on multiple commercial 3G networks~\cite{wltan07}. However, their study is limited to one location (Hong Kong) and a few devices. Compared with their study, our work covers significantly more users from many different locations. Netalyzr~\cite{netalyzr} carries out network measurement for Internet users, not for smartphone users.
+
+Our work is inspired by numerous network measurement studies~\cite{Chakravorty:WWAN:Mobicom2004, Zhuang:A3:Mobicom2006, Ionut:Serendipity:IMC09, Mahesh:Ephemera:IMC09}, \eg Trestian \etal characterized the relationship between users' application interests and mobility ~\cite{Ionut:Serendipity:IMC09}, Zhuang \etal investigated application-aware acceleration to improve application performance~\cite{Zhuang:A3:Mobicom2006}, and Liu \etal studied the interaction between the wireless channels and applications~\cite{Liu:3GChannelAppl:Mobicom2008}. Unlike these studies, we analyze the network performance along diverse dimensions, \eg continents, geographic locations, carriers, platforms, cellular technology, and time.
+
+In our previous work~\cite{sigmetrics.cluster}, we made qualitative observations on the effectiveness of CDN service in cellular networks and the geographical coverage of LDNS servers. In this study, with a comprehensive end-to-end latency measurement data set, we quantify the effectiveness of adopting different CDN servers for cellular networks. We also provide fine-grained analysis of the geographical coverage of each individual IP address of LDNS servers and discuss the implication on performance and reliability.
+
+Existing work has built tools to infer traffic differentiation policies from either local experiments or public deployment~\cite{imc.netpolice, nsdi.glasnost, windrider}. And our work is among the first to uncover previously unknown policies in cellular networks. Our work is among the first attempts to systematically understand the network policy inside cellular networks.
+
+There have been several studies focusing on mobile users from the perspective of applications, such as a study~\cite{Ionut:Serendipity:IMC09} which characterizes the relationship between users' application interests and mobility, and another study~\cite{Mahesh:Ephemera:IMC09} which examines the possibility of geolocating IP address in 3G networks. Other related measurement works of cellular data networks include a study of traffic characteristics on mobile devices~\cite{Maier:Traffic:PAM2010}, a performance study of multimedia streaming~\cite{Chesterfield:3GMultimedia:Monet2004}, and performance analysis of TCP/IP over 3G network with rate and delay variation~\cite{Mun:TCP/IP:Mobicom2002}. Our work complements these works with different focus and methodology. 
+
+Unlike previous studies, \eg~\cite{Liu:3GChannelAppl:Mobicom2008, Chakravorty:WWAN:Mobicom2004, Jang:3G:MICNET2009}, which perform measurements on desktop or laptop systems, relying on cellular network data cards or phones tethered through USB as a modem, in this study, the data is collected directly from end-users' devices, thus more accurately reflecting the user-perceived performance.
+
 
 
 + on power footprint characterization
@@ -27,78 +28,6 @@ our work covers significantly more users from many different locations.
 + on TCP
 
 + on radio optimization
-
-\nsection{SRII}
-
-Existing studies have compared 3G and WiFi performance
-on smartphones~\cite{Gass:3GWiFi:PAM2010} and studied the influence
-of the packet size on the delay in 3G
-networks~\cite{Arlos:OneWay:PAM2010}. 
-%\comment{how is our work better than they?}
-In a previous study~\cite{Mahesh:Ephemera:IMC09}, the correlation among IP address, location and network latency has been analyzed for smartphones.
-Our previous study~\cite{mobisys.3gtest} has compared cellular network performance among carriers and shown indications that the network can be the bottleneck accounting for poor application performance. In this work, with data set collected for a period of 18 months and a large set of 10,000 unique users, we study cellular network performance along several important new dimensions, including network types, location, time, \etc This is the first work studying cellular networks with a data set covering such a long period.
-
-There are existing measurement applications such as Speedtest.net~\cite{speedtestnet} and FCC's broadband test~\cite{fccspeedtest} measuring throughput on end-user's devices, similar to our study. However, our study is more comprehensive looking at various network performance metrics including DNS lookup time and TCP retransmission rate. Netalyzr~\cite{netalyzr} carries out network measurement for Internet users, not for smartphone users.
-
-In our previous work~\cite{sigmetrics.cluster}, we made qualitative observations on the effectiveness of CDN service in cellular networks and the geographical coverage of LDNS servers. In this study, with a comprehensive end-to-end latency measurement data set, we quantify the effectiveness of adopting different CDN servers for cellular networks. We also provide fine-grained analysis of the geographical coverage of each individual IP address of LDNS servers and discuss the implication on performance and reliability.
-
-Existing work has built tools to infer traffic differentiation policies from either local experiments or public deployment~\cite{imc.netpolice, nsdi.glasnost, windrider}. And our work is among the first to uncover previously unknown policies in cellular networks. Our work is among the first attempts to systematically understand the network policy inside cellular networks.
-
-
-%and studying the traffic characteristics on mobile devices~\cite{Maier:Traffic:PAM2010}.
-%
-
-Our work is inspired by numerous network measurement studies~\cite{Chakravorty:WWAN:Mobicom2004, Zhuang:A3:Mobicom2006, Ionut:Serendipity:IMC09, Mahesh:Ephemera:IMC09}, \eg Trestian \etal characterized the relationship between users' application interests and mobility ~\cite{Ionut:Serendipity:IMC09}, Balakrishnan \etal examined the dynamics of cellular IP addresses in 3G networks~\cite{Mahesh:Ephemera:IMC09}, Zhuang \etal investigated application-aware acceleration to improve application performance~\cite{Zhuang:A3:Mobicom2006}, and Liu \etal studied the interaction between the wireless channels and applications~\cite{Liu:3GChannelAppl:Mobicom2008}. Unlike these studies, we analyze the network performance along diverse dimensions, \eg continents, geographic locations, carriers, platforms, cellular technology, and time.
-
-Previous studies~\cite{Liu:3GChannelAppl:Mobicom2008,Chakravorty:WWAN:Mobicom2004,Jang:3G:MICNET2009} use cellular network data cards or phones tethered through USB to measure network performance on desktop or laptop systems. In this study, the data is collected directly from end-users' devices, thus more accurately reflecting the real perceived performance and allowing us to study location-wise performance differences.
-
-
-
-\nsection{Mobisys10}
-
-Our work is inspired by the Netdiff system~\cite{Mahajan:NSDI2008:NetDiff},
-which established a benchmark for comparing performance of different
-ISPs. In our research, we attempt to establish an equivalent benchmark for 
-comparing network application performance on smartphones. Although some
-online comparisons are available, such as Speedtest.net~\cite{speedtestnet} 
-and FCC's broadband test~\cite{fccspeedtest}, which measure throughput and 
-latency in 3G networks, {\em 3GTest} covers a more comprehensive set of 
-metrics, %By collecting packet traces of~\cite{speedtestnet} and~\cite{fccspeedtest},
-%we found that they are measuring downlink and uplink throughput by transferring data,
-%as well as network latency by downloading a small file.
-including DNS lookup, Ping to the first hop, TCP handshake, and HTTP 
-request to landmark servers. Tan \etal carried out a similar measurement study on multiple commercial
-3G networks~\cite{wltan07}. However, their study is limited to one location
-(Hong Kong) and a few devices. Compared with their study, 
-our work covers significantly more users from many different locations.
-
-There have been several studies focusing on mobile users from the perspective of 
-applications, such as~\cite{Ionut:Serendipity:IMC09} which characterized 
-the relationship between users' application interests and mobility, 
-and~\cite{Mahesh:Ephemera:IMC09} which examined the possibility of 
-geolocating IP address in 3G networks. Other related measurement works of 
-cellular data networks include a study of the interaction between the 
-wireless channels and applications~\cite{Liu:3GChannelAppl:Mobicom2008},
-an investigation of application-aware acceleration to improve application 
-performance~\cite{Zhuang:A3:Mobicom2006}, a performance study of 
-multimedia streaming~\cite{Chesterfield:3GMultimedia:Monet2004}, and 
-performance analysis of TCP/IP over 3G network with rate and delay 
-variation~\cite{Mun:TCP/IP:Mobicom2002}. Our work complements 
-these works with different focus and methodology. 
-
-From the perspective of measurement methodology, our {\em 3GTest} 
-tool is among the earliest cross-platform 3G network performance 
-characterization tools for smartphones covering a diverse set of 
-performance metrics, even though the idea of taking measurements from
-voluntary users is not novel. For example, Netalyzr~\cite{netalyzr} 
-is one such tool focusing on desktop environment. Unlike previous studies,
-\eg~\cite{Liu:3GChannelAppl:Mobicom2008,Chakravorty:WWAN:Mobicom2004,Jang:3G:MICNET2009},
-which perform measurements on desktop or laptop systems, relying on
-cellular network data cards or phones tethered through USB as a
-modem, we evaluate application performance directly using
-phones as the measurement platform, thus more accurately reflecting
-the actual user experience.
-
 
 
 \nsection{Traffic}
