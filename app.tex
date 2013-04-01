@@ -1,40 +1,9 @@
-\chapter{Anatomizing Smartphone Application Performance} \label{chap:app}
+\chapter{Anatomizing Smartphone Application Performance}
+\label{chap:app}
 
-Unlike traditional Internet-based applications, whose performance is mostly constrained by the wired network, network application performance on smartphones with limited physical resources also heavily depends on factors including hardware and software on the 
-phone as well as the quality and load of wireless link. Understanding 
-the application performance on smartphones is important for the 
-purpose of assisting consumers in choosing carriers and phones and 
-guiding application developers in designing intelligent software. 
-Moreover, cellular network operators and smartphone hardware and 
-software vendors can use this knowledge to optimize networks and 
-phones for better end-user experiences. Similarly, content providers 
-can leverage this knowledge to better customize content for mobile 
-users. However, this task is quite challenging since the performance 
-of network applications on smartphones is poorly understood before our study, due to a lack of a systematic approach for controlled experiments 
-and comparative analysis. We believe this work fills this gap.
+Unlike traditional Internet-based applications, whose performance is mostly constrained by the wired network, network application performance on smartphones with limited physical resources also heavily depends on factors including hardware and software on the phone as well as the quality and load of wireless link. Understanding the application performance on smartphones is important for the purpose of assisting consumers in choosing carriers and phones and guiding application developers in designing intelligent software. Moreover, cellular network operators and smartphone hardware and software vendors can use this knowledge to optimize networks and phones for better end-user experiences. Similarly, content providers can leverage this knowledge to better customize content for mobile users. However, this task is quite challenging since the performance of network applications on smartphones is poorly understood before our study, due to a lack of a systematic approach for controlled experiments and comparative analysis. We believe this work fills this gap.
 
-We focus on developing systematic methodology for measuring and
-analyzing 3G network performance as well as smartphone application
-performance. We make it relevant to end users by studying real
-applications directly on the phone platforms. Our approach differs 
-inherently from most previous work of using laptops equipped with 
-3G data cards in three ways: (1) We measure the performance of 
-applications rather than that of the low-level protocols. Prior 
-work has shown that application performance often significantly 
-deviates from protocol performance~\cite{Zhuang:A3:Mobicom2006}. 
-We target the pervasive web browsing, streaming video, and VoIP
-applications that most end-users care about; (2) We measure 
-application performance on several common mobile devices. 
-Application performance varies widely across devices due to 
-differences in hardware and software, necessitating direct 
-experimentation on smartphones instead of on laptops with wireless 
-cards; (3) We study the application performance under real-world 
-scenarios and quantify the performance of web browsing by 
-evaluating commercial websites in addition to locally-constructed 
-ones with replicated, real web content under our control. The 
-latter setup helps dissect and analyze the individual factors 
-that contribute to the overall web browsing performance.
-
+We focus on developing systematic methodology for measuring and analyzing 3G network performance as well as smartphone application performance. We make it relevant to end users by studying real applications directly on the phone platforms. Our approach differs inherently from most previous work of using laptops equipped with 3G data cards in three ways: (1) We measure the performance of applications rather than that of the low-level protocols. Prior work has shown that application performance often significantly deviates from protocol performance~\cite{Zhuang:A3:Mobicom2006}. We target the pervasive web browsing, streaming video, and VoIP applications that most end-users care about; (2) We measure application performance on several common mobile devices. Application performance varies widely across devices due to differences in hardware and software, necessitating direct experimentation on smartphones instead of on laptops with wireless cards; (3) We study the application performance under real-world scenarios and quantify the performance of web browsing by evaluating commercial websites in addition to locally-constructed ones with replicated, real web content under our control. The latter setup helps dissect and analyze the individual factors that contribute to the overall web browsing performance.
 
 In addition to shedding light on the overall application performance, we perform detailed analysis to identify and isolate
 factors that impact user-perceived performance to help carriers,
@@ -45,7 +14,7 @@ take action on. For phone vendors, we identify performance bottlenecks
 on the devices or issues associated with the content. These issues can
 be resolved either independently or by cooperating with content 
 providers. And for application developers, we evaluate factors such 
-as the overhead of HTML rendering and Javascript execution given a 
+as the overhead of HTML rendering and JavaScript execution given a 
 particular software configuration.
 
 We comprehensively study the 3G network and application performance
@@ -63,7 +32,7 @@ RTT, and loss rate.
 
 We summarize our main observations from extensive experimentation:
 
-\begin{enumerate}%\itemsep=-0.9ex
+\begin{enumerate}
 
 \item The four carriers we studied demonstrate distinct 
 characteristics in network performance in terms of throughput, RTT, 
@@ -111,12 +80,12 @@ environment, and essential for eliminating interaction across factors.
 
 Web browsing is one of the most popular smartphone applications. The 
 process of visiting a webpage can be quite complex given the dynamic 
-nature of the content, often generated from Javascript, resulting in 
+nature of the content, often generated from JavaScript, resulting in 
 multiple concurrent TCP connections. Content can also be customized 
 based on mobile device and carrier network.
 
 Web browsing performance depends on various factors, \eg~DNS lookup 
-time, TCP handshake time, TCP transfer time, Javascript execution 
+time, TCP handshake time, TCP transfer time, JavaScript execution 
 time, and content size. To study the effect of these factors, we 
 carefully design controlled experiments to modify a single factor 
 at a time while keeping others the same. We first describe the metrics 
@@ -137,8 +106,8 @@ when loading a webpage.
 
 %For the rest of the paper, page loading time refers to page downloading time.
 
-\paragraph{Javascript execution speed:} Many webpages contain 
-Javascripts, and hence Javascript execution speed has significant
+\paragraph{JavaScript execution speed:} Many webpages contain 
+JavaScript, and hence JavaScript execution speed has significant
 impact on page rendering time. 
 
 %Page rendering time depends on the client execution speed.
@@ -210,6 +179,7 @@ TCP idle time is likely to be dominated by local processing delay,
 request, often caused by HTML rendering and JavaScript execution.
 
 \nsubsection{Web Browsing Controlled Experiment Setup}
+\label{sec:app.setup}
 
 We select a list of 20 popular and representative URLs (based on Alexa Top 500 Global Sites~\cite{alexa}) including search engines, emails, online maps, social networking websites, \etc
 For most of the URLs, we use their mobile versions, specially optimized for smartphone users, as opposed to desktop versions. To facilitate repeated experiments, we write a program to invoke browser to visit each URL in turn with an interval of 120 seconds. Such interval is expected to be large enough to complete the page download. We used \emph{Apache} 2.0 HTTP server for hosting the replicated websites. We collect packet traces on iOS and Android using {\em tcpdump} and on Windows Mobile phones using {\em netlog}. We verify that the CPU utilization caused by trace collection is under 5\%. All the experiments are repeated at least 10 times.
@@ -259,12 +229,12 @@ Specifically, we use {\em SetOutputFilter}and {\em BrowserMatch} directives to s
 
 We fix the loss rate at 0\% and vary the RTT from 0 ms to 800 ms. Our goal is to understand whether compression is beneficial under different network conditions.
 
-\paragraph{Impact of Javascript execution speed:} To evaluate 
-Javascript execution speed on different phones, we use a 
-benchmark~\cite{sunspider} consisting of 26 different Javascripts. 
+\paragraph{Impact of JavaScript execution speed:} To evaluate 
+JavaScript execution speed on different phones, we use a 
+benchmark~\cite{sunspider} consisting of 26 different JavaScripts. 
 The benchmark is hosted on our web server and accessed by phones 
 via WiFi so that the downloading time is negligibly small. We 
-measure the total execution time of these Javascripts. 
+measure the total execution time of these JavaScripts. 
 
 \paragraph{Impact of the data URL scheme:} We also study the effect 
 of the data URL scheme~\cite{rfc2397}, a recently-proposed mobile 
@@ -279,7 +249,7 @@ We next describe how to analyze the traces collected from controlled
 experiments to compute the desired metrics. We calculate the page 
 loading time of each URL as defined in Section~\ref{sec:app.web_metrics} 
 and the average page loading time of all the selected URLs. To measure 
-Javascript execution time, we modify the Javascripts to display their 
+JavaScript execution time, we modify the JavaScripts to display their 
 execution time when their execution finishes. We use the
 {\em average concurrency} as a measure of browser concurrency. The
 average concurrency of a page loading is calculated by dividing the 
@@ -315,12 +285,41 @@ are calculated in a similar way.
 %lookup.
 %For concurrent DNS lookups with the same request, only the response time of the first DNS
 %request is counted because subsequent DNS lookups will not affect performance.	
-	
-	+ Web based application running time breakdown. move \S6 from mobisys10 here
-	
-	
-	
-	
+
+
+
+\nsection{Web Browsing Performance Study}
+\label{sec:web}
+
+%%Motivation of the work
+Given the previous discussions on the performance of 3G networks, we 
+now examine one of the most popular applications on smartphone, 
+namely web browsing, in addition to two other popular mobile 
+applications, streaming video and VoIP in \S\ref{sec:other}. Note 
+that many factors jointly determine user perceived performance, as 
+an application may not fully utilize available network bandwidth due 
+to limited processing power or memory on the 
+phone~\cite{Zhuang:A3:Mobicom2006}.
+
+%%highlights of our findings
+Our study shows that the available 3G bandwidth is often not fully
+utilized for web browsing, and several modifications can be applied 
+to current web browsers on smartphones to make better use of
+available network resources, \eg increasing the limit on concurrent
+TCP connections per domain, optimizing JavaScript engines \etc We 
+also evaluate the effectiveness of a few content optimization 
+techniques, including compression and the recently-proposed data 
+URL scheme~\cite{rfc2397}.
+
+In the following, we study the impact of network condition, browser
+concurrency, compression, and JavaScript execution speed on web 
+performance. We then break down the page loading time into several 
+major components and identify the performance bottleneck for some 
+mobile devices (\S\ref{sec:web_real}).
+
+%network
+\nsubsection{Network Effects on Web Browsing}
+\label{sec:web_net}
 
 \begin{figure*}[t]
 \centering
@@ -337,50 +336,6 @@ are calculated in a similar way.
 \ncaption{Factors impacting web browsing performance}
 \label{fig:web_factor}
 \end{figure*}
-
-
-\nsection{Web Browsing Performance Study}
-\label{sec:web}
-
-%%Motivation of the work
-Given the previous discussions on the performance of 3G networks, we 
-now examine one of the most popular applications on smartphone, 
-namely web browsing, in addition to two other popular mobile 
-applications, streaming video and VoIP in \S\ref{sec:other}. Note 
-that many factors jointly determine user perceived performance, as 
-an application may not fully utilize available network bandwidth due 
-to limited processing power or memory on the 
-phone~\cite{Zhuang:A3:Mobicom2006}.
-
-%%briefly take about methodology
-\iffalse
-In previous sections, we already described the experimental
-methodology (\S\ref{sec:method_web}) and the setup
-(\S\ref{sec:web_setup}). The overall idea behind all
-our experiments is trying to understand the impact
-of each factor on web performance, so we change
-one variable at a time while fixing all other variables.
-\fi
-
-%%highlights of our findings
-Our study shows that the available 3G bandwidth is often not fully
-utilized for web browsing, and several modifications can be applied 
-to current web browsers on smartphones to make better use of
-available network resources, \eg increasing the limit on concurrent
-TCP connections per domain, optimizing Javascript engines \etc We 
-also evaluate the effectiveness of a few content optimization 
-techniques, including compression and the recently-proposed data 
-URL scheme~\cite{rfc2397}.
-
-In the following, we study the impact of network condition, browser
-concurrency, compression, and Javascript execution speed on web 
-performance. We then break down the page loading time into several 
-major components and identify the performance bottleneck for some 
-mobile devices (\S\ref{sec:web_real}).
-
-%network
-\nsubsection{Network Effects on Web Browsing}
-\label{sec:web_net}
 
 To understand how network condition affects web browsing, we fix the 
 web content, server configurations, browser concurrency and only vary 
@@ -417,7 +372,7 @@ depends on network delay and loss conditions.
 \label{sec:web_parallel}
 
 3G network's downlink throughput as measured normally ranges from 500 
-kbps to 1 Mbps for the carriers we studied (Figure~\ref{fig:general}(a)). 
+kbps to 1 Mbps for the carriers we studied (Figure~\ref{fig:net.general}(a)). 
 We used the phones to visit the chosen URLs and found that the average 
 throughput is only between 20 kbps and 50 kbps, indicating that 
 more concurrent TCP connections can potentially improve web browsing 
@@ -447,7 +402,7 @@ of the previous request completes. %Studying the impacts of
 %our future directions.
 We analyzed the 20 popular URLs and found that there are 10.8 images 
 embedded in each page on average, along with several other types of 
-embedded objects, such as Javascript, CSS files, \etc Those websites 
+embedded objects, such as JavaScript, CSS files, \etc Those websites 
 which do not have a mobile version, tend to have even more objects. 
 
 %Parallelizing the download of objects hosted 
@@ -504,7 +459,7 @@ concurrency.
 
 To understand whether further increasing concurrency will improve 
 performance, we make use of DNS aliasing 
-(\S\ref{sec:web_controlled}) to bypass the concurrency limit on 
+(Section~\ref{sec:app.setup}) to bypass the concurrency limit on 
 the phone since we are unable to change this setting directly.
 %With the help of this technique, the client side
 %parallelism limit is removed and the maximum parallelism
@@ -570,12 +525,6 @@ mobile.craigslist.org & 3 & 0 & 113.8 & 113.8 & 3.58 & \checkmark & 652 & - & 1\
 \end{center}
 \end{table*}
 
-\begin{figure}[t]
-\centering
-\IG{figures/mobisys10/web_js.eps}\\
-\ncaption{Script execution speed for different platforms}
-\label{fig:web_js}
-\end{figure}
 
 %compression
 \nsubsection{Content compression} \label{sec:web_compress}
@@ -603,7 +552,7 @@ mobile.craigslist.org & 3 & 0 & 113.8 & 113.8 & 3.58 & \checkmark & 652 & - & 1\
 %to compress various Web objects. 
 
 Compression can dramatically reduce web content size. For text objects, 
-such as HTML, CSS, Javascript, PHP, \etc, the object size can be reduced 
+such as HTML, CSS, JavaScript, PHP, \etc, the object size can be reduced 
 by around 70\%. Usually, a web server does not compress image objects.
 We calculate the compression ratio for the popular URLs in column 
 {\em Compress} of Table~\ref{tab:url}, showing that the content size 
@@ -637,38 +586,23 @@ downloading time by 30\% when RTT is 800ms.
 
 
 
+%js
+\nsubsection{JavaScript execution}
+\label{sec:web_js}
 
 \begin{figure}[t]
 \centering
-\IG{figures/mobisys10/web_dataurl.eps}\\
-\ncaption{Evaluation for data URL scheme}
-\label{fig:web_dataurl}
+\IG{figures/mobisys10/web_js.eps}\\
+\ncaption{Script execution speed for different platforms}
+\label{fig:web_js}
 \end{figure}
 
-
-
-
-\begin{figure*}[t]
-\centering
-\begin{tabular}{c}
-\IG{figures/mobisys10/url10.eps} \\
-\small{(a) Web browsing breakdown for \url{m.ebay.com} (\emph{URL a})} \\
-\IG{figures/mobisys10/url19.eps}\\
-\small{(b) Web browsing breakdown for \url{mapquest.com} (\emph{URL b})} \\ 
-\end{tabular}
-\ncaption{Web browsing anatomy for two popular mobile websites}
-\label{fig:web_real}
-\end{figure*}
-
-%js
-\nsubsection{Javascript execution}
-\label{sec:web_js}
 
 %Webpage consists of HTML tags which describe how the text should be formatted when a browser displays it on the screen. 
 %These tags act as instructions which are interpreted by browser and merged with the text to produce a formatted display.
 %This process is called HTML rendering. A significant number of HTML tags are JavaScript tags.
 Given the limited processing power on smartphones, HTML rendering 
-and Javascript execution may become the bottleneck for web browsing. 
+and JavaScript execution may become the bottleneck for web browsing. 
 Several factors jointly determine the page processing speed, 
 including CPU frequency, memory, OS, and browser.
 %(the actual CPU frequency is also
@@ -677,9 +611,9 @@ including CPU frequency, memory, OS, and browser.
 Even for the same OS, such as Windows Mobile 6.1, phone vendors 
 can have different builds for different models of phones.
 
-We measured Javascript execution time on different phones using a
-benchmark consisting of 26 different Javascripts~\cite{sunspider}.
-Figure~\ref{fig:web_js}(a) shows the total time taken to execute 
+We measured JavaScript execution time on different phones using a
+benchmark consisting of 26 different JavaScripts~\cite{sunspider}.
+Figure~\ref{fig:web_js} shows the total time taken to execute 
 the benchmark on different phones. The results demonstrate that
 execution time is 20--80 times longer on smartphones than on desktop
 computers. Among the smartphones, G2 has the best performance 
@@ -687,17 +621,16 @@ followed by iPhone. For example, G2 is 3 times faster than the HTC
 phone. Such performance gap helps explain the differences in the
 page loading time of G2 and iPhone compared to that of the Samsung 
 and Palm phones under the same network conditions in 
-Figure~\ref{fig:web_factor}. Large Javascript execution time leads 
+Figure~\ref{fig:web_factor}. Large JavaScript execution time leads 
 to more TCP idle time and under-utilization of network bandwidth.
 
 This experiment shows that network is not the only bottleneck for 
 web browsing performance. Phone itself also plays a major role, 
 underscoring the necessity of measuring application performance
 on real smartphones. Web designers should avoid using complex
-Javascripts when building mobile versions of their websites. 
-%In order to
-%improve client execution speed, OS vendors as well as hardware
-%vendors should make joint optimizations.
+JavaScripts when building mobile versions of their websites. 
+
+\comment{talk about JavaScript execution time revisited for mobisys12}
 
 
 %Server configuration and content optimization
@@ -731,16 +664,21 @@ minification is used. The number of lines will be small for index
 pages treated with minification. It seems that half of the URLs use 
 this technique to optimize their contents.
 
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys10/web_dataurl.eps}\\
+\ncaption{Evaluation for data URL scheme}
+\label{fig:web_dataurl}
+\end{figure}
+
 Another type of optimization helps reduce the number of HTTP 
 requests used to fetch contents, including the data URL 
 scheme~\cite{rfc2397}, CSS3, \etc The general idea is to eliminate 
 TCP connections and HTTP requests for small objects, such as the 
 corner image of a page. 
 %comment{Since TCP has slow-start behavior, it is inefficient to download a small object using an extra TCP connection.}
-We set up a controlled experiment to 
-demonstrate the effectiveness of the data URL scheme, under which 
-small images are integrated with the main HTML page rather than 
-linked as separate objects (\S\ref{sec:setup_web}). 
+We set up a controlled experiment to demonstrate the effectiveness of the data URL scheme, under which small images are integrated with the main HTML page rather than linked as separate objects (\S\ref{sec:app.setup}). 
 %When a browser downloads the HTML page, the images 
 %are downloaded together.
 In our experiment, we found that the images are actually 1.3--1.5 
@@ -801,6 +739,18 @@ with better webpage design.
 %users, server configurations, as well as client execution speed
 %are also important factors.
 
+\begin{figure*}[t]
+\centering
+\begin{tabular}{c}
+\IG{figures/mobisys10/url10.eps} \\
+\small{(a) Web browsing breakdown for \url{m.ebay.com} (\emph{URL a})} \\
+\IG{figures/mobisys10/url19.eps}\\
+\small{(b) Web browsing breakdown for \url{mapquest.com} (\emph{URL b})} \\ 
+\end{tabular}
+\ncaption{Web browsing anatomy for two popular mobile websites}
+\label{fig:web_real}
+\end{figure*}
+
 Figure~\ref{fig:web_real} shows the case study for two groups of
 URLs listed in Table~\ref{tab:url}. \emph{Group A} corresponds to 
 the URLs that have concise and simple contents, \eg \url{m.ebay.com}
@@ -827,7 +777,7 @@ break down the page loading time into four parts: TCP transfer,
 TCP idle, DNS lookup, and TCP handshake. The size of \url{mapquest.com} 
 is larger than that of \url{m.ebay.com}, resulting in longer TCP 
 transfer time. Moreover, \url{mapquest.com} contains more contents 
-to render and more complex Javascripts to execute, leading to longer 
+to render and more complex JavaScripts to execute, leading to longer 
 TCP idle time. The DNS lookup time and TCP handshake time contribute
 to less than 10\% of page loading time, which are negligible.
 
@@ -858,7 +808,7 @@ to less than 10\% of page loading time, which are negligible.
 We further observe that the Palm (Sprint), Samsung (Verizon), and 
 HTC (AT\&T) phones experience much longer page loading time for
 \url{mapquest.com} compare to iPhone (AT\&T) and G2 (T-Mobile). 
-This is likely due to their slower Javascript execution speed,
+This is likely due to their slower JavaScript execution speed,
 as shown in Figure~\ref{fig:web_js}. 
 %larger slow down
 %as a result of the differences caused by network and client factors
@@ -886,16 +836,15 @@ experience the same network conditions. As a result, the TCP transfer
 time differences among all phones are small. However, we can still 
 observe significant page loading time differences, mostly due to the
 gap in TCP idle times. We further note that their relative ranking is 
-consistent with the ranking of Javascript execution speed in 
+consistent with the ranking of JavaScript execution speed in 
 Figure~\ref{fig:web_js}.
 
-%the speed difference in HTML rendering and JavaScript execution. This
-%is confirmed by noting that the client execution speed ranking shown
-%in  is consistent with the Web browsing
-%performance ranking for WiFi.
+\comment{add web browsing in LTE networks, leave the discussion of power till later. Talk about the time 2009 v.s. 2011, longitudinal study of web browsing performance.}
 
 %sum for Web browsing section
-\paragraph{Summary:} First, we find that higher browser concurrency 
+\paragraph{Summary:} 
+\comment{update summary based on results from mobisys12}
+First, we find that higher browser concurrency 
 enables the phones to better utilize available network bandwidth, 
 hence reducing page loading time. Second, server configurations and 
 content optimization play a major role in web browsing performance. 

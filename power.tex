@@ -273,12 +273,12 @@ Validation of this formula is in \S\ref{sec:power.updown}.
 We simply consider payload throughput in our power model, without considering header length and {\sf ACK} packets due their small impact. Since TCP instant throughput changes frequently, in order to accurately estimate the instant power levels, we divide the trace into small time windows with size $W$ seconds and within each window, throughput $t_u$ and $t_d$ are calculated, which determine the power $P$. $W$ is set to be 1 second empirically in our setup and the total energy is not sensitive to the choice of $W$ as long as $W$ is larger than a few RTTs and smaller than most flow durations. 
 
 
-\nsection{User trace based tradeoff analysis}
+\nsection{User Trace based Tradeoff Analysis}
 \label{sec:simulation}
 
 In this section, we apply the LTE power model to \UMICH data set and compare energy efficiency with 3G and WiFi, with detailed break down of the total energy. We then study the tradeoff of configuring different LTE parameters via our analysis framework.
 
-\subsection{Energy efficiency comparison}
+\subsection{Energy Efficiency Comparison}
 \label{sec:sim.total}
 
 \begin{figure}[t]
@@ -297,7 +297,7 @@ In Figure~\ref{fig:energy.ratio}, we compare the energy efficiency of different 
 %We observe that for some users, their 3G traces include more small data transfers than average, which increase the energy per bit for their 3G energy.
 %In summary, there is non-negligible application usage differences among different users, even between the same user in 3G network and in WiFi network, which results in variation in energy comparison among different networks. In aggregate, energy per bit for LTE is as high as 24.2 times of WiFi, and 3G is 12.8 times of WiFi.
 
-\subsection{Energy consumption break down}
+\subsection{Energy Consumption Break Down}
 \label{sec:sim.breakdown}
 
 \begin{figure}[t]
@@ -364,9 +364,9 @@ Surprisingly, the biggest energy component for LTE network is tail, rather than 
 \subsection{Impact of LTE parameters}
 \label{sec:sim.parameter}
 
-Similar to \S\ref{sec:sim.total}, we use WiFi traces in the \UMICH~data set to study the impact of LTE parameter configuration on radio energy $E$, channel scheduling delay $D$, and signaling overhead $S$. $E$ is the simulated total energy consumed by UE. Since most energy is consumed by radio interfaces, with display energy excluded, we approximate this total energy as radio energy. $D$ is the sum of scheduling delay for all packets, resulting from two factors: waiting for the next DRX cycle's on duration for a downlink packet and waiting for $T_{pro}$ during \RI~to \RC promotion. $S$ is the overhead of the LTE network for serving this UE. $S$ has different definitions in our study given that different parameters studied affect signaling load in different ways, \eg $T_{tail}$ affects mostly the state promotions, and $T_{pi}$ affects the total on duration in \RI. $D$ and $E$ directly affect end users via application delay and battery life time;  $S$ is of interest to cellular ISPs for supporting large user base at low cost.
+Similar to Section~\ref{sec:sim.total}, we use WiFi traces in the \UMICH~data set to study the impact of LTE parameter configuration on radio energy $E$, channel scheduling delay $D$, and signaling overhead $S$. $E$ is the simulated total energy consumed by UE. Since most energy is consumed by radio interfaces, with display energy excluded, we approximate this total energy as radio energy. $D$ is the sum of scheduling delay for all packets, resulting from two factors: waiting for the next DRX cycle's on duration for a downlink packet and waiting for $T_{pro}$ during \RI~to \RC promotion. $S$ is the overhead of the LTE network for serving this UE. $S$ has different definitions in our study given that different parameters studied affect signaling load in different ways, \eg $T_{tail}$ affects mostly the state promotions, and $T_{pi}$ affects the total on duration in \RI. $D$ and $E$ directly affect end users via application delay and battery life time;  $S$ is of interest to cellular ISPs for supporting large user base at low cost.
 
-\paragraph{Impact of LTE tail timer $T_{tail}$:} In Figure~\ref{fig:ta2i}, we study the impact of LTE tail timer $T_{tail}$, with $S$ defined to be the total number of \RI~to \RC~promotions. $T_{tail}$ varies from 1 second to 30 seconds. $T_D$ is the default configuration of 11.58 seconds for $T_{tail}$ in the measured LTE network with the corresponding values of $E$, $D$ and $S$ calculated as $E_D$, $D_D$ and $S_D$, respectively. When $T_{tail}$ is set to be $T'$, similarly, we get $E'$, $D'$ and $S'$. The change relative to the default setting is calculated as $\Delta(E) = (E' - E_D) / E_D$, and similarly for $\Delta(D)$ and $\Delta(S)$. $\Delta$s for each $T_{tail}$ values are plotted in Figure~\ref{fig:ta2i} and they are all 0 at $T_D$.
+\paragraph{Impact of LTE tail timer $T_{tail}$:} In Figure~\ref{fig:ta2i}, we study the impact of LTE tail timer $T_{tail}$, with $S$ defined to be the total number of \RI~to \RC~promotions. $T_{tail}$ varies from 1 second to 30 seconds. $T_D$ is the default configuration of 11.6 seconds for $T_{tail}$ in the measured LTE network with the corresponding values of $E$, $D$ and $S$ calculated as $E_D$, $D_D$ and $S_D$, respectively. When $T_{tail}$ is set to be $T'$, similarly, we get $E'$, $D'$ and $S'$. The change relative to the default setting is calculated as $\Delta(E) = (E' - E_D) / E_D$, and similarly for $\Delta(D)$ and $\Delta(S)$. $\Delta$s for each $T_{tail}$ values are plotted in Figure~\ref{fig:ta2i} and they are all 0 at $T_D$.
 
 As expected, a larger $T_{tail}$ value reduces both $D$ and $S$, at the cost of $E$.
 We observe that $\Delta(S)$ and $\Delta(D)$ curves are almost identical, since most channel scheduling delay results from idle to active promotions. In addition, the impact of $T_{tail}$ on the radio energy $E$ is significant. For example, when $T_{tail}$ is set to be 30 seconds, total radio energy $E$ increases by 55\%, while for $T_{tail}=1$ second, $E$ decreases by 65\%, at the cost of 143\% $\Delta(D)$ and 169\% $\Delta(S)$. This indicates that $T_{tail}$ is a very important parameter for LTE network.
@@ -399,15 +399,8 @@ Similar to $T_{pl}$, $T_{pi}$ causes significant signaling overhead when set to 
 
 In this section, we observe that LTE consumes up to 23 times the total energy of WiFi in the simulation, and the tail problem in 3G UMTS network is still a key contributor for the low energy efficiency for LTE. Similar to 3G network, $T_{tail}$ remains a key parameter for LTE. In addition to the UE-participated approaches including proactive traffic shaping and fast dormancy proposed by previous study~\cite{imc.3g}, we discuss a possible approach to solve the tail problem in LTE network, which dynamically adapts $T_{tail}$ to traffic pattern at a per-UE base, being transparent to UE. Similar observations are shared by the other LTE parameters and we leave the feasibility study of such dynamic parameter configuration framework for LTE as future work.
 
-%\comment{give citation?  I thought Feng's work--ToP also proposed this.} TOP does not include this approach
-%\comment{summarize highlight findings. recommendation adjust parameters, reference 3G optimization papers. UE adapts to network, and network adapts to network. fast dormancy for LTE should cite. (will check fast dormancy spec does it say LTE?)}
++ Screen status's impact on traffic pattern
 
-
-%\comment{study the overhead of On Duration}
-
-%New policies to evaluate (baseline is assuming that when network is completely aware of all the user packet patterns):
-%\begin{itemize}
-%\item A fixed but maybe better configuration by looking at all users’ traffic patters? Need to compare traffic pattern similarities across all users. Supposedly, big diversity!
-%\item Adaptive policy per user (DRX setting adapt to each user’s last X seconds or last N packets, etc.)
-%\comment{point out the energy ratio is less when we tune parameter timer to be ...}
-%\end{itemize}
++ Power footprint of apps (mobisys12)
+	
+	
