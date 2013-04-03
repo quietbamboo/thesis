@@ -13,8 +13,7 @@
 \usepackage{array,colortbl,booktabs}
 \usepackage{times}
 \usepackage{subfigure}
-\usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algorithm,algorithmic}
 \usepackage{amsthm}
 \usepackage{url}
 \usepackage{hyperref}
@@ -29,8 +28,8 @@
 
 \lstset{frame=tb,
   language=Java,
-  aboveskip=3mm,
-  belowskip=3mm,
+  aboveskip=2mm,
+  belowskip=2mm,
   showstringspaces=false,
   columns=flexible,
   basicstyle={\small\ttfamily},
@@ -114,7 +113,7 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 \initializefrontsections
 
 % Dedication
-\dedicationpage{\emph{To my family.}}
+\dedicationpage{\emph{To my family and my love.}}
 
 % Acknowledgments
 \input{ack}
@@ -122,7 +121,8 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 \tableofcontents     % Required
 \listoftables        % Required if there is more than one table
 \listoffigures       % Required if there is more than one figure
-\listofappendices
+%\listofappendices
+
 
 \input{abstract}
 
@@ -137,8 +137,6 @@ Technical Staff Subhabrata Sen, AT\&T Labs -- Research}
 
 \input{related}
 \input{conc}
-
-\input{appendix}
 
 \begin{singlespace}
 \bibliographystyle{aiaa}

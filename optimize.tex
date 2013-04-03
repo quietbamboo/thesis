@@ -335,7 +335,6 @@ It is straightforward to calculate the prediction accuracy. Assume $n$ bursts ar
 For calculating $\Delta(E)$ and $\Delta(S)$ , if an \IBT is predicted to be short, the prediction framework would have no impact since it keeps UE stay in the high power tail and there is no change to the RRC state machine. When an \IBT is predicted to be long, the prediction framework would make UE demote to \RI to save energy.
 
 \begin{algorithm}[t]
-\caption{Update $\Delta(E), \Delta(S)$ for burst $B_{i}$}
 \begin{algorithmic}
 \STATE $P_{tail} \leftarrow $ power level at \RC tail
 \STATE $P_{idle} \leftarrow $ power level at \RI state
@@ -358,6 +357,7 @@ For calculating $\Delta(E)$ and $\Delta(S)$ , if an \IBT is predicted to be shor
 \STATE // $ibt_{i}$ predicted to be short, remain in the tail, no impact
 \ENDIF
 \end{algorithmic}
+\ncaption{Update $\Delta(E), \Delta(S)$ for burst $B_{i}$}
 \label{algo:update}
 \end{algorithm}
 
