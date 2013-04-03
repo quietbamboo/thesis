@@ -20,11 +20,9 @@ In order to understand the key factors that affect smartphone application perfor
 Compared with 3G, LTE significantly improves the network performance. Meanwhile, device processing capability and software design have also improved remarkably over the last two years~\cite{mobisys.3gtest}. To understand the potential performance bottleneck shift for smartphone applications, we perform longitudinal case studies of several popular applications on Android, especially for web browsing applications. With the help of CPU, network and power traces, we compare the determinant factors on smartphone applications in 2009~\cite{mobisys.3gtest} and in 2011~\cite{huang_mobisys12}. We identify that the performance bottleneck for web-based applications lies more in the device’s processing power than in the network for the LTE networks.
 
 \nsection{Studying Effect of Network Protocol and Application Behavior on Performance for LTE Networks}
-Despite it fast increasing user base, the network performance and the interplay between mobile applications and the network for the LTE networks still remain unexplored. We thoroughly study the network performance of LTE network with a data set covering around 300,000 LTE users in a large metropolitan area for 10 days. We revisit basic network metrics in the LTE network and compare with previously studied network conditions. We also observe that a high downstream queueing delay, likely due to bufferbloat,  has caused TCP congestion window collapse upon one packet loss. With the help of TCP Timestamps option, we have devised a lightweight passive bandwidth estimation algorithm, allowing us to observe that for 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. We find that TCP may not fully utilize the fast-varying available bandwidth when RTT is large in the LTE network. Upon further analysis, we identify 52.61\% of all downlink TCP flows have been throttled by TCP receive window and data transfer patterns for some popular applications are both energy and network unfriendly.
+Despite it fast increasing user base, the interplay between mobile applications, protocol and the network for the commercial LTE networks still remain unexplored. We thoroughly study these topics of the LTE network with a data set covering around 300,000 real LTE users in a large metropolitan area for 10 days. We revisit basic network metrics in the LTE network and compare with previously studied network conditions. We also observe that a high downstream queueing delay, likely due to bufferbloat,  has caused TCP congestion window collapse upon one packet loss. With the help of TCP Timestamps option, we have devised a lightweight passive bandwidth estimation algorithm, allowing us to observe that for 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. We find that TCP may not fully utilize the fast-varying available bandwidth when RTT is large in the LTE network. Upon further analysis, we identify 52.61\% of all downlink TCP flows have been throttled by TCP receive window and data transfer patterns for some popular applications are both energy and network unfriendly.
 
 \nsection{Understanding Power Characteristics of 4G LTE Networks}
-
-
 Besides higher bit rate, lower latency and many other service offerings for LTE, {\em user equipment} (UE) power saving is an important issue and there has been increasing interest in understanding the power characteristics of LTE networks, compared with 3G/WiFi networks. LTE employs {\em Orthogonal Frequency Division Multiplex} (OFDM~\cite{ts36.211}) technology, which suffers from poor power efficiency. To save power, LTE uplink uses an special implementation of OFDM called SC-FDMA for uplink, with improved power efficiency. {\em Discontinuous reception} (DRX) has been employed by existing wireless mobile networks to reduce UE energy consumption. In UMTS~\cite{ts25.304}, during the idle state, UE periodically wakes up to check paging messages and sleeps for the remaining time. LTE supports DRX for both \RC and \RI modes~\cite{ts36.321}, seeking more opportunities to conserve UE battery. DRX is configured at a per-UE basis and its configuration incurs tradeoff among UE power saving, channel scheduling delay, and signaling overhead.
 
 To understand this tradeoff, existing studies use either total DRX-on time to estimate UE power usage~\cite{vtc.drx, ieee.drx}, or a simplified LTE power model~\cite{iswcs.lte, icc.drx}, which ignores the impact of downlink/uplink data rates. In this paper, we develop the first empirically derived comprehensive power model of a commercial LTE network, which accurately models UE energy usage with less than 6\% error rate. Also, existing studies~\cite{vtc.drx, ieee.drx, iswcs.lte, icc.drx} heavily rely on synthetic packet models instead of real user traces. Our study is the first that leverages a comprehensive real user data set, we call \UMICH, consisting of 5-month traces of 20 smartphone users, to analyze the impact of LTE parameter configuration on realistic application usage patterns. We carefully investigate the energy usage in 3G, LTE, and WiFi networks and evaluate the impact of configuring LTE-related parameters. Despite several new power saving improvements, we find that LTE is as much as 23 times less power efficient compared with WiFi, and even less power efficient than 3G, based on the user traces and the long high power tail is found to be a key contributor.
@@ -50,11 +48,9 @@ Besides, we also consider a novel angle to the above problem orthogonal to \NAME
 
 \section{Thesis Organization}
 
-This dissertation is structured as follows. Chapter~\ref{chap:bkg} provides necessary backgrounds for 
-+ the infrastructure of 3G and 4G cellular networks, 
-+ their radio resource control (RRC) mechanisms, 
-+ TCP specifications
+This dissertation is structured as follows. Chapter~\ref{chap:bkg} provides necessary backgrounds for resource management in cellular networks. We present the design of \mobiperf tool and network performance characterization in Chapter~\ref{chap:net} followed by the smartphone application performance study in Chapter~\ref{chap:app}. We study the effect of network protocol and application behavior on performance for one large commercial LTE Network in Chapter~\ref{chap:tcp}.  We analyze the power characterization of smartphone applications in Chapter~\ref{chap:power} and present the design, implementation and evaluation for the smartphone energy optimization system \NAME in Chapter~\ref{chap:optimize}. We summarize the related works in Chapter~\ref{chap:related}, before concluding in Chapter~\ref{chap:conc}.
 
+\oldstuff{
 Chapter~\ref{chap:net}: MobiPerf: 3G/4G network performance characterization
 
 	+ Motivation
@@ -67,7 +63,6 @@ Chapter~\ref{chap:net}: MobiPerf: 3G/4G network performance characterization
 
 	+ Implications (compare across network types, compare over time)
 	
-	
 Chapter~\ref{chap:app}: smartphone application study
 
 	+ Motivation
@@ -75,7 +70,6 @@ Chapter~\ref{chap:app}: smartphone application study
 	+ Web based application running time breakdown.
 
 	+ Video/audio streaming applications (sigcomm submission, mobisys10)
-
 	
 Chapter~\ref{chap:tcp}: LTE traffic pattern study Interplay of TCP, smartphone applications and cellular networks
 
@@ -84,7 +78,6 @@ Chapter~\ref{chap:tcp}: LTE traffic pattern study Interplay of TCP, smartphone a
 	+ Sigcomm draft characterization part
 
 	+ Sigcomm draft inefficient TCP part
-	
 	
 Chapter~\ref{chap:power}: smartphone power model
 
@@ -99,7 +92,6 @@ Chapter~\ref{chap:power}: smartphone power model
 	+ Screen status's impact on traffic pattern
 
 	+ Power footprint of apps (mobisys12)
-	
 		
 Chapter~\ref{chap:optimize}: RadioProphet: optimize for better balance of performance and energy
 
@@ -108,4 +100,4 @@ Chapter~\ref{chap:optimize}: RadioProphet: optimize for better balance of perfor
 	+ screen-aware optimization
 	
 Chapter~\ref{chap:related}: related work
-
+}
