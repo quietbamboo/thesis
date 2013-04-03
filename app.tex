@@ -527,7 +527,8 @@ mobile.craigslist.org & 3 & 0 & 113.8 & 113.8 & 3.58 & \checkmark & 652 & - & 1\
 
 
 %compression
-\nsubsection{Content compression} \label{sec:web_compress}
+\nsubsection{Content Compression}
+\label{sec:web_compress}
 %By add two header fields \texttt{Content-Encoding} and \texttt{Accept-Encoding}, HTTP/1.1 supports content compression. To deploy the compression, HTTP interactivity between the request and response is introduced. In the interactivity, The browser declares the acceptable compression algorithms in \texttt{Accept-Encoding} field in the HTTP \texttt{GET} request like:
 %\newline \noindent
 %\texttt{
@@ -587,13 +588,13 @@ downloading time by 30\% when RTT is 800ms.
 
 
 %js
-\nsubsection{JavaScript execution}
+\nsubsection{JavaScript Execution}
 \label{sec:web_js}
 
 \begin{figure}[t]
 \centering
 \IG{figures/mobisys10/web_js.eps}\\
-\ncaption{Script execution speed for different platforms}
+\ncaption{Script execution speed for different platforms in 2009}
 \label{fig:web_js}
 \end{figure}
 
@@ -611,11 +612,11 @@ including CPU frequency, memory, OS, and browser.
 Even for the same OS, such as Windows Mobile 6.1, phone vendors 
 can have different builds for different models of phones.
 
-We measured JavaScript execution time on different phones using a
+We measure JavaScript execution time on different phones using a
 benchmark consisting of 26 different JavaScripts~\cite{sunspider}.
 Figure~\ref{fig:web_js} shows the total time taken to execute 
-the benchmark on different phones. The results demonstrate that
-execution time is 20--80 times longer on smartphones than on desktop
+the benchmark on different phones measured in 2009. The results demonstrate that
+execution time is 20$\sim$80 times longer on smartphones than on desktop
 computers. Among the smartphones, G2 has the best performance 
 followed by iPhone. For example, G2 is 3 times faster than the HTC
 phone. Such performance gap helps explain the differences in the
@@ -630,11 +631,20 @@ underscoring the necessity of measuring application performance
 on real smartphones. Web designers should avoid using complex
 JavaScripts when building mobile versions of their websites. 
 
-\comment{talk about JavaScript execution time revisited for mobisys12}
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/js.eps} \\
+\ncaption{JavaScript execution speed comparison}
+\label{fig:js}
+\end{figure}
+
+We revisited the JavaScript execution experiments in 2011, as shown in Figure~\ref{fig:js}. We consistently use the same benchmark~\cite{sunspider} (version 0.9) to quantify the JavaScript execution speed. In Figure~\ref{fig:js}, the test results on the same G1 phone in 2009 and in 2011 are very close, validating that the benchmark of that version has not changed since 2009.
+
+From 2009 to 2011, iOS has a speedup of 29.88 for iPhone~4 and 51.95 for iPhone~4S, while 21.64 for Android and 22.30 for Windows Phone. And the gap between smartphone and computer has dropped to 5.5$\sim$23.1 times in JavaScript execution speed. Possible reasons for this improvement include fast CPU, larger memory, and better OS and application software for smartphones.
 
 
 %Server configuration and content optimization
-\nsubsection{Server configuration \& content optimization}
+\nsubsection{Server Configuration and Content Optimization}
 \label{sec:web_server}
 
 Server configurations and content optimization are important factors 
@@ -730,7 +740,7 @@ with better webpage design.
 
 
 %breakdown
-\nsubsection{Web browsing via 3G networks}
+\nsubsection{Understanding Bottleneck Factors for Web Browsing}
 \label{sec:web_real}
 
 %Studying Web browsing on smartphones using 3G networks visiting
@@ -840,6 +850,17 @@ consistent with the ranking of JavaScript execution speed in
 Figure~\ref{fig:web_js}.
 
 \comment{add web browsing in LTE networks, leave the discussion of power till later. Talk about the time 2009 v.s. 2011, longitudinal study of web browsing performance.}
+
+\begin{figure*}[t]
+\centering
+\IGL{figures/mobisys12/app_compare.eps} \\
+\begin{tabular}{l}
+\\{\scriptsize $^\star$The loading time is normalized by the maximum loading time observed in this figure, and similarly for total energy.}
+\end{tabular}
+\ncaption{Loading time, CPU usage and energy consumption analysis on mobile applications}
+\label{fig:app.compare}
+\end{figure*}
+
 
 %sum for Web browsing section
 \paragraph{Summary:} 
