@@ -95,16 +95,23 @@ experiments to measure these metrics.
 \nsubsection{Web Browsing Performance Metrics}
 \label{sec:app.web_metrics}
 
-\paragraph{Page loading time:} It is the time between the first DNS packet 
-and the last data packet containing payload from the server during a 
-page loading. It reflects the overall performance perceived by a user. 
-Note that a browser needs to further parse and render a webpage after 
-it is loaded. This additional processing cannot be fully included in 
-page loading time due to a lack of visibility of the browser internals. 
-Nonetheless, this is still a key indicator of user-perceived performance 
-when loading a webpage. 
+\paragraph{Application loading time:} 
+%It is the time between the first DNS packet and the last data packet containing payload from the server during a page loading. It reflects the overall performance perceived by a user. Note that a browser needs to further parse and render a webpage after it is loaded. This additional processing cannot be fully included in page loading time due to a lack of visibility of the browser internals. Nonetheless, this is still a key indicator of user-perceived performance when loading a webpage. 
 
-%For the rest of the paper, page loading time refers to page downloading time.
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/net_cpu.eps}\\
+\ncaption{Network and CPU trace for \WY in LTE}
+\label{fig:cpu}
+\end{figure}
+
+
+To measure application loading time, we use CPU usage as an indicator. Figure~\ref{fig:cpu} shows co-located network and CPU trace of an Android device visiting popular website in its default browser in the LTE network. At time 0, when ${\sf GO}$ button is clicked, loading starts. Before $t_a$, CPU usage stays low most of the time given that UE has not finished downloading the HTML or JavaScript objects. Starting from $t_a$, CPU usage jumps to 100\% and remains a high average usage until $t_c$. We notice that network activity nearly stops after $t_b$, with only a few TCP {\sf FIN} packets for closing TCP connections afterwards, some even come seconds later, \eg at time 10.5 seconds. During the time between $t_a$ and $t_c$, UE is rendering HTML pages or executing JavaScript, and during the time between $t_a$ and $t_b$, UE is also downloading web objects in parallel.
+% Compared with simple mobile version websites, this content-rich website is selected to show network and CPU activity more clearly.
+
+We define $t_c$ to be the {\em application loading time} instead of $t_b$, since at $t_b$, UE has not fully rendered the contents for the user, though the download process is complete. We validate this by collecting video traces with a camcorder facing the screen of the phone. We replay the video at normal speed and manually mark the start time and the end time, when the website gets fully loaded and all UI activity indicators stop. We verify that $t_c$ is an accurate estimate for application loading time. We also define the average CPU usage between time 0 and $t_c$ to be the {\em CPU usage} for this application.
+
+Compared with a previous approach for measuring web browsing performance by modifying and instrumenting WebKit~\cite{hotmobile.web}, our approach is more lightweight and easily extensible to other applications other then web browsers, with reasonable accuracy. One limitation of our approach is that it is not applicable for applications, \eg streaming video/audio and some game applications, whose CPU usage remains high after initial loading.
 
 \paragraph{JavaScript execution speed:} Many webpages contain 
 JavaScript, and hence JavaScript execution speed has significant
@@ -849,7 +856,6 @@ gap in TCP idle times. We further note that their relative ranking is
 consistent with the ranking of JavaScript execution speed in 
 Figure~\ref{fig:web_js}.
 
-\comment{add web browsing in LTE networks, leave the discussion of power till later. Talk about the time 2009 v.s. 2011, longitudinal study of web browsing performance.}
 
 \begin{figure*}[t]
 \centering
@@ -861,19 +867,41 @@ Figure~\ref{fig:web_js}.
 \label{fig:app.compare}
 \end{figure*}
 
+The previous part of the study was carried out in 2009. Along with improvements in mobile client processing power, LTE technology significantly increased network speed. So we perform another case study of a few popular applications to understand the impact of network speed and processing power enhancement on user-perceived performance in 2011.
 
-%sum for Web browsing section
+With the measurement methodology discussed in Section~\ref{sec:app.web_metrics}, we compare loading time, CPU usage, and energy consumption for several popular applications in Figure~\ref{fig:app.compare}. We collect both network and CPU traces on an Android device with LTE data access. Specifically, we select the default browser, YouTube, NPR News and Android Market as our sampled applications given their popularity. For the default browser, we choose two different usage scenarios, \ie visiting mobile version of \url{google.com} representing a simple website and visiting non-mobile version of \url{yahoo.com} representing a content-rich website. We name the two browser usage scenarios as \WG and \WY, respectively. While for the other applications, we click the application icon until the initial page is fully presented to the user. We make sure the cache is cleared before each experiment. These usage scenarios are representative for web browsing and other similar web-based applications, different from audio and video streaming applications.
+
+First, loading time comparison shows that LTE and WiFi have comparable user-perceived delay for the studied scenarios, and 3G lags behind with 50\%$\sim$200\% larger response time. The application loading time for LTE slightly lags behind WiFi. On one hand, given that promotion delay is counted into the loading time, LTE has larger $T_{pro}$. On the other hand, though LTE has faster throughput than WiFi with throughput tests, its RTT is slightly larger. To understand why RTT matters more than throughput for the usage scenarios in Figure~\ref{fig:app.compare}, we analyze the object size statistics for different applications in Table~\ref{tab:app.size}.
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline
+Application & Total payload & Maximum object size & \# objects & Average size \\\hline
+Website G & 160.7KB & 87.6KB & 11 & 14.6KB\\\hline
+Website Y & 509.9KB & 124.2KB & 59 & 8.6KB\\\hline
+YouTube & 449.1KB & 109.4KB & 33 & 13.6KB\\\hline
+NPR News & 306.2KB & 169.5KB & 9 & 34.0KB\\\hline
+Market & 599.7KB & 145.4KB & 17 & 35.3KB\\\hline
+\end{tabular}
+\ncaption{HTTP object statistics}
+\label{tab:app.size}
+\end{center}
+\end{table}
+
+In Table~\ref{tab:app.size}, across all scenarios, the maximum object size is 169.5KB for NPR News and the average object size is at most 35.3KB for Android market. Especially for \WY, there are 59 HTTP objects with an average size of only 8.6KB. Due to TCP slow start, these objects are far from saturating the link capacity for either LTE or WiFi. Persistent TCP connections are observed to transfer multiple web objects; however, no HTTP pipelining is observed. We also observe up to 5 parallel TCP connections to different remote servers and even to the same remote server; however the average low throughput, \eg 364.2kbps for Website Y, indicates that the RTT is more critical than available bandwidth for these web-based applications in LTE and WiFi.
+
+We observe that average CPU usage for 3G network is relatively low ranging from 35.5\% to 70.8\%, with an average of 57.7\%. CPU usage for LTE is between 68.8\% and 84.3\%, averaging at 79.3\%, compared with WiFi's 78.2\%$\sim$93.0\% and 87.1\% as average. This comparison implies that the gap between WiFi and cellular network has narrowed because of LTE's better network performance. For 3G network, network performance appears to be the bottleneck, resulting in underutilized processing power. Given that the average CPU usage for LTE and WiFi is already 80\%$\sim$90\%, further performance optimization relies more on processing speed improvement and OS/application software enhancement, compared with network improvement. Work such as CloneCloud~\cite{CloneCloud:Eurosys:2011} on offloading computation into the cloud is one such promising direction.
+
+In terms of energy usage, WiFi clearly has significantly higher energy efficiency for the usage scenarios studied, similar to previous discussions. 3G consumes 5.5$\sim$7.8 times the energy of WiFi, with 20.9\%$\sim$55.6\% of the total energy due to tail. While for  LTE, energy usage is 5.4$\sim$12.0 times of WiFi, with 32.2\%$\sim$62.2\% tail energy. We notice that, most of these applications keep some of the existing TCP connections open even after the initial loading; so that if user generates subsequent requests, these connections could be reused. Similar to previous work~\cite{mobisys.aro}, we observe that applications remain idle after the initial loading and a few TCP control packets are generated by UE to close the existing applications a few seconds later, such as the packets seen at time 10.5 seconds in Figure~\ref{fig:cpu}, which reset $T_{tail}$ and further increase the high-power tail length.
+
 \paragraph{Summary:} 
-\comment{update summary based on results from mobisys12}
 First, we find that higher browser concurrency 
 enables the phones to better utilize available network bandwidth, 
 hence reducing page loading time. Second, server configurations and 
 content optimization play a major role in web browsing performance. 
 Compression tends to always help under typical 3G network conditions. 
 However, a few popular websites are employing sub-optimal server 
-configurations and page designs. Third, we found the bottleneck 
-for web browsing performance often lies in the phone itself
-rather than in the 3G network.
+configurations and page designs. Third, we observe that contemporary smartphones have reduced gap with desktop computers in terms of processing power. However, for web-based applications, downloading mostly small sized objects, the performance bottleneck is still at the UE processing side, given the significant improvement in network speed for LTE.
 
 %client execution speed. %We also note that
 %client execution performance is not only determined by CPU frequency,
@@ -887,6 +915,11 @@ rather than in the 3G network.
 	
 \nsection{Other Mobile Applications}
 \label{sec:other}
+
+
+In this section, we study two other popular mobile applications, streaming video and VoIP.
+
+Streaming video is another popular application on smartphones. We measure streaming video performance by playing a 37:40~minute video on the phones using the YouTube application. From the collected packet trace, we calculate the downloading size of the video by adding up the payloads for all the packets from the server to phone while excluding the retransmitted packets. 
 
 \begin{figure*}[t]
 \centering
@@ -902,9 +935,6 @@ rather than in the 3G network.
 \label{fig:video}
 \end{figure*}
 
-In this section, we study two other popular mobile applications, streaming video and VoIP.
-
-Streaming video is another popular application on smartphones. We measure streaming video performance by playing a 37:40~minute video on the phones using the YouTube application. From the collected packet trace, we calculate the downloading size of the video by adding up the payloads for all the packets from the server to phone while excluding the retransmitted packets. 
 
 %Streaming media are multimedia that are constantly received by, and normally presented to,
 %an end-user while being delivered by a streaming provider. Streaming media can be Live media or
