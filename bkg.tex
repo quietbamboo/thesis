@@ -1,11 +1,42 @@
 \chapter{Background} \label{chap:bkg}
 
-This chapter provides sufficient background of 
+This section provides sufficient background on resource management in cellular networks, especially for the LTE networks.
 
-\nsection{Radio Resource Control (RRC) and Discontinuous Reception (DRX) in LTE}
+\nsection{Radio Resource Control (RRC) State Machine}
 \label{sec:bkg.rrc}
 
-We first cover the necessary background on LTE state machine behavior.
+\begin{figure}[t]
+\centering
+\IG{figures/rp/rrc.eps}\\
+\ncaption{\small{RRC State Machine of (a) a large 3G UMTS carrier in the U.S., and (b) a large 4G LTE carrier in the U.S. The radio power consumption was measured by a power monitor on (a) an HTC TyTn II smartphone, (b) an HTC ThunderBolt smartphone}}
+\label{fig:rrc}
+\end{figure}
+
+To efficiently utilize the limited resources, cellular networks employ a resource management policy distinguishing them from wired and Wi-Fi networks. In particular, there is a radio resource control (RRC) state machine~\cite{imc.3g} that determines radio resource usage based on application traffic patterns, affecting device energy consumption and user experience. Similar RRC state machines exist in different types of cellular networks such as UMTS~\cite{imc.3g}, EvDO~\cite{ChatterjeeD02} and 4G LTE networks~\cite{huang_mobisys12}, although the detailed state transition models may differ.
+
+\textbf{RRC States.} In 3G UMTS networks, there are usually three RRC states~\cite{imc.3g, mobisys.aro}. \RI is the default state when the UE is turned on, with no radio resource allocated. \RD is the high-power state enabling high-speed data transmission. \RF is the low-power state in between allowing only low-speed data transmission. In 4G LTE networks, the low-power state is eliminated due to its extremely low bandwidth (less than 20 kbps) so there are only two RRC states named \RC and \RI~\cite{tr25.813, ts36.331}.
+
+\textbf{State Transitions.}
+As shown in Figure~\ref{fig:rrc}, regardless of the specific state transition model, there are two types of state transitions. State promotions switch from a low-power state to a high-power state. They are triggered by user data transmission in either direction. State demotions go in the reverse direction, triggered by inactivity timers configured by the radio access network (RAN). For example, as shown in Figure~\ref{fig:rrc}b, at the \RC state, the RAN resets the \RC$\rightarrow$ \RI timer to a constant threshold $T_{tail}$=11.6 seconds whenever it observes any data frame. If there is no user data transmission for $T_{tail}$ seconds, the \RC$\rightarrow$ \RI timer expires and the state is demoted to \RI. The two timers in 3G UMTS networks use similar schemes (Figure~\ref{fig:rrc}a).
+
+State promotions and demotions incur \emph{promotion delays} and \emph{tail times}, respectively, which distinguish cellular networks from other types of access networks.
+
+\textbf{State promotions} incur a long ``ramp-up'' delay of up to several seconds during which tens of control messages are exchanged between the UE and the radio access network (RAN) for resource allocation. Excessive state promotions increase the signaling overhead at the RAN and degrade user experience, especially for short data transfers~\cite{3gpp:090941, qian10_icnp}.
+
+\textbf{State demotions} incur \emph{tail times} that cause waste of radio resources and the UE energy~\cite{imc.tailender, imc.3g}. A tail is the idle time period matching the inactivity timer value before a state demotion, \eg the tail time is 11.6 seconds in Figure~\ref{fig:rrc}b. During the tail time, the UE still occupies transmission channels, and its radio power consumption is kept at the corresponding level of the RRC state.
+As an example of the negative impact of the tail effect, periodically transferring small data bursts (\eg every one minute) can be extremely resource-inefficient in cellular networks due to the long tail appended to each periodic transfer instance which is small in size and short in duration~\cite{qian12_www}.
+
+%A recent study~\cite{qian12_www} shows that for popular smartphone applications such as Facebook and Pandora, periodic transfers account for only 1.7\% of the overall traffic volume but contribute to 30\% of the total UE radio energy consumption.
+
+\textbf{Adaptive Release of Radio Resources.} Why are tail times necessary? First, the overhead of resource allocation (\ie state promotions) is high and tail times prevent frequent allocation and deallocation of radio resources. Second, the current radio resource network has no easy way of predicting the network idle time of the UE, so it conservatively appends a tail to every network usage period. This naturally gives rise to the idea of letting the UE actively request for resource release: once an imminent long idle time period is predicted, the UE can actively notify the RAN to immediately perform a state demotion. Based on this intuition, a feature called fast dormancy has been proposed
+to be included in 3GPP Release 7~\cite{fast.dormancy.1} and Release 8~\cite{fast.dormancy.2}. It allows the UE to send a control message to the RAN to immediately demote the RRC state to \RI (or a hibernating state called \RPCH) without experiencing the tail time. Fast dormancy is currently supported by several handsets~\cite{fast.dormancy.2}, which can dramatically reduce the radio resource and the UE energy usage while the potential penalty is the increased signaling load when used aggressively~\cite{3gpp:090941, qian10_icnp}. In this work we propose robust methodology for predicting the idle time period, enabling more effective usage of fast dormancy.
+
+
+
+\nsection{RRC and Discontinuous Reception (DRX) in LTE}
+\label{sec:bkg.lte}
+
+In this section, we provide more details for RRC in LTE in addition to Section~\ref{sec:bkg.rrc}, as well as Discontinuous Reception (DRX) mechanisms in LTE.
 \begin{table*}[t]
 \centering
 \small
@@ -39,9 +70,7 @@ Symbol & Full name & Measured value & Description \\\hline\hline
 \label{fig:sm}
 \end{figure}
 
-LTE has two RRC states, \RC~and \RI~\cite{tr25.813, ts36.331}, as shown in Figure~\ref{fig:sm}. At \RC~state, UE can be in one of the three modes: Continuous Reception, Short DRX, and Long DRX. While at \RI~state, UE is only in DRX mode. Table~\ref{tab:parameter} enumerates a list of important LTE parameters, which have significant impact on UE's radio energy consumption, user experience, and signaling overhead for cell towers. The terms in Table~\ref{tab:parameter} are used consistently throughout this paper.
-
-
+As shown in Figure~\ref{fig:sm}, at \RC~state, UE can be in one of the three modes: Continuous Reception, Short DRX, and Long DRX. While at \RI~state, UE is only in DRX mode. Table~\ref{tab:parameter} enumerates a list of important LTE parameters, which have significant impact on UE's radio energy consumption, user experience, and signaling overhead for cell towers. The terms in Table~\ref{tab:parameter} are used consistently throughout this paper.
 
 If UE is initially in \RI~state and receives/sends one packet, regardless of the packet size, a state promotion from \RI~to \RC occurs with a relatively stable delay, similar to the promotion from IDLE to DCH/FACH in UTMS network~\cite{imc.3g}. We define the LTE promotion delay to be $T_{pro}$\footnote{$T_{pro}$ is a measured system property, different from the configurable LTE parameters in Table~\ref{tab:parameter}.} consistently throughout this paper. During this period, radio resources are allocated to the UE.  
 
@@ -58,6 +87,3 @@ Discontinuous Reception (DRX)~\cite{ts36.321, 4gbook}, illustrated in Figure~\re
 
 When UE enters Short DRX, Short Cycle Timer $T_{is}$ is started. Upon $T_{is}$'s expiration, if there is no data activity, UE switches to Long DRX; otherwise, UE goes back into Continuous Reception. For our measurement, $T_{is}$ coincidentally equals $T_{ps}$, so only one cycle of Short DRX is expected to take place before $T_{is}$ expires. Every time UE enters Continuous Reception when there is any data transfer, UE starts the tail timer $T_{tail}$, which is reset every time a packet is sent/received. When $T_{tail}$ expires, UE demotes from \RC to \RI and the allocated radio resource is released. Notice that $T_{tail}$ coexists with $T_{i}$ and $T_{is}$.
 
-
-
-\comment{\S2 of radioprophet.}
