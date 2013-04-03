@@ -2,7 +2,62 @@
 
 This chapter provides sufficient background of 
 
-\nsection{RRC}
+\nsection{Radio Resource Control (RRC) and Discontinuous Reception (DRX) in LTE}
 \label{sec:bkg.rrc}
 
-\comment{\S2.1 of mobisys12, \S2 of radioprophet.}
+We first cover the necessary background on LTE state machine behavior.
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{|c|c|c|c|}\hline
+Symbol & Full name & Measured value & Description \\\hline\hline
+\MR{$T_i$} & \MR{DRX inactivity timer} & \MR{100ms} & UE stays in Continuous Reception \\
+ & & & for $T_i$ before DRX starts when idling \\\hline
+\MR{$T_{is}$} & \MR{Short DRX cycle timer} & \MR{20ms} & UE remains in Short DRX for $T_{is}$ \\
+ & & & before entering Long DRX when idling \\\hline
+\MR{$T_{tail}$} & \MR{RRC inactivity timer} & \MR{11.576s} & UE stays in RRC\_CONNECTED~for  \\
+  & & & $T_{tail}$ before demoting to RRC\_IDLE\\\hline
+\MR{$T_{on}$} & RRC\_CONNECTED & \MR{1ms} & The on duration of UE during each \\
+  & On Duration timer & &  DRX cycle in RRC\_CONNECTED \\\hline
+\MR{$T_{oni}$} & RRC\_IDLE & \MR{43ms} & The on duration of UE during \\
+  & On Duration timer & & each DRX cycle in RRC\_IDLE \\\hline
+\MR{$T_{ps}$} & \MR{Short DRX cycle} & \MR{20ms} &The cycle period of Short DRX \\
+  & & & in RRC\_CONNECTED\\\hline
+\MR{$T_{pl}$} & \MR{Long DRX cycle} & \MR{40ms} & The cycle period of Long DRX \\
+  & & & in RRC\_CONNECTED \\\hline
+\MR{$T_{pi}$} & \MR{RRC\_IDLE~DRX cycle} & \MR{1.28s} & The cycle period of DRX \\
+  & & & in RRC\_IDLE \\\hline
+\end{tabular}
+\ncaption{Important LTE RRC and DRX parameters}
+\label{tab:parameter}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/sm.eps} \\
+\ncaption{RRC state transitions in LTE network}
+\label{fig:sm}
+\end{figure}
+
+LTE has two RRC states, \RC~and \RI~\cite{tr25.813, ts36.331}, as shown in Figure~\ref{fig:sm}. At \RC~state, UE can be in one of the three modes: Continuous Reception, Short DRX, and Long DRX. While at \RI~state, UE is only in DRX mode. Table~\ref{tab:parameter} enumerates a list of important LTE parameters, which have significant impact on UE's radio energy consumption, user experience, and signaling overhead for cell towers. The terms in Table~\ref{tab:parameter} are used consistently throughout this paper.
+
+
+
+If UE is initially in \RI~state and receives/sends one packet, regardless of the packet size, a state promotion from \RI~to \RC occurs with a relatively stable delay, similar to the promotion from IDLE to DCH/FACH in UTMS network~\cite{imc.3g}. We define the LTE promotion delay to be $T_{pro}$\footnote{$T_{pro}$ is a measured system property, different from the configurable LTE parameters in Table~\ref{tab:parameter}.} consistently throughout this paper. During this period, radio resources are allocated to the UE.  
+
+After being promoted to \RC, UE enters Continuous Reception by default and keeps monitoring the {\em Physical Downlink Control Channel} (PDCCH), which delivers control messages to UE. UE also starts the DRX inactivity timer $T_i$, which is reset every time UE receives/sends a packet. Upon $T_i$'s expiration without seeing any data activity, UE enters the Short DRX mode.
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/drx.eps} \\
+\ncaption{Illustration of the LTE DRX in \RC}
+\label{fig:drx}
+\end{figure}
+
+Discontinuous Reception (DRX)~\cite{ts36.321, 4gbook}, illustrated in Figure~\ref{fig:drx}, is adopted by LTE for UE to ``micro-sleep'' to reduce power consumption while providing high QoS and connectivity. DRX in \RC and \RI have similar mechanisms, but different parameter settings. A DRX cycle includes an On Duration during which the UE monitors PDCCH. UE rests for the rest of the cycle to save energy. The tradeoff between battery saving and latency is the guideline for determining the parameterization of DRX cycle. With a fixed On Duration, a longer DRX cycle reduces energy consumption of UE while increasing user-perceived delay, and a shorter DRX cycle reduces the data response delay at the cost of more energy consumption. Short DRX and Long DRX modes, having the same On Duration and differing in cycle length, are to meet these conflicting requirements.
+
+When UE enters Short DRX, Short Cycle Timer $T_{is}$ is started. Upon $T_{is}$'s expiration, if there is no data activity, UE switches to Long DRX; otherwise, UE goes back into Continuous Reception. For our measurement, $T_{is}$ coincidentally equals $T_{ps}$, so only one cycle of Short DRX is expected to take place before $T_{is}$ expires. Every time UE enters Continuous Reception when there is any data transfer, UE starts the tail timer $T_{tail}$, which is reset every time a packet is sent/received. When $T_{tail}$ expires, UE demotes from \RC to \RI and the allocated radio resource is released. Notice that $T_{tail}$ coexists with $T_{i}$ and $T_{is}$.
+
+
+
+\comment{\S2 of radioprophet.}
