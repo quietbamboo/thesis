@@ -229,23 +229,23 @@ found to have 2 -- 4 times of the RTT for small packets.
 \begin{tabular}{cc}
 \IGM{figures/srii/down_tp.eps} &
 \IGM{figures/srii/up_tp.eps} \\
-\small{(a) Downlink throughput} &
-\small{(b) Uplink throughput} \\
+(a) Downlink throughput &
+(b) Uplink throughput \\
 \IGM{figures/srii/down_rtt.eps} &
 \IGM{figures/srii/down_tp_3g.eps} \\
-\small{(c) Downlink RTT} &
-\small{(d) Downlink throughput} \\
+(c) Downlink RTT &
+(d) Downlink throughput \\
 \IGM{figures/srii/up_tp_3g.eps} &
 \IGM{figures/srii/down_rtt_3g.eps} \\
-\small{(e) Uplink throughput} &
-\small{(f) Downlink RTT} \\
+(e) Uplink throughput &
+(f) Downlink RTT \\
 \end{tabular}
 \ncaption{Downlink/Uplink performance comparison among different types of networks}
 \label{fig:net.nettype}
 \end{figure*}
 
 We compare the cellular network performance among technology types. We first break down technology types into WiFi, UMTS family, CDMA family, EDGE and GPRS. UMTS and CDMA are considered as 3G, while EDGE and GPRS are two types of older technologies. 
-Within 3G family, we select 4 major network types, including HSDPA, UMTS (without HSDPA), 1xRTT and EVDO\_A, since these network types cover most 3G users. Notice that at the time of this part of study~\cite{3gtest.tr}, LTE has not come into market yet and we leave the study of LTE in Section~\ref{xxx}\comment{ref LTE network performance section}.
+Within 3G family, we select 4 major network types, including HSDPA, UMTS (without HSDPA), 1xRTT and EVDO\_A, since these network types cover most 3G users. Notice that at the time of this part of study~\cite{3gtest.tr}, LTE has not come into market yet and we leave the study of LTE in Section~\ref{sec:net.lte}.
 
 Downlink throughput is compared in Figure~\ref{fig:net.nettype}~(a).
 WiFi has the best performance with median throughput of 1.46 Mbps. For
@@ -343,10 +343,10 @@ more packet loss. %It is difficult to verify such hypothesis without visibility
 \begin{tabular}{cc}
 \IGM{figures/srii/down_tp_carrier.eps} &
 \IGM{figures/srii/down_rtt_carrier.eps} \\
-\small{(a) Downlink throughput} &
-\small{(b) Downlink RTT} \\
+(a) Downlink throughput &
+(b) Downlink RTT \\
 \multicolumn{2}{c}{\IGM{figures/srii/down_rttdev_carrier.eps}}   \\
-\multicolumn{2}{c}{\small{(c) Downlink RTT standard deviation}}  \\
+\multicolumn{2}{c}{(c) Downlink RTT standard deviation} \\
 \end{tabular}
 \ncaption{Time of day pattern of downlink performance for major carriers in the U.S. (\mobiperf data set, large packets)}
 \label{fig:net.tod.carrier}
@@ -400,12 +400,12 @@ We only look at worldwide local DNS lookup time in the \mobiperf data set. In Fi
 \begin{tabular}{cc}
 \IGM{figures/srii/heat_att.eps} &
 \IGM{figures/srii/heat_tm.eps} \\
-\small{(a) AT\&T} &
-\small{(b) T-Mobile} \\
+(a) AT\&T &
+(b) T-Mobile \\
 \IGM{figures/srii/heat_verizon.eps}&
 \IGM{figures/srii/heat_sprint.eps} \\
-\small{(c) Verizon} &
-\small{(d) Sprint}\\
+(c) Verizon &
+(d) Sprint\\
 \end{tabular}
 \ncaption{Downlink throughput of major carriers in the U.S. (kbps)}
 \label{fig:net.heat.downtp}
@@ -430,6 +430,85 @@ the western part, except for the state of California and
 Washington. These observations suggest that for regions with larger
 user base, carriers may have provided better infrastructure support and newer technology,
 compared with rural areas with fewer users.
+
+
+
+\nsubsection{Cellular Network Infrastructure and Implications}
+\label{sec:infrastructure}
+
+
+
+In this section, we study LDNS assignment and quantify the effectiveness of CDN service in cellular networks.
+
+\begin{figure*}[t]
+\centering
+\begin{tabular}{cc}
+\IGM{figures/srii/coverage_att_dns.eps} &
+\IGM{figures/srii/coverage_att_dns_sample.eps} \\
+(a) Coverage of all AT\&T's DNS servers &
+(b) Coverage of 4 sampled DNS IPs in AT\&T \\
+\multicolumn{2}{c}{\IGM{figures/srii/coverage_verizon_dns.eps}}   \\
+\multicolumn{2}{c}{(c) Coverage of  Verizon's DNS servers} \\
+\end{tabular}
+\ncaption{Coverage of local DNS servers}
+\label{fig:coverage.dns}
+\end{figure*}
+
+%Using the results of LDNS coverage test (\S\ref{sec:method.mobiperf}), 
+\paragraph{LDNS Servers:} How LDNS servers are assigned to customers is an interesting and important design decision made by carriers. It reflects how loading balancing is done and affects LDNS lookup performance. It also impacts the effectiveness of DNS-based server selection. With a representative data set for the major American carriers, we study how they assign LDNS servers to their customers. We observe 12 different LDNS IPs for AT\&T in 4 different /24 address blocks, each consisting of 3 IPs. For T-Mobile, 11 LDNS IPs are observed in 5 /24 blocks, and for Verizon, 12 LDNS IPs in 3 /24 blocks are detected. In Figure~\ref{fig:coverage.dns}, we present the correlation between users' location and the assigned LDNS IPs. For both AT\&T and Verizon, we can observe that clients for each LDNS address block tend to cluster geographically. This suggests that both carriers assign LDNS servers to clients based on geographic regions. However, for T-Mobile, all identified LDNS IPs are used across the country. These results confirm the unsupervised clustering results of our previous work~\cite{sigmetrics.cluster}. 
+%So we think T-Mobile is not assigning LDNS to their customers based on their location, and the choice among different LDNS IPs may be attributed to load balancing.
+
+To further understand how different individual IPs among a /24 address
+block are used, we show in Figure~\ref{fig:coverage.dns} the geographic distributions of four representative LDNS IP addresses.
+We can observe that even at the individual IP level, there exists clear correlation between location and LDNS
+assignment, despite some overlapping regions. Through local
+experiments for AT\&T, we confirm that the assigned LDNS IP remain
+constant for over 48 hours. Having one LDNS IP for a region allows
+the flexibility to customize DNS caches according to the users' interests
+within the region. The comparison of the LDNS latency distribution for
+AT\&T and T-Mobile shows no clear performance difference when querying LDNS servers at different locations.
+As we discuss further below, we conjecture that the
+bottleneck of network latency is along the wireless hop, making the
+server location less important. Note that DNS-based server selection
+cannot effectively choose nearby servers if the LDNS server assignment
+is not based on geographic regions.
+
+\begin{figure}[t]
+\centering
+\IG{figures/srii/dis_handshake_3g.eps}\\
+\ncaption{Handshake RTT vs. spherical distances}
+\label{fig:landmark.handshake.rtt}
+\end{figure}
+
+\paragraph{CDN Service for Cellular Networks:} Using landmark test results, we study the effectiveness of CDN service in cellular networks. 
+First, we select the users with GPS information and calculate the physical spherical distance~\footnote{Spherical is the accurate distance in the great circle of the earth based on latitude and longitude.} to the list of 20 landmark servers. The distribution of TCP handshake latency is show in Figure~\ref{fig:landmark.handshake.rtt}. We observe high variation in RTT between users and landmark servers with no clear correlation with physical distance. This suggests that the latency in the 3G wireless hop is dominant in determining the end-to-end latency, rather than the Internet latency. 
+
+To quantify the effectiveness of CDN services in cellular
+networks, we assume the 20 landmark servers to be CDN servers. Then we
+study 5 different scenarios, assuming 20, 10, 5, 2 and 1 CDN servers
+are used, respectively. We select the CDN servers to maximize the
+geographic spread. For each scenario, each user chooses the
+physically closest CDN server based on its GPS information, and 
+the latency to this server is regarded as the user perceived latency. 
+%For example, for the scenario with 1 CDN server, the user only has one choice.
+Figure~\ref{fig:cdn.handshake} shows the distribution of the user
+perceived latency in all studied scenarios. Additional CDN servers
+have very limited effect on reducing user perceived latency. Comparing
+the best and worst scenario with 20 and 1 CDN servers each, we found
+the median RTT difference to be 20 ms, only 10\% of the median RTT of
+200 ms. However, the equivalent RTT saving can be more significant in LTE 4G
+networks with a much shorter latency at the wireless hop. Given that today's cellular network routing is heavily
+restricted due to limited number of gateways to the Internet
+which are the closest locations to the clients for deploying CDN
+servers, caches can be pushed closer to the user to reduce latency in
+LTE 4G network, which uses a flatter architecture~\cite{4gbook}.
+
+\begin{figure}[t]
+\centering
+\IG{figures/srii/cdn_handshake.eps}\\
+\ncaption{RTT to closest synthetic CDN node}
+\label{fig:cdn.handshake}
+\end{figure}
 
  
 \nsubsection{Signal Strength Effects}
