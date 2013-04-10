@@ -10,6 +10,7 @@ thesis.lot
 thesis.out
 
 thesis.synctex.gz
+thesis.synctex.gz(busy)
 
 thesis.toc
 
@@ -24,3 +25,5 @@ thesis.ps
 thesis.loa
 
 *.DS_Store
+
+
