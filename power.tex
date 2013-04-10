@@ -237,6 +237,11 @@ We also build a data uploader that uploads the data to our server when the phone
 
 During the deployment period, we have collected 152GB data (150 GB \texttt{tcpdump} traces). Although both cellular and Wi-Fi traces were collected, in this study, we consistently use 3G traces only, which contribute 57.82\% of the total traffic volume, in the \UMICH dataset for further analysis. Comparing with the Wi-Fi traces, 3G traces better represent the user and application behavioral patterns in cellular networks.
 
+\nsubsection{Burst Analysis Methodology}
+\label{sec:burst.model}
+
+In order to understand the screen-off traffic pattern and its impact on radio resource and device energy, we use the following traffic model for burst analysis. Intuitively, a burst is a continuous data transfer with preceding and succeeding idle times. For each user, the traffic trace is a sequence of network packets, $P_{i} (1 \leq i \leq n)$. Notice that $P_{i}$ could be either downlink or uplink. If the timestamp of $P_{i}$ is defined to be $t_{i}$, we have $t_{i} \leq t_{j}$ for any $i < j$. Using a burst threshold \BT, the packets are divided into \textbf{\em bursts}, \ie $\{P_{p}, P_{p+1}, \cdots, P_{q}\}$ belongs to a burst $B$, if and only if: {\em i)} $t_{k + 1} - t_{k} \leq$ \BT for any $k \in \{p, \cdots, q - 1\}$, {\em ii)} $t_{q+1} - t_{q} > $ \BT and {\em iii)} $t_{p} - t_{p - 1} > $ \BT. We define the inter-burst time \IBT for burst $B$ to be the time gap following this burst, \ie $t_{q+1} - t_{q}$. In this paper, we empirically choose to use \BT = 2 seconds, which is validated to be larger than most packet gaps for 3G/4G networks within a continuous data transfer, such as downloading a web object.
+
 
 \nsubsection{Trace-driven Modeling Methodology}
 \label{sec:method.sim}
@@ -372,7 +377,7 @@ Surprisingly, the biggest energy component for LTE network is tail, rather than 
 %Evaluate the power saving, additional delay distribution on existing parameters and compare the ATT with Verizon if there is any difference.
 %Break down into individual user and even individual app to understand the typical cause for I2A promotions (similar to Feng’s 3G study), and which parameter settings are better for what kind of traffic patterns.
 
-\subsection{Impact of LTE parameters}
+\subsection{Impact of LTE Parameters}
 \label{sec:sim.parameter}
 
 Similar to Section~\ref{sec:sim.total}, we use WiFi traces in the \UMICH~data set to study the impact of LTE parameter configuration on radio energy $E$, channel scheduling delay $D$, and signaling overhead $S$. $E$ is the simulated total energy consumed by UE. Since most energy is consumed by radio interfaces, with display energy excluded, we approximate this total energy as radio energy. $D$ is the sum of scheduling delay for all packets, resulting from two factors: waiting for the next DRX cycle's on duration for a downlink packet and waiting for $T_{pro}$ during \RI~to \RC promotion. $S$ is the overhead of the LTE network for serving this UE. $S$ has different definitions in our study given that different parameters studied affect signaling load in different ways, \eg $T_{tail}$ affects mostly the state promotions, and $T_{pi}$ affects the total on duration in \RI. $D$ and $E$ directly affect end users via application delay and battery life time;  $S$ is of interest to cellular ISPs for supporting large user base at low cost.
@@ -412,10 +417,8 @@ In this section, we observe that LTE consumes up to 23 times the total energy of
 
 
 
-
-\nsection{Characteristics of screen-off traffic}
+\nsection{Characteristics of Screen-off Traffic}
 \label{sec:stats}
-
 
 \begin{table}[t]
 \centering
@@ -432,16 +435,16 @@ Unknown & 11.85 & 9.02\% \\\hline
 
 \begin{table*}[t]
 \centering
-\small
+\scriptsize
 \begin{tabular}{|c|c|c|c|c|c|c|}\hline
 %original energy
-\MR{Traffic type} & Payload    & \% of downlink  & \# of  packets & \% of  downlink & Avg downlink packet & Avg uplink packet\\
- &  (GB) / \%$^{a}$ &  payload & ($\times10^{6}$) / \%$^{b}$ &  packets &   payload size (B) &   payload size (B)  \\\hline
+\MR{Traffic type} & Payload    & \% of dl  & \# of  packets & \% of  dl & Avg dl packet & Avg ul packet\\
+ &  (GB) / \%$^{a}$ &  payload & ($\times10^{6}$) / \%$^{b}$ &  packets &   payload (B) &   payload (B)  \\\hline
 Screen-on & 51.47 / 64.31\% & 96.31\% & 72.50 / 55.13\% & 60.71\% & 1126 & 67 \\\hline
 Screen-off & 21.82 / 27.26\% & 93.52\% & 47.14 / 35.84\% & 52.60\% & 823 & 63 \\\hline\hline
 
-\MR{Process name} & Off payload    & \% of downlink  & \# of off packets & \% of  downlink & Avg downlink off packet & Avg uplink off packet\\
- &  (GB) / \%$^{c}$ & off payload$^{d}$ & ($\times10^{6}$) / \%$^{e}$ & off packets$^{f}$ &   payload size (B) &   payload size (B)  \\\hline
+\MR{Process name} & Off payload    & \% of dl  & \# of off packets & \% of  dl & Avg dl off packet & Avg ul off packet\\
+ &  (GB) / \%$^{c}$ & off payload$^{d}$ & ($\times10^{6}$) / \%$^{e}$ & off packets$^{f}$ &  payload (B) &   payload (B)  \\\hline
 
 Genie Widget & 1.76 / 72.21\% & 97.01\% & 3.80 / 73.16\% & 49.97\% & 901 & 28 \\\hline
 Google Music & 3.13 / 57.14\% & 99.91\% & 3.30 / 57.02\% & 68.60\% & 1384 & 3 \\\hline
@@ -453,15 +456,17 @@ Facebook & 0.46 / 32.96\% & 86.13\% & 1.95 / 40.67\% & 42.55\% & 487 & 58 \\\hli
 Yahoo! Sportacular & 0.23 / 80.45\% & 83.53\% & 1.94 / 81.05\% & 41.98\% & 238 & 34 \\\hline
 Gmail & 0.39 / 46.00\% & 63.65\% & 1.33 / 54.46\% & 47.70\% & 400 & 208 \\\hline
 \end{tabular}
+\\
+\scriptsize
 \begin{tabular}{l}
-\\{\small $^a$ Payload refers to the total screen-on/off payload, and \% is relative to the total payload of all traffic.}
-\\{\small $^b$ \% relative to the total number of packets of all traffic.}
-\\{\small $^c$ Off payload refers to the screen-off payload of the specific application, and \% is relative to the total payload of this application.}
-\\{\small $^d$ \% of downlink screen-off payload of the specific application relative to the total screen-off payload of that application.}
-\\{\small $^f$ \% of downlink screen-off packet count of the specific application relative to the total screen-off packet count of that application.}
-\\{\small $^g$ Full process name: /data/data/com.skype.raider/files/skypekit, which is not the actual Skype application (com.skype.raider).}
+$^a$ Payload refers to the total screen-on/off payload, and \% is relative to the total payload of all traffic.\\
+$^b$ \% relative to the total number of packets of all traffic.\\
+$^c$ Off payload refers to the screen-off payload of the specific application, and \% is relative to the total payload of this application.\\
+$^d$ \% of downlink screen-off payload of the specific application relative to the total screen-off payload of that application.\\
+$^f$ \% of downlink screen-off packet count of the specific application relative to the total screen-off packet count of that application.\\
+$^g$ Full process name: /data/data/com.skype.raider/files/skypekit, which is not the actual Skype application (com.skype.raider).
 \end{tabular}
-\ncaption{Packet characteristics of screen-on/off traffic and top processes for screen-off traffic}
+\ncaption{\small Packet characteristics of screen-on/off traffic and top processes for screen-off traffic}
 \label{tab:packet}
 \end{table*}
 
@@ -469,80 +474,48 @@ In this section, we present packet characteristics and burst analysis of screen-
 Then we compare screen-on and screen-off traffic and scrutinize the top applications generating screen-off traffic.
 
 \nsubsection{Packet Characteristics of Screen-off Traffic}
-
-%{\bf XXX Overall This subsection is confusing and missing a strong take home message. Details below}
-
-Using the methodology described in Section~\ref{sec:data.umich}, we classify all packets to be screen-on, screen-off or unknown.
-%, if the packet does not belong to any screen session. 
-Table~\ref{tab:stats} lists the number of packets in different categories. 
-Among the total 131.49 million packets, 55.12\% of them are screen-on packets and 35.85\% are screen-off packets, with 9.02\% unknown. The possible reasons for unknown packets are multifold, including that voluntary users may have accidentally killed the data collector. %, or some subtle software bugs within our data collector. 
-For the unknown category, we conservatively choose not optimize it for either screen-on or screen-off traffic optimization. 
-%Ideally, with the screen status of this traffic, our proposed optimization could have better effects by additionally optimizing the unknown traffic.
-%{\bf XXX Do you really ignore it ?You dont eliminate from the trace,  do you ? If that is correct, give a more accurate description of how unknown traffic is treated in the analysis. Maybe you dont characterize the traffic in this section. What about when you do the optimizations ? }
-
+Using the methodology described in Section~\ref{sec:data.umich}, we classify all packets to be screen-on, screen-off or unknown. Table~\ref{tab:stats} lists the number of packets in different categories. Among the total 131.49 million packets, 55.12\% of them are screen-on packets and 35.85\% are screen-off packets, with 9.02\% unknown. The possible reasons for unknown packets are multifold, including that voluntary users may have accidentally killed the data collector. For the unknown category, we conservatively choose not optimize it for either screen-on or screen-off traffic optimization. 
 
 The top section of Table~\ref{tab:packet} lists the packet characteristics of both screen-on and screen-off traffic. Packet payload size refers to the size in bytes of an IP packet excluding the TCP/UDP and IP headers, and payload for a given process is the sum of the packet payload sizes of all packets corresponding to that process. We notice that screen-off traffic has far less packets (35.84\% of total) than screen-on traffic (55.13\% of total), much smaller total payload~(27.26\% for screen-off and 64.31\% for screen-on traffic), and smaller average downlink packet payload size.
-%The gap for payload is larger than that of packet number, which can be explained by that screen-off traffic has less downlink packets (52.60\% $<$ 60.71\% for screen-on) which has larger size, and for downlink packets, the average size for screen-off traffic is smaller than that of screen-on (823.20B $<$ 1126.43B).
 
-To understand individual process behavior within screen-off traffic, we scrutinize the top processes 
-%{\bf XXX are these processes or applications ?} %of screen-off traffic, 
-sorted by the number of screen-off packets, in the bottom section of Table~\ref{tab:packet}. In the second column, titled ``Off payload'', we observe that some processes have most of their payload transferred during screen-off sessions, \eg Genie Widget, Epicurious Recipe, \etc Especially for Yahoo! Sportacular, 80.45\% of all its payload is transferred when the screen is off. 
-This is possibly due to the background behaviors of these processes, involving either periodically pulling updates from servers or traffic triggered by server-initiated push notifications. 
-%{\bf XXX The previous sentence - are these facts that you know or just likely causes that you think-if the latter, mend the language accordingly. Are there only these 2 types of causes ? }
-In terms of the \% of downlink payload, compared to other processes, Skypekit, Gmail, Sportacular and Facebook have smaller proportions of  their respective total downlink payloads associated with the screen-off states. 
-%This observation is further supported by the fact that 
-These processes also have a smaller average downlink packet size ($<$500B). In contrast, a process like \hd{android.process.media} has an average size of 1388B, indicating that most packets have a size of MTU (maximum transmission unit, $\sim$1500B). This shows that for screen-off traffic, application behavioral diversity still exists similar to that of screen-on traffic.
-%This suggests that some processes are downloading objects with a relatively large size (no smaller than MTU which is roughly 1.4$\sim$1.5KB), while other processes are communicating with remote hosts using protocols that have much smaller downlink payloads.
-%{\bf XXX The last sentence seems obvious given the data. What is the big-picture  message from the past few sentences about different packet sizes? Is there anything insightful?  Also there seems to be an overlap between the observations above and the payload discussion below.  Can you streamline the text? }
-%especially, \eg, for Skypekit, the average downlink packet payload size is only 22B and this type of traffic is highly unlikely for downloading any object or for audio/video streaming.
+To understand individual process behavior within screen-off traffic, we scrutinize the top processes sorted by the number of screen-off packets, in the bottom section of Table~\ref{tab:packet}. In the second column, titled ``Off payload'', we observe that some processes have most of their payload transferred during screen-off sessions, \eg Genie Widget, Epicurious Recipe, \etc Especially for Yahoo! Sportacular, 80.45\% of all its payload is transferred when the screen is off. This is possibly due to the background behaviors of these processes, involving either periodically pulling updates from servers or traffic triggered by server-initiated push notifications. In terms of the \% of downlink payload, compared to other processes, Skypekit, Gmail, Sportacular and Facebook have smaller proportions of  their respective total downlink payloads associated with the screen-off states. These processes also have a smaller average downlink packet size ($<$500B). In contrast, a process like \hd{android.process.media} has an average size of 1388B, indicating that most packets have a size of MTU (maximum transmission unit, $\sim$1500B). This shows that for screen-off traffic, application behavioral diversity still exists similar to that of screen-on traffic.
 
-A group of processes share quite similar behavior patterns, including Google Music, \hd{/system/bin/mediaserver} and \\\hd{android.process.media}, which have larger payload ($>$2GB), and $>$99\% of the payload is downlink. Their average downlink packet sizes are close to the MTU and average uplink packet sizes are close to 0. 
-%We find that most of their downlink packets are MTU-sized data packets and most of their uplink packets are 0-sized TCP ACK packets. {\bf XXX Are the last 2 sentences saying the same thing? Can we combine them ? } 
-%This is further verified by {\bf XXX What is further verified ? Why do you need further verification? Did'nt you actually measure the numbers above?} 
-Also, their ratio of downlink packets is close to 2/3. This is because TCP's delayed ACK would generate one uplink ACK packet for every two downlink data packets, resulting in a ratio of 2/3 of downlink packets. 
-%{\bf  XXX I am confused. What is the point we are trying to make here?  Are you trying to explain why the packets in 1 dirn are full and  the other ack ? or that these are content download type apps ? If so why do you care that x\% of payload is downstream or not ? } 
-These observations suggest that Google Music is downloading large amount of data, as it can run in the background allowing users to listen to the music with the screen off.
-%, the traffic generated by Google Music mostly comes from this kind of scenarios. {\bf XXX what kind of scenarios ?}  
-Similarly, although \hd{/system/bin/mediaserver} and \hd{android.process.media} are not actual applications, they are used by other applications, such as Pandora, to download contents for users while the screen is off. However, this group of processes does not necessarily have higher energy consumption compared with the remaining processes, and we explore this in more detail in latter sections.
-
-%The above analysis provides detailed understanding of packet characteristics of screen-off traffic and we observe the volume of screen-off traffic is smaller than screen-on traffic.
-
-
+A group of processes share quite similar behavior patterns, including Google Music, \hd{/system/bin/mediaserver} and \\\hd{android.process.media}, which have larger payload ($>$2GB), and $>$99\% of the payload is downlink. Their average downlink packet sizes are close to the MTU and average uplink packet sizes are close to 0. Also, their ratio of downlink packets is close to 2/3. This is because TCP's delayed ACK would generate one uplink ACK packet for every two downlink data packets, resulting in a ratio of 2/3 of downlink packets. These observations suggest that Google Music is downloading large amount of data, as it can run in the background allowing users to listen to the music with the screen off. Similarly, although \hd{/system/bin/mediaserver} and \hd{android.process.media} are not actual applications, they are used by other applications, such as Pandora, to download contents for users while the screen is off. However, this group of processes does not necessarily have higher energy consumption compared with the remaining processes, and we explore this in more detail in latter sections.
 
 \begin{table*}[t]
 \centering
-\small
+\scriptsize
 \begin{tabular}{|c|c|c|c|c|c|c|c|}\hline
 %original energy
-\MR{Traffic type} & \MR{\# of bursts} & Avg$^a$ \# of  & Avg$^a$ \# of  & Avg$^a$ uplink  & Avg$^a$ downlink  & Avg$^a$ burst  & Avg$^a$ \IBT\\
- &  & uplink packets & downlink packets & payload (B) & payload (KB) &  length (sec)  & following (sec)\\\hline
- Screen-on & 650,941 & 43.75 & 67.62 & 2910.44 & 76.17 & 2.92 & 335.13\\\hline
-Screen-off & 1,910,939  & 11.69 & 12.98 & 739.78 & 10.68 & 1.37 & 113.60\\\hline\hline %id >= 0
+\MR{Traffic type} & \# of & Avg$^a$ \# of  & Avg$^a$ \# of  & Avg$^a$ ul  & Avg$^a$ dl  & Avg$^a$ burst  & Avg$^a$ \IBT\\
+ & bursts  & ul packets & dl packets & payload (B) & payload (KB) &  length (sec)  & following (sec)\\\hline
+ Screen-on & 650.9K & 43.75 & 67.62 & 2910.44 & 76.17 & 2.92 & 335.13\\\hline
+Screen-off & 1910.9K  & 11.69 & 12.98 & 739.78 & 10.68 & 1.37 & 113.60\\\hline\hline %id >= 0
 
-\MR{Process name} & \MR{\# of bursts} & Avg$^a$ \# of  & Avg$^a$ \# of  & Avg$^a$ uplink  & Avg$^a$ downlink  & Avg$^a$ burst  & Avg$^a$ \IBT\\
- &  & uplink packets & downlink packets & payload (B) & payload (KB) &  length (sec)  & following (sec)\\\hline
-\rowcolor[gray]{.8} Genie Widget & 5,952 & 319.73 & 319.36 & 8852.48 & 287.88 & 17.87 & 3,892.87\\\hline %id 361
-\rowcolor[gray]{.8} Google Music & 5,297 & 195.69 & 427.56 & 505.54 & 591.92 & 4.53 & 5,111.50\\\hline %id 178
-Epicurious Recipe & 63,236  & 21.07 & 21.46 & 202.22 & 26.01 & 0.67 & 159.34\\\hline %id 64
-\rowcolor[gray]{.8} /system/bin/mediaserver & 8,163  & 106.44 & 215.53 & 669.82 & 289.35 & 5.01 & 14,451.70\\\hline %id 16
-\rowcolor[gray]{.8} android.process.media & 1,442 & 461.88 & 1,156.93 & 246.99 & 1,605.84 & 19.83 & 123,565.00\\\hline %id 12
-Skypekit & 42,744& 25.08 & 23.46 & 555.38 & 0.52 & 1.93 & 832.79\\\hline %id 114
-Facebook & 203,535 & 5.49 & 4.07 & 318.83 & 1.98 & 0.86 & 547.23\\\hline %id 52
-Yahoo! Sportacular & 133,785  & 8.39 & 6.07 & 285.44 & 1.45 & 1.52 & 261.78\\\hline %id 130
-Gmail & 105,478   & 6.60 & 6.02 & 1375.30 & 2.41 & 1.17 & 2,002.60\\\hline %id 13
+\MR{Process name} & \# of & Avg$^a$ \# of  & Avg$^a$ \# of  & Avg$^a$ ul  & Avg$^a$ dl  & Avg$^a$ burst  & Avg$^a$ \IBT\\
+ & bursts & ul packets & dl packets & payload (B) & payload (KB) &  length (sec)  & following (sec)\\\hline
+\rowcolor[gray]{.8} Genie Widget & 6.0K & 319.73 & 319.36 & 8852.48 & 287.88 & 17.87 & 3,892.87\\\hline %id 361
+\rowcolor[gray]{.8} Google Music & 5.3K & 195.69 & 427.56 & 505.54 & 591.92 & 4.53 & 5,111.50\\\hline %id 178
+Epicurious Recipe & 63.2K  & 21.07 & 21.46 & 202.22 & 26.01 & 0.67 & 159.34\\\hline %id 64
+\rowcolor[gray]{.8} /system/bin/mediaserver & 8.2K  & 106.44 & 215.53 & 669.82 & 289.35 & 5.01 & 14,451.70\\\hline %id 16
+\rowcolor[gray]{.8} android.process.media & 1.4K & 461.88 & 1,156.93 & 246.99 & 1,605.84 & 19.83 & 123,565.00\\\hline %id 12
+Skypekit & 42.7K & 25.08 & 23.46 & 555.38 & 0.52 & 1.93 & 832.79\\\hline %id 114
+Facebook & 203.5K & 5.49 & 4.07 & 318.83 & 1.98 & 0.86 & 547.23\\\hline %id 52
+Yahoo! Sportacular & 133.8K  & 8.39 & 6.07 & 285.44 & 1.45 & 1.52 & 261.78\\\hline %id 130
+Gmail & 105.5K   & 6.60 & 6.02 & 1375.30 & 2.41 & 1.17 & 2,002.60\\\hline %id 13
 \end{tabular}
+\\
 \begin{tabular}{l}
-\\{\small $^a$ Each ``avg'' in this table stands for the average value per burst.}
+{\footnotesize $^a$ Each ``avg'' in this table stands for the average value per burst.}
 \end{tabular}
-\ncaption{Burst analysis of screen-on/off traffic and top processes for screen-off traffic}
+\ncaption{\small Burst analysis of screen-on/off traffic and top processes for screen-off traffic}
 \label{tab:burst}
 \end{table*}
 
 
 \nsubsection{Burst Analysis of Screen-off Traffic}
-\label{sec:burst}
-
-Following the methodology in \S\ref{sec:method.burst}, Table~\ref{tab:burst} lists the results of the burst analysis for screen-off traffic, with that of screen-on traffic listed for comparison purposes.
+\label{sec:screen.burst}
+Following the methodology in \S\ref{sec:burst.model}, Table~\ref{tab:burst} lists the results of the burst analysis for screen-off traffic, with that of screen-on traffic listed for comparison purposes.
 
 We observe that screen-off traffic contains much more bursts than screen-on traffic, although the total number of packets for screen-off traffic is smaller. For screen-off traffic, bursts are smaller in terms of the number of downlink/uplink packets and payload. Especially, for average downlink payload per burst, screen-on traffic is 7 times that for screen-off traffic. In addition, the average burst length 
 %{\bf XXX what is burst length vs. burst session length ?} 
@@ -556,3 +529,136 @@ since a small uplink payload of HTTP request can result in a large file download
 The rest of the processes fall into the second group, called the {\em Scattered} group, which generate significantly more bursts and on average, these bursts contain less packets and smaller downlink payload. In addition, these bursts are shorter in duration and appear more frequently. A  representative process from this group is Facebook, which includes over 200,000 bursts, and the major reason for this behavior of Facebook is the periodic keep-alive transfers~\cite{qian12_www}.
 
 Based on this comparison, we believe that it is both easy and important for mobile application developers to optimize their application behaviors during the screen-off stage, \eg for delay-insensitive traffic, they can batch the data into larger bursts, or even eliminate the screen-off data transfers if they are not necessary.
+
+
+\nsection{Radio Resource, Energy Impact and Optimization of Screen-off Traffic}
+
+Using the network and power model simulation (Section~\ref{sec:method.sim}), we now evaluate the radio resource and energy impact of screen-off traffic and evaluate some optimization approaches.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}\hline
+%original energy
+Traffic type & $\Delta E$ \%$^a$ & Min $|\Delta E|$ \%$^{c}$   & Max $|\Delta E|$ \%$^{c}$  & $\Delta S$ \%$^a$ & $\Delta D$ \%$^a$ \\\hline
+Screen-on & -22.18\% & 3.78\% & 38.11\% & -14.87\% & -17.57\% \\\hline
+Screen-off & -58.55\% & 12.39\% & 73.53\% & -58.03\% & -54.46\% \\\hline\hline
+
+Process name & $\Delta E$ \%$^b$ & Min $|\Delta E|$ \%$^{c}$   & Max $|\Delta E|$ \%$^{c}$  & $\Delta S$ \%$^b$ & $\Delta D$ \%$^b$ \\\hline
+\rowcolor[gray]{.8} Genie Widget & -0.34\% & 0\% & 2.46\% & 0.11\% & -0.81\% \\\hline
+\rowcolor[gray]{.8} Google Music & -0.12\% & 0\% & 1.68\% & -0.02\% & -0.08\% \\\hline
+Epicurious Recipe & -1.63\% & 0\% & 26.06\% & -1.78\% & -0.94\% \\\hline
+\rowcolor[gray]{.8} /system/bin/mediaserver & -0.13\% & 0\% & 1.08\% & 0.02\% & -0.16\% \\\hline
+\rowcolor[gray]{.8} android.process.media & -0.08\% & 0.01\% & 0.52\% & 0.02\% & -0.05\% \\\hline
+Skypekit & -0.96\% & 0\% & 7.32\% & -0.24\% & -0.51\% \\\hline
+Facebook  & -5.25\% & 0\% & 34.68\% & -5.82\% & -4.15\% \\\hline
+Yahoo! Sportacular & -3.01\% & 0\% & 20.04\% & -1.88\% & -1.44\% \\\hline
+Gmail & -1.18\% & 0.04\% & 4.59\% & -0.69\% & -1.47\% \\\hline
+\end{tabular}
+\begin{tabular}{l}
+\\{\small $^a$ $\Delta E$, $\Delta S$ and $\Delta D$ are calculated by removing all screen-on/off traffic from the original traces}
+\\{\small $^b$ $\Delta E$, $\Delta S$ and $\Delta D$ are calculated by removing the screen-off traffic of one process from the original traces}
+\\{\small $^c$ Min and max refer to the minimum and maximum energy saving $|\Delta E|$ across all users, respectively.}
+\end{tabular}
+\ncaption{Radio resource and energy impact of screen-on/off traffic and top processes for screen-off traffic}
+\label{tab:simulation}
+\end{table*}
+
+
+
+\nsubsection{Radio Resource and Energy Impact of Screen-off Traffic}
+Table~\ref{tab:simulation} presents highlights of the simulation results using the LTE network and power model derived previously. $\Delta E$, $\Delta S$ and $\Delta D$ represents the change of network energy, signaling overhead and channel scheduling delay after removing the traffic of an application or type, and a negative value indicates a reduction. The results indicate that, compared to screen-on traffic, screen-off traffic clearly has larger impact on the network energy $E$, as well as $S$ and $D$.  For example, removing all screen-off traffic reduces the total network energy by 58.55\%, and  for one user, this reduction is as high as 73.53\%. 
+%For signaling overhead $S$ and channel scheduling delay $D$, the observation is similar to that of $E$.
+
+Comparing the {\em Gathered} group and {\em Scattered} group discussed in \S\ref{sec:screen.burst}, the former has very small impact on $E$, $S$ and $D$, while the later has a substantial impact. This is because, for the {\em Scattered} group, a large number of small bursts could result in a large number of RRC tails if the \IBTS among these bursts are larger than the tail time and a long channel occupation time otherwise.
+%{\bf XXX is it just tail problem ? Is'nt it also that it may keep the device in the high energy state longer, by postponing the tail as a new saml burst arrives ?}  and hence have a larger impact on UE energy and signaling overhead. 
+For example, although the Facebook process does not generate the most screen-off traffic, it has the largest energy impact among all processes, \ie 5.25\% of the total network energy can be saved by only removing Facebook's screen-off traffic, and for some users this number could be as high as 34.68\%.
+
+
+\nsubsection{Traffic Optimization}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+Process name & Optimization & Settings & $\Delta E^{a}$ & $\Delta S^{a}$ & $\Delta D^{a}$ \\\hline
+% & Ideal case & Removing all screen-off traffic & -58.55\% & -58.03\% & -54.46\% \\\cline{2-6}
+\MRX{10}{All applications} & \MRX{4}{Fast dormancy} & $T_{i, on}\ ^{b}$ = 8s, $T_{i, off}\ ^{b}$ = 8s & -16.39\% & 16.95\% & 13.14\% \\\cline{3-6}
+ & & $T_{i, on}$ = 4s, $T_{i, off}$ = 8s & -20.60\% & 28.29\% & 21.26\% \\\cline{3-6}
+ &  & $T_{i, on}$ = 8s, $T_{i, off}$ = 4s & -34.44\% & 47.04\% & 35.21\% \\\cline{3-6}
+ & & $T_{i, on}$ = 4s, $T_{i, off}$ = 4s & -38.66\% & 58.38\% & 43.31\% \\\cline{2-6}
+ 
+ & \MRX{4}{Batching} & Only for screen-off, $\alpha$ = 50s, $\beta$ = 10s & -22.33\% & -6.24\% & -11.27\% \\\cline{3-6}
+ & & Only for screen-off, $\alpha$ = 50s, $\beta$ = 5s & -27.15\% & -6.24\% & -10.67\% \\\cline{3-6}
+ & & Only for screen-off, $\alpha$ = 100s, $\beta$ = 10s & -36.72\% & -30.00\% & -33.43\% \\\cline{3-6}
+ & & Only for screen-off, $\alpha$ = 100s, $\beta$ = 5s & -40.79\% & -30.00\% & -34.25\% \\\cline{2-6}
+ & Fast dormancy + & $T_{i, on}$ = 8s, $T_{i, off}$ = 4s, batching only & \MR{-60.92\%} & \MR{-25.33\%} & \MR{-30.59\%} \\
+  & Batching &  for screen-off traffic, $\alpha$ = 100s, $\beta$ = 5s &  & & \\\hline
+\MR{Facebook$^c$}  & Fast dormancy + & $T_{i, on}$ = 8s, $T_{i, off}$ = 4s, batching only & \MR{-60.19\%} & \MR{-36.27\%} & \MR{-34.93\%} \\
+  & Batching &  for screen-off traffic, $\alpha$ = 100s, $\beta$ = 5s &  & & \\\hline
+\MR{Google Music$^c$}  & Fast dormancy + & $T_{i, on}$ = 8s, $T_{i, off}$ = 4s, batching only & \MR{-57.30\%} & \MR{7.12\%} & \MR{-21.11\%} \\
+  & Batching &  for screen-off traffic, $\alpha$ = 100s, $\beta$ = 5s &  & & \\\hline
+\end{tabular}
+\\
+\scriptsize
+\begin{tabular}{l}
+$^a$ $\Delta E, S, D$ are relative to the $E, S, D$ of all traffic for the specific application.\\
+$^b$ $T_{i, on}$ is the inactivity threshold of fast dormancy for screen-on traffic, and $T_{i, off}$ is for screen-off traffic.\\
+$^c$ For these two application rows, we consider the traffic of {\em only} one specific application, excluding that from other applications.
+\end{tabular}
+\ncaption{Traffic optimization with fast dormancy and batching}
+\label{tab:compare}
+\end{table*}
+
+Based on the above analysis, we find that screen-off traffic has a clearly different pattern compared to screen-on traffic, and accounts for a huge proportion of the UE network energy $E$, signaling overhead $S$ and channel scheduling delay $D$. Intuitively, since screen-off traffic is more tolerant to delays as users are typically not actively interacting with the device, and hence more amenable to more aggressive optimization efforts, a traffic optimization approach that is appropriately tuned to the two different traffic categories would yield significant efficiencies. To verify this intuition, we study two common optimization techniques, fast dormancy and batching:
+
+(i) {\em  Fast dormancy (FD)}~\cite{fast.dormancy.1, fast.dormancy.2} is a mechanism in 3G networks for reducing the amount of tail time incurred by a device by quickly demoting it to a low energy RRC state without waiting for the tail timer to expire. In our simulations, we explore fast dormancy in an LTE setting, motivated by the fact that LTE, like 3G, also suffers from a serious tail problem~\cite{huang_mobisys12}.
+Our fast dormancy-based optimization works as follows: when the UE has not observed any network activity for some idle time $T_{i}$, it sends a special RRC message to the network to make the allocated radio resource be released earlier, instead of occupying it for the whole RRC tail. After the radio resource is released, the UE switches to the low power idle state (\RI for LTE networks), saving energy. The setting of $T_{i}$ is important for balancing the tradeoffs among UE energy saving ($\Delta E$), signaling overhead ($\Delta S$) and channel scheduling delay ($\Delta D$), \ie a smaller $T_{i}$ would results in a larger $\Delta E$ at the cost of larger $\Delta S$ and $\Delta D$, and \viceversa.
+
+(ii) {\em Batching} is a widely used traffic shaping technique, which has been discussed in previous studies~\cite{imc.tailender, qian12_www}. In this study, batching uses two parameters, source window size $\alpha$ (seconds) and target window size $\beta$ (seconds), and $\alpha > \beta$. For each $\alpha$ seconds long time window $[t, t + \alpha]$, packets within $[t, t + \alpha - \beta]$ are delayed and batched with those inside $[t + \alpha - \beta, t + \alpha]$. Notice that if $\alpha/\beta$ is too large, the limited bandwidth of the cellular network could become the bottleneck, making the batching impossible. So in this study, we make sure that our choice of $\alpha$ and $\beta$ results in acceptable bandwidth usage for LTE networks.
+
+\begin{figure}[t]
+\centering
+\IG{figures/imc12/timer.eps} \\
+\ncaption{Effectiveness comparison of fast dormancy}
+\label{fig:fastdormancy}
+\end{figure}
+
+We first compare applying fast dormancy to screen-on and screen-off traffic with a separate $T_{i}$ settings. The default setting of the \RC inactivity timer is 11.58 seconds for a major LTE ISP~\cite{huang_mobisys12}. In Figure~\ref{fig:fastdormancy}, we vary the setting of $T_{i}$ from 10 seconds to 2 seconds with a step-size of 2~seconds (from left to right in Figure~\ref{fig:fastdormancy}) and calculate the $\Delta(E, S, D)$ relative to when fast dormancy is not applied. We observe that for the same $T_{i}$ setting, there is a higher energy saving $\Delta E$ and a lower $\Delta S$ and $\Delta D$ for screen-off traffic, compared with screen-on traffic, and these gaps are larger when $T_{i}$ is smaller, \ie applying fast dormancy more aggressively. So in order to achieve the same energy saving for screen-off and screen-on traffic, the $T_{i}$ should be set to a much smaller value for screen-on traffic, incurring much larger $\Delta S$ and $\Delta D$. However, the responsiveness requirement when the screen is on is actually higher, hence a higher $\Delta D$ for screen-on traffic is not acceptable. A better strategy would be being more aggressive (a smaller $T_{i}$) for screen-off traffic, which produces significant energy savings, and more conservative (a relatively larger $T_{i}$) for screen-on traffic, which limits the negative impact on user experience, though with less energy savings. For example, when $T_{i} = 8s$, there is 42\% energy savings with 52\% $\Delta S$ and 40\% $\Delta D$ for screen-off traffic, and when $T_{i} = 4s$, for screen-on traffic, though the energy saving is small (24\%), $\Delta S$ (43\%) and $\Delta D$ (30\%) are also limited. With these two fast dormancy settings, for the whole traffic, we can achieve 34\% energy saving, with 47.04\% $\Delta S$ and 35.21\% $\Delta D$. This is a better tradeoff than one single $T_{i}$ setting for both screen-on and screen-off traffic.
+
+%We observe that for the same energy saving $\Delta E$, \eg when $\Delta E = 45\%$,  $\Delta S$ is $\sim$60\% for screen-off traffic and $\sim$160\% for screen-on traffic. Similarly, for $\Delta D$, there is also a big gap between screen-on traffic and screen-off traffic. This indicates that when using fast dormancy, a less aggressive value of $T_{i}$, \ie a larger $T_{i}$, should be used for screen-on traffic, compared with screen-off traffic, which helps reduce $\Delta S$ and $\Delta D$ for the same energy saving $\Delta E$.
+%{\bf XXX Jim, I am confused by the above para.
+%-  For screen on, our main concern is not to increase S and D too much as the user is more susceptible. For screen off, we can be more aggressive due to the delay-tolerant assumption.
+%Why do we care to have the same energy saving for screen on and screen off ? Why do we consider same $\Delta E$ case ? 
+%-  For  $\Delta E = 45\%$, the graph does not have datapoint for screen-on. How do compare screen-on and off in the above ? 
+%-  $\Delta S$ is $\sim$60\% for screen-off traffic and $\sim$160\% for screen-on traffic.  Is S increasing or decreasing ? 
+%- How do you conclude this: This indicates that when using fast dormancy, a less aggressive value of $T_{i}$, \ie a larger $T_{i}$, should be used for screen-on traffic, compared with screen-off traffic
+%Rewrite the above as we discussed.
+%I think the story is : 
+% - for a given $T_{i}$, screen off has higher energy savings and lower additional overheads than screen off
+% - to get the same energy savings, screen on would need to incur a significantly shorter $T_{i}$ and longer overheads than screen off.
+%- we cant have large increase in D for screen on as it will impact user experience
+%- So the strategy would be to  squeeze more out of screen off  and be more conservative with screen-on.
+%  -- large $T_{i}$ for screen-on: limits energy savings, but limits $\Delta S$  and $\Delta D$ 
+%  -- small $T_{i}$ for screen -off:  
+%-Show some illustrative examples of this strategy (eg., take a specifi $T_{i}$ setting for each and show the overall savings for all traffic and what are the $\Delta S$  and $\Delta D$  for screen-on and screen off. I think you already have most of this example one in Fig 5. Its still missing that  $\Delta D$ for screen-on is a very small percentage}
+
+Besides fast dormancy, batching~\cite{qian12_www, imc.tailender} is also proposed for optimizing mobile traffic. In Table~\ref{tab:compare}, we compare fast dormancy and batching under different settings for all applications together, and also individually for two applications, Facebook representing the {\em Scattered} group and Google Music representing the {\em Gathered} group. For fast dormancy, with reduced $E$, there is increased $S, D$, while for batching, all $E, S, D$ are decreased. This is because for fast dormancy, since UE demotes to \RI earlier, there would be more promotions resulting in increased $S, D$, while for batching, since the traffic pattern is altered, scattered packets are gathered into groups and hence there are less promotions. Notice that the metric $D$ here does not include the delay of packets incurred by batching. In this work, we only focus on batching for screen-off traffic, since any delay for screen-on traffic is likely to be more perceptible to users. 
+%Among the top process of the screen-off traffic, batching could possibly harm the user experience of the group of streaming applications, such as Google Music, but not necessarily. By making better use of the available bandwidth, such applications could prefetch and buffer the contents, and as long as the buffer is not empty, batching incurs no negative impact on these applications. A more detailed study on the impact of batching on various screen-off applications is beyond the scope of this paper and we leave it to future study.
+%{\bf XXX That does not make sense. How can $D$ decrease with batching ? Dont we consider that batching by definiton will increase the delay, as a packet that could have been sent earlier now has to wait ? Add text to explain  (i)  D does not include batching induced delay  and (ii) since any dealy for screen-on traffic islikely to be more percetible to user experience, to avoid adversely impacting user experience, in this work we focus on  batching only for screen-off traffic} 
+
+In Table~\ref{tab:compare}, when applying fast dormancy to all applications, we set a different $T_{i}$ for screen-on/off traffic, \ie $T_{i, on}$ and $T_{i, off}$. For simplicity, let $<$$a, b$$>$ stands for the case when $T_{i, on}$ = $a$ seconds and $T_{i, off}$ = $b$ seconds. Based on Figure~\ref{fig:fastdormancy}, we empirically select two values for $T_{i,  on}$ and $T_{i, off}$, 4s as an aggressive setting and 8s as a conservative setting. Compared with $<$$8, 8$$>$, reducing $T_{i, on}$ to 4s, \ie $<$$4, 8$$>$, only saves 4.21\% energy additionally. And $<$$8, 4$$>$ has 11.34\% reduction in $S$ and 8.10\% reduction in $D$, with  only 4.22\% less energy saving, compared with $<$$4, 4$$>$. This verifies that a different setting for $T_{i, on}$ and $T_{i, off}$ balances the tradeoff of saving energy and reducing overhead, and we select $<$$8, 4$$>$ as a reasonable setting. Notice that there are other possible parameter settings representing different aggressiveness with different energy saving and overhead, which may be more appropriate for different settings.
+
+In Table~\ref{tab:compare}, batching applied to the screen-off traffic is able to reduce all $E$, $S$, and $D$. Notice that we do not apply batching for screen-on traffic since it may affect the user experience, \eg when the user is waiting for a response at real time. We observe that most of the screen-off traffic (in terms of the energy impact) is less delay-sensitive, \eg push notification, since user interaction is not involved. However, there are also some exceptions for screen-off applications which requires real-time data transfer, \eg when the user is making a VoIP call with the screen off. Ideally, traffic from these delay-sensitive applications should not be batched even during screen-off stage. In this study, we do not attempt to completely solve this problem, instead, we show an upper bound of the benefit by batching all screen-off traffic. In reality, we need to prioritize delay-sensitive traffic during screen-off stage, and we leave it to future study. The choice of $\alpha$ and $\beta$ values is limited by the available bandwidth for 3G/4G networks. Comparing among the empirically selected candidate settings in Table~\ref{tab:compare}, $\alpha$ = 100s and $\beta$ = 5s is a better setting, which saves up to 40.79\% energy, with a 30.00\% reduction in $S$ and 34.25\% in $D$. Notice that the $\alpha$ and $\beta$ settings studied are just example settings that work well in practice. The goal is to demonstrate the benefit of batching for screen-off traffic and the selection of optimal settings is left to future work.
+
+Then we evaluate applying fast dormancy and batching jointly for all applications and for two sample applications, with the settings specified in Table~\ref{tab:compare}. For all applications, there is a total network energy saving of 60.19\%, with 25.33\% reduction in $S$ and 30.59\% reduction in $D$. Facebook has similar energy saving, and due to its more ``scattered'' traffic pattern for screen-off traffic, the batching optimization results in even more reduction for $S$ and $D$. However, for Google Music, whose traffic is already ``gathered'' as large bursts, the impact of fast dormancy is more obvious than batching, hence the reduction for $D$ is smaller and there is even an increase in $S$, unlike the other two scenarios.
+
+\nsubsection{Discussions}
+
+We took a first step towards understanding the impact of screen status on cellular application traffic behavior. Our evaluations in the context of LTE cellular networks, show that although the number of packets and total payload  for screen-off traffic are much smaller than that for screen-on traffic,  the former accounts for a disproportionate majority~(58.55\%)  of the total network energy consumed by a device. Exploration of resource optimization techniques like fast dormancy and batching indicate that  the strategy of optimizing the screen-off traffic more aggressively than screen-on traffic can realize substantial resource savings, without adversely impacting user experience.
+
+We are pursuing this research further, first to explore screen-off traffic in greater detail and explore optimization strategies tailored to the potentially different delay-requirements of subsets of that traffic. Second, in this paper, our optimization strategies imposed the strict constraint that screen-on traffic should not suffer any additional
+delays that come with traffic shaping approaches. In reality, some limited delay jitter would  be tolerable depending on the application and traffic semantics - this is be an additional source of resource optimization beyond the savings we have shown in this paper.
+Finally, logistics permitting, it would be nice to extend the study to a larger user group.
+
+

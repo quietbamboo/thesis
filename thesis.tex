@@ -2,12 +2,6 @@
 \documentclass[letterpaper,12pt,oneside]{report}
 \RequirePackage{times}
 \usepackage{rac}
-
-\newcommand{\MYIF}{\textbf{if }}
-\newcommand{\MYELSE}{\textbf{else }}
-\newcommand{\MYRETURN}{\textbf{return }}
-\newcommand{\AlgBox}[1]{{\framebox[1.2\width]{\textbf{#1}}}}
-
 \usepackage{epsfig,xspace,xspace,color,multirow}
 \usepackage{graphicx,amssymb,amsmath,endnotes}
 \usepackage{array,colortbl,booktabs}
@@ -16,7 +10,6 @@
 \usepackage{algorithm,algorithmic}
 \usepackage{amsthm}
 \usepackage{url}
-
 \usepackage{setspace}    %setspace has to be loaded before hyperref
 \usepackage{hyperref}
 \usepackage{breakurl}
@@ -57,6 +50,7 @@
 \newcommand{\comment}[1]{{\color{red}[\textsf{#1}]}}
 
 \newcommand{\MR}[1]{\multirow{2}{*}{#1}}
+\newcommand{\MRX}[2]{\multirow{#1}{*}{#2}}
 \newcommand{\MC}[1]{\multicolumn{2}{|c|}{#1}}
 \newcommand{\hd}[1]{\small{\textbf{\texttt{#1}}}\normalsize}
 \newcommand{\hds}[1]{\small{\textbf{\texttt{#1}}}}
