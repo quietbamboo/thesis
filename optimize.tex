@@ -55,7 +55,7 @@ the ideal usage scenario of RadioJockey for a single application only. With mult
 Fourth, we evaluate \NAME using real-world smartphone traces. The overall prediction accuracy is 85.88\% for all traffic. \NAME achieves radio energy saving by 59.07\%, at the cost of 91.01\% additional signaling overhead in LTE networks, significantly outperforming previous proposals. In order to achieve such energy saving (59\%), the additional signaling overheads incurred by MakeIdle and na\"{\i}ve fast dormancy~\cite{fast.dormancy.1, fast.dormancy.2} are as high as 305\% and 215\%, respectively. The maximal energy saving achieved by RadioJockey is 27\% since it is only applicable to background traffic.
 
 
-In this chapter, we present the design of \NAME in \S\ref{sec:overview}. Then we explore feature selection in \S\ref{sec:stats}. With the methodology discussed in \S\ref{sec:method}, we evaluate the performance of \NAME in \S\ref{sec:evaluation}. We summarize related work in \S\ref{sec:related}, before concluding in \S\ref{sec:conc}.
+In this chapter, we present the design of \NAME in Section~\ref{sec:overview}. Then we explore feature selection in Section~\ref{sec:stats}. With the methodology discussed in Section~\ref{sec:method}, we evaluate the performance of \NAME in Section~\ref{sec:evaluation}, before summarizing in Section~\ref{sec:rp.summary}.
 
 
 
@@ -512,9 +512,7 @@ The proposed \NAME system is fully practical for today's smartphones. The overhe
 In terms of the {\bf storage cost}, for the \MostRecent model, information of the $\alpha$ = 1000 historical bursts needs to be stored at the UE side, and according to our implementation, the storage of one burst is less than 200 bytes. So the total storage cost is only 200KB, negligible for modern smartphones.
 
 \nsection{Summary}
+\label{sec:rp.summary}
 
 In summary, we propose a novel, practical, and effective system called \NAMEFULL to address the radio resource deallocation problem for cellular networks. \NAME takes as input the most recent history information of UE traffic to build a prediction framework for traffic inter-burst time (\IBT), leveraging machine learning to predict \IBT based on a list of lightweight and carefully selected features. It performs resource deallocation only when \IBT is sufficiently long to ensure low signaling overhead. We demonstrate that \NAME can be implemented at the UE transparently to applications, with negligible energy overhead and fast response times. Using 7-month-data collected from 20 real users with accurate RRC and radio power simulator for LTE 4G networks, we evaluated the performance of \NAME. With 85.88\% of accuracy in predicting \IBTS, \NAME provides the option of saving radio energy by up to 59.07\%, at the cost of 91.01\% of additional signaling overhead. We believe the \NAME system represents a significant step in systematically optimizing energy and radio resource for 3G and 4G LTE networks.
 
-
-
-	+ screen-aware optimization
