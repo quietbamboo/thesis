@@ -542,38 +542,21 @@ similar, implying that the performance bottleneck is within the
 compute-intensive applications, the performance difference is
 more pronounced. We will study this in more details in Section~\ref{sec:web_js}.
 
-\noindent\textbf{Summary:} \comment{TBU} The main observations of 3G network
-performance are the following.
-
-\begin{enumerate}
+\noindent\textbf{Summary:} The main observations of 3G network performance are the following:
+\begin{itemize}
 \item Typical values for 3G throughput range from 500 kbps to 1~Mbps
 for downlink, and 200 kbps to 400 kbps for uplink, both lower than 
 the advertised rates.
-
 \item Network performance differs across all carriers. For downlink 
 RTT and throughput, the differences among carriers are evident.
-
-\item Sprint and Verizon have higher TCP retransmission rate 
-compared with AT\&T and T-Mobile.
-
-\item Large packets can have 2--4 times RTT of small packets.
-
-\item Some carriers show clear time of day patterns on weekdays, 
-especially for AT\&T's downlink throughput.
-
-\item For simple TCP downloading/uploading, the performance 
-bottleneck is within the 3G network.
-
+%\item Sprint and Verizon have higher TCP retransmission rate compared with AT\&T and T-Mobile.
+%\item Large packets can have 2--4 times RTT of small packets.
+\item Some carriers show clear time of day patterns on weekdays, especially for AT\&T's downlink throughput.
+\item For simple TCP downloading/uploading, the performance bottleneck is within the 3G network.
 \item 3G wireless delay dominates the end-to-end RTT.
-\end{enumerate}
+\end{itemize}
 
-\comment{TBU}
-Our observations suggest that the low uplink throughput and large
-RTT of current 3G networks raise challenges for offloading computation 
-into the cloud. Network application designers should avoid chatty 
-protocols and minimize total bytes to transfer. 3G operators need to 
-examine their queueing and link layer retransmission policies to 
-reduce latency in wireless links. 
+Our observations suggest that the low uplink throughput and large RTT of current 3G networks raise challenges for offloading computation into the cloud. Network application designers should avoid chatty protocols and minimize total bytes to transfer. 3G operators need to examine their queueing and link layer retransmission policies to reduce latency in the wireless links. 
 
 
 

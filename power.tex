@@ -261,7 +261,7 @@ with
 T_{res} = t_{idle} - T_{pi}\lfloor \frac{t_{idle} }{T_{pi}} \rfloor
 \end{equation*}
 
-Tail energy is more complex for LTE since \RC has three modes as in Figure~\ref{fig:sm}\comment{update reference}, while 3G and WiFi do not have DRX in connected mode. We simulate the transitions among Continuous Reception, Short DRX and Long DRX to calculate tail energy, in a similar way of idle energy calculation. Note that we only count tail energy when the tail is complete, otherwise, the energy is considered as data transfer energy, \ie if one packet $P$ is observed before UE demotes to \RI at the end of the tail, the energy between $P$ and the previous packet is still considered as data transfer energy.
+Tail energy is more complex for LTE since \RC has three modes as in Figure~\ref{fig:sm}, while 3G and WiFi do not have DRX in connected mode. We simulate the transitions among Continuous Reception, Short DRX and Long DRX to calculate tail energy, in a similar way of idle energy calculation. Note that we only count tail energy when the tail is complete, otherwise, the energy is considered as data transfer energy, \ie if one packet $P$ is observed before UE demotes to \RI at the end of the tail, the energy between $P$ and the previous packet is still considered as data transfer energy.
  
 For data transfer energy, we propose a novel model. Assume uplink throughput is $t_u$ (Mbps) and downlink throughput is $t_d$ (Mbps), the instant power level (mW) of UE is
 \begin{equation*}

@@ -429,3 +429,189 @@ There are different ways to mitigate this problem. One approach is to update RTO
 If SACK is disabled, we can use a fall-back approach to estimate RTT based on duplicate ACKs by assuming that they are in response to the data packets sent out in order. This assumption holds in most cases as the packet reordering rate is low. Using these approaches, we can obtain RTT estimations for duplicate ACKs and update RTO accordingly, which effectively prevents the timeout of retransmitted packet due to queueing delay. Note that the RTT estimation method used in TCP Vegas~\cite{tcp.vegas} by help of TCP Timestamps option is not applicable to duplicate ACKs, since the echo timestamps of all duplicate ACKs are all the same, which is the timestamp of the segment before the lost segment, rather than the timestamp triggering the duplicate ACK. Our initial analysis shows that these two approaches are able to prevent more than 95\% of the slow starts. From the mobile network operators' perspective, one simple solution for this problem could be prioritizing the retransmitted packet. The retransmitted packet could be inferred by tracking the TCP flow status. However, the security and performance implications of this approach are yet to be studied.
 
 
+
+\nsection{Bandwidth Estimation}
+\label{sec:estimate}
+
+In order to understand the network utilization efficiency of existing applications in the LTE networks, we first need to know the available bandwidth for each user. Previous work on active bandwidth measurement methodology to estimate available bandwidth, \eg using packet pairs, packet trains, and parallel TCP connections~\cite{prasad03, jain02, hu04}, do not apply here. As existing studies have shown that network condition is highly variable in cellular networks~\cite{mobisys.3gtest}, active probing would require us launch measurements for each user in our data set at the time of trace collection. Using packet traces collected at the monitor, we instead devise a \emph{passive} bandwidth estimation algorithm to capture the available bandwidth for each user using TCP flows that may \emph{not} fully utilize the bandwidth.
+
+\nsubsection{Bandwidth Estimation Algorithm}
+\label{sec:estimation}
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/algorithm.eps}\\
+\ncaption{Typical TCP data transfer}
+\label{fig:algo}
+\end{figure}
+
+Figure~\ref{fig:algo} illustrates a typical TCP data transfer. Our monitor lies between the server and the UE, and we only use packet traces collected at the monitor for the analysis. The high-level idea for our bandwidth estimation algorithm is to select a time window during which the sending rate is fast enough (to be discussed later) and calculate the UE receiving rate. Note that the UE receiving rate is not always equal to the server sending rate, \eg when the in-network buffers fill up, the sending rate might exceed the receiving rate. The idea behind our bandwidth estimation algorithm is to use the TCP Timestamps option to calculate receiving rate.
+
+We use Figure~\ref{fig:algo} to illustrate our bandwidth estimation algorithm. At $t_{2}$, UE sends an ACK in response to the two data packets $P_{1}$ and $P_{2}$. And similarly, at $t_{6}$, the ACK for $P_{n-1}$ and $P_{n}$ is sent. From the monitor's traces, we observe that $n-2$ data packets ($P_{3} \cdots P_{n}$) sent to the UE in a time window between $t_{0}$ and $t_{4}$. Assuming the average payload size of these $n-2$ packets is $S$, the sending rate between $t_{0}$ and $t_{4}$ is
+\begin{equation}
+\label{eq:snd}
+R_{snd} = \frac{S (n - 2)}{t_{4} - t_{0}}
+\end{equation}
+And from the UE's perspective, the receiving rate for these $n-2$ packets is
+\begin{displaymath}
+R_{rcv} = \frac{S (n - 2)}{t_{5} - t_{1}}
+\end{displaymath}
+
+Typically, $t_{2}$ is very close to $t_{1}$ and similarly for $t_{5}$ and $t_{6}$. In our controlled lab experiments, for a 30-minute continuous download trace, the median value of the delay between a data packet and the corresponding ACK is negligible: 0.31ms. However, such delay, \eg $t_{2} - t_{1}$, could be large in some rare cases. Typically, one ACK in TCP is for two data packets and when there is only one data packet pending acknowledgement, the receiver may delay sending the ACK by up to 500 ms, which is known as the delayed acknowledgement mechanism~\cite{rfc1122}. In our example, if $P_{n-1}$ has already been acknowledged by another ACK and after $t_{5}$ there are no more data packets arriving at the UE side, the ACK for $P_{n}$ could be delayed. For simplicity, we ignore the cases when the last ACK is acknowledging only one data packet, indicating it might be a delayed ACK. We also do not consider cases with out-of-order data packets or duplicate ACKs in the time window for bandwidth estimation, as there may be ambiguity in packet timing. Then we know
+\begin{displaymath}
+R_{rcv} \approx \frac{S (n - 2)}{t_{6} - t_{2}}
+\end{displaymath}
+If the uplink delay from the UE to monitor is stable, we can assume $t_{6} - t_{2} = t_{7} - t_{3}$. However, as shown previously that RTT could be significantly affected by the bytes in flight and thus the assumption of $t_{6} - t_{2} = t_{7} - t_{3}$ may not hold. Instead, we use TCP Timestamps option~\cite{rfc1323} to calculate $t_{6} - t_{2}$. Specifically, the ACKs from the UE to the server may contain the Timestamp Value field ({\em TSval}), which contains the current value of the UE's timestamp clock. The unit for {\em TSval} is clock tick and for different devices, the actual time per clock tick could be different. Assume for each clock tick, the corresponding time is $G$ milliseconds and $G$ can be treated as a constant for the same device. Assuming $G$ is known, we can estimate $R_{rcv}$ as
+\begin{equation}
+\label{eq:rcv}
+R_{rcv} \approx \frac{S (n - 2)}{G(TS_{2} - TS_{1})}
+\end{equation}
+where $TS_{1}$, $TS_{2}$ are the \emph{TSval} in the two corresponding ACKs.
+
+Our bandwidth estimation algorithm only requires ACKs from the UE having TCP Timestamps option enabled, with no requirement on servers and in our data set, for 92.61\% of the TCP flows, this requirement is satisfied.
+%We also check the server's support and observe a lower support rate of 79.35\%.
+
+We infer the $G$ value using a similar method from previous work~\cite{imc.ttfb}. Using the example in Figure~\ref{fig:algo}, we have
+\begin{equation}
+\label{eq:g}
+G \approx \frac{TS_{2} - TS_{1}}{t_{7}-t_{3}}
+\end{equation}
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/g_infer.eps}\\
+\ncaption{$G$ inference and the selection of $\delta_{G}$}
+\label{fig:g}
+\end{figure}
+
+
+We require $t_{7} - t_{3}$ to be large enough, because clock tick is discrete, not continuous, and if it is too small, \eg when $t_{7} - t_{3} = 0.6G$ and $TS_{2} - TS_{1} = 1$, the calculated value is actually $0.6G$. Also, there might be variations in uplink one-way delay from UE to monitor, and such variation is only negligible in calculating $G$ when $t_{7} - t_{3}$ is large enough. Assuming the threshold for $t_{7} - t_{3}$ to calculate $G$ with small error rate is $\delta_{G}$, we present the error curve for calculating $G$ value of two UEs in Figure~\ref{fig:g} based on controlled experiments. The actual $G$ values for device 1 and 2 are measured at the UE side using 30-minute long traces. We observe that the error for $G$ inference drops drastically as $\delta_{G}$ increases and we conservatively select $\delta_{G} = 3$ seconds, incurring less than 0.1\% error. Note that the error curve may be different for different $G$ values. In our data set, among all large flows, except for 5.93\% of them without UE Timestamps option enabled, 57.33\% have $G\approx 1$ms/tick,  36.37\% have $G\approx 10$ms/tick, and the rest 0.37\% have other values, \eg $G\approx 100$ms/tick. With $\delta_{G} = 3$ seconds, we estimate the inferred $G$ has less than 0.1\% error for majority of the flows.
+
+\paragraph{Summary: } for a target TCP flow, if $G$ value is not known, the initial $\delta_{G} = 3$ seconds is used to infer $G$ using Formula~\ref{eq:g}, with two sample packets more than $\delta_{G}$ apart selected. Flows without UE TCP Timestamps option support are ignored. Then the algorithm scans for a window with high sending rate $R_{snd}$ calculated by Formula~\ref{eq:snd}. If $R_{snd} \geq C$, a pre-known constant of the maximum possible available bandwidth in the studied network, and there is no out-of-order data packets or duplicate ACKs within the time window for estimation, and the last ACK of this window is not a delayed ACK, one bandwidth estimation sample is obtained using Formula~\ref{eq:rcv}. The selection of $C$ is important, \ie if $C$ is too small, the bandwidth may be underestimated, as small $R_{snd}$ may be chosen; if $C$ is too large, we may not be able obtain many estimation samples. We conservatively choose $C$ = 30Mbps, which is verified to be higher than the rate of most flows, and in the meanwhile allows us to predict bandwidth for over 90\% of the large downlink flows during our analysis.
+
+%This bandwidth estimation algorithm is not applicable for TCP flows that are too short, especially when $G$ value is not pre-known. Also, since the requirement on $R_{snd}$ is high, it is hard to find proper bandwidth estimation samples for short flows without passing the slow start stage.
+
+In addition to downlink bandwidth, our algorithm is also applicable to uplink bandwidth estimation, by interchanging the UE and the server in Figure~\ref{fig:algo}. However, some tuning is required, \eg the choice of $C$ and $\Delta_{G}$, \etc Similarly, our bandwidth estimation algorithm also works in other network types, such as 3G, WiFi and even wired networks, with proper parameter settings.
+
+Although the described algorithm is based on one single TCP flow per user, a similar idea can be applied to multiple concurrent flows per user by summing up the predicted bandwidth for different flows. As long as we ensure that the total sending rate for all concurrent flows are larger than $C$, the total receiving rate would be the accurate estimation of the available bandwidth. In this work, we focus on the application of our bandwidth algorithm for the downlink traffic (UEs downloading contents from servers) in the LTE networks for single TCP flows, \ie with no competing downlink flows for the same user.
+
+\nsubsection{Validation with Local Experiments}
+
+To validate the bandwidth estimation algorithm, we use controlled experiments with the setup described in \S\ref{sec:testbed}.
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/bw_validation.eps}\\
+\ncaption{Time series of bandwidth estimation for LTE network (controlled lab experiments )}
+\label{fig:bw.time}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/bw_validation_cdf.eps}\\
+\ncaption{CDF of bandwidth estimation results for LTE network (controlled lab experiments )}
+\label{fig:bw.cdf}
+\end{figure}
+
+Figure~\ref{fig:bw.time} shows the UE-perceived throughput over 30-minute duration, as well as the absolute error for the estimated bandwidth. The actual throughput fluctuates frequently around 10Mbps and error fluctuates within $\pm2$Mbps in most cases. In Figure~\ref{fig:bw.cdf}, we compare the distribution of estimated bandwidth calculated from the server-side packet traces with actual used bandwidth calculated from UE-side packet traces. We can see that the estimated bandwidth curve is very close to the actual throughput curve. Based on UE traces, we can select different window size to calculate actual throughput. For each window, we also get one bandwidth estimation sample whose timestamp is closest to the center of that window, and we compare this sample with the average actual throughput to obtain an error sample. The error distribution for two window sizes, \ie 1.0s and 0.1s, are shown in Figure~\ref{fig:bw.cdf}. For 1.0-second window, the average error is 7.92\% and for 0.1s window, the UE throughput has higher variation and the average error is slightly higher. Note that the term ``error'' here is relative to the actual throughput observed from UE-side traces, which itself might not be the actual available bandwidth, and the true error rate for our estimation algorithm could be even smaller.
+
+\nsubsection{Bandwidth Utilization by TCP Flows}
+
+In this section, we analyze the LTE traffic data set to understand network utilization efficiency of TCP flows.
+As shown in Figure~\ref{fig:concurrency} (\S\ref{subsec:char_flow}), most users have only one TCP flow actively downloading data. This allows us to 
+focus on applying our bandwidth estimation algorithm to single TCP flows with no competing downlink flows from the same user.
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/bwe.eps}\\
+\ncaption{Bandwidth utilization ratio for large downlink TCP flows}
+%\comment{add one curve for variations, calculate the time saved if using full bandwidth, plot of saved time}
+\label{fig:bwe}
+\end{figure}
+
+We then apply the bandwidth estimation algorithm to the large TCP downlink flows that are not concurrent with other large flows and summarize the results in Figure~\ref{fig:bwe}. We use a time window size of 250ms and for each window, we take one bandwidth estimation sample that is closest to the center of the window. For some flows, there exist windows that do not contain any valid bandwidth estimation samples and we simply assume the bandwidth distribution for these unknown windows is the same for the known windows. The possible bias will not likely significantly affect our analysis as such unknown duration accounts for less than 20\% of the total flow duration. For each flow, we use the average value of all bandwidth estimation samples as the estimated bandwidth and compare it with the actual utilized bandwidth.
+
+%For Figure~\ref{fig:bwe}, the median estimated bandwidth among all large flows is 12.20Mbps and the median used bandwidth is only 1.49Mbps. 
+For Figure~\ref{fig:bwe}, we plot the ratio of used bandwidth to estimated bandwidth per flow. The median value is only 19.78\%. For 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. We notice that for 6.41\% of the flows, the used bandwidth is slightly larger than the estimated bandwidth and this is possibly due to estimation error. On average, the utilization ratio is 34.60\%, meaning that the data transfer for a TCP flow takes 52.91\% longer than if the bandwidth is fully utilized, while keeping the ratio interface in the high-power state, incurring significant additional radio energy overhead~\cite{huang12_mobisys}.
+
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/bwe_sample.eps}\\
+\ncaption{Bandwidth estimation timeline for two sample large TCP flows}
+\label{fig:bwe.sample}
+\end{figure}
+
+Figure~\ref{fig:bwe.sample} shows two sample large TCP flows and their estimated bandwidth in the LTE data set. Note that these flows belong to two separate users at different time and the time is aligned only for presentation purposes. We can see that the available bandwidth varies significantly over time and even on the scale of seconds. This could be due to network condition changes, such as signal strength, as well as the changes of the network load in the associated eNB.
+
+To understand how well TCP performs under highly variable available bandwidth, we use \texttt{iptables} to redirect packets to a packet scheduler we designed, which controls the variation of available bandwidth following the variations observed in LTE networks. The packet scheduler also adds different delays to each packet allowing us to understand the impact of RTT. Intuitively, TCP would adapt slower to the fast varying available bandwidth under large RTTs during congestion avoidance, as the congestion window is updated only once per RTT. We measure the bandwidth utilization ratio with the packet scheduler changing the available bandwidth every 500ms. We observe that under small RTTs, TCP can utilize over 95\% of the available bandwidth. However, when RTT exceeds 400$\sim$600ms, the utilization ratio drops to below 50\%. We also observe that for the same RTT, higher variation leads to lower utilization. These observations further suggest that long RTTs can degrade TCP performance in the LTE networks, which have inherently varying available bandwidth (likely caused by changes in load and channel conditions).
+
+
+
+
+
+\nsection{Network Applications in LTE}
+\label{sec:app}
+
+In this section, we characterize the network applications and traffic patterns in the LTE data set. Specifically, we study the causes of inefficient bandwidth usage observed in Section~\ref{sec:estimate}.
+
+
+\nsubsection{HTTP Content Characterization}
+\label{sec:http_content}
+
+\begin{figure}[t]
+\centering
+\IGM{figures/traffic/content_type_new.eps}\\
+\ncaption{Breakdown of content type for all HTTP traffic based on total content size}
+\label{fig:content.type}
+\end{figure}
+
+We break down the content type based on total bytes for HTTP traffic in Figure~\ref{fig:content.type}.
+About 37.8\% is video, followed by 19.5\% of image and 11.8\% of text. Zip contributes to 8.3\% of the HTTP traffic and we observe that these mostly correspond to file downloads, such as application updates, and audio contents consume 6.5\%. The other files consist of 5.6\% , and the remaining 10.5\% is unknown. Within video contents, we observe 12.9\% to be \emph{octet-stream} type, \ie byte stream in binary format, and most of them generated by video players via byte-range requests.
+
+Previous studies show that the multimedia content (video and audio) correspond to 40\% of the traffic generated by mobile hand-held devices in DSL networks~\cite{maier10}, and video contributes to 30\% of the 3G cellular traffic~\cite{erman11}. Although we observe slightly higher percentage of multimedia traffic in this LTE network, the difference is insignificant. Overall, we observe multimedia content is still dominant in the LTE network studied followed by image content.
+%The median for the download size of video flows is 777.3KB
+
+\nsubsection{Inefficient Network Usage}
+
+
+We investigate the large flows with under-utilized network bandwidth and observe that the TCP receive window size~\cite{rfc1323} has become the bottleneck in many cases.
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/seq_ack_shazam_local.eps}\\
+\ncaption{Full receive window slows Shazam player (a popular app) in downloading a 30-second music file}
+\label{fig:shazam}
+\end{figure}
+
+Figure~\ref{fig:shazam} shows one such example: an iOS user uses the popular Shazam application~\cite{shazam} to download a 30-second music file of 1MB size. Initially, the data transfer speed is fast and between time 0s and 2s the average downlink throughput is over 3Mbps. However, between 2s and 9s, the average throughput decreases to less than 300Kbps. The total download time is 9 seconds and as indicated by the \emph{ideal case} curve, the download could have been completed within 2.5 seconds, based on our estimation of the available bandwidth. In addition, we notice that the TCP connection is not immediately closed after the file transfer is complete, although the HTTP request specifies the connection type to be \texttt{Connection: close}. Instead, the connection is only torn down at 30s, after the music clip has finished playing, and the client sends some TCP receive window updates to the server between 20s and 25s with increasing receive window size. Ideally, the connection is closed immediately after the file transfer completion. Overall, the total download process keeps the radio interface of the device active for around 38 seconds. Assuming a tail time of 10 seconds, in the ideal case, the active radio time is only 12.5 seconds.
+
+The performance drop at 2s in Figure~\ref{fig:shazam} is due to the full TCP receive window, \ie byte in-flight fully occupy the window size. Between 0s and 2s, the window size has gradually dropped to a small value, \eg at the turning point around 2s, the window size is 816 bytes, even smaller than the maximum payload size  (1358 bytes in our traces). As TCP rate is controlled by both congestion window and receive window jointly, the full receive window would prevent the server from sending more data, regardless of the congestion window, leaving the network resource underutilized.
+
+The reason for the full TCP receive window is two-fold. First, the initial receive window size is not large, \eg 131.76KB in the case of Figure~\ref{fig:shazam}, much smaller than the file size. We explore the initial advertised receive window size in all TCP flows, and observe that the values fall in 131,712$\pm$600 bytes for over 99\% of the flows, for iOS, Android and Windows Phone devices. Second, the application is not consuming the data fast enough from the receiver's buffer, otherwise, even if the initial receive window is small, the receive window size should not drop to close to 0 afterwards.
+
+We further study the prevalence of such TCP performance throttling by the receive window. We find that for all the downlink TCP flows, 52.61\% of them experienced full receive window or even zero receive window. And for 91.24\% of these affected flows, throttling of receive window happens in the initial 10\% of the data transfer duration. These observations suggest that about half of the TCP flows in the LTE network studied are experiencing lower network performance limited by receive window size.
+
+\begin{figure}[t]
+\centering
+\IG{figures/traffic/netflix.eps}\\
+\ncaption{The periodic request behavior of Netflix player limiting its overall throughput}
+%\comment{HLS, http live streaming, this is iOS, for Android, it is different}
+\label{fig:netflix}
+\end{figure}
+
+We also observe that some applications under-utilize the bandwidth due to the application design. Figure~\ref{fig:netflix} shows the network behavior of the popular Netflix application~\cite{netflix} on iOS. The upper half of the figure shows the HTTP requests and the HTTP object transfers on different client ports. At around 70s, the user browses through a list of video thumbnails and switches to another video. We observe that all HTTP requests for video download are HTTP byte-range requests and the corresponding HTTP object transfers are mostly short in duration, \ie smaller than 1s. The content size of the requests ranges from 1MB to 4MB. The client periodically requests chucks of data every 10s, with each TCP connection typically reused by two consecutive HTTP requests. The bottom half of the figure shows the aggregate downlink throughput, showing a clear periodic pattern corresponding to the periodic requests. While the peak throughput can reach up to 30Mbps, for most of the time, the network interface is idle. This type of traffic pattern is known for incurring high tail energy~\cite{qian12_www}. Especially in this case, we know that the tail timer for the studied network is 10s, and based on the radio resource control RRC state machine of the LTE networks~\cite{huang_mobisys12}, the 10-second request cycle would keep the radio interface of the device always in the high-power state, incurring high energy overheads.
+
+\nsubsection{Discussions}
+\label{sec:discussion}
+
+We have shown that multimedia traffic is dominant in the LTE network studied and the available bandwidth is far from effectively utilized by many applications. Hence optimizing the network utilization efficiency for these applications is critical for better user experiences, in terms of both responsiveness and energy consumption.
+
+About the TCP receive window problem, existing studies~\cite{jiang12} have shown that smartphone venders may have been reducing maximum receive window size to mitigate the buffer bloat problem, resulting in TCP performance degradation. Dynamic receive window adjustment (DRWA)~\cite{jiang12} is proposed towards this problem. However, such proposals require changes to TCP stacks, making the deployment potentially challenging. Also, the potential drawbacks for such TCP modifications remain to be studied in the real LTE networks. Alternatively, a more lightweight and yet still effective solution could be that applications have their own buffers, or increase the buffer size if the existing buffer size is small, to consume the bytes in the TCP's receiver buffer quickly. For example, the ideal behavior of the Shazam player described in Figure~\ref{fig:shazam} is that it downloads the file as fast as possible and stores the contents in an application-layer buffer, no matter how much of the music has been played, and closes the connection immediately when the file transfer is complete. The application-layer buffer is beneficial for both network and energy efficiency.
+
+As for the periodical behavior of the Netflix player in Figure~\ref{fig:netflix}, in addition to the application-layer buffer, it is also recommended 
+that it sends fewer requests and downloads more content for each request. We have shown that transferring data in a large batch significantly reduces the radio energy than otherwise~\cite{huang_mobisys12}. Bulk data transfers also allow TCP to make better use of the available bandwidth. 
+
+\nsection{Summary}
+In this chapter, we use a large-scale LTE data set to study the impact of network protocol and application behaviors on network performance. We show that the RTT in the LTE network studied grows with the TCP bytes in flight due to long queueing delay. Such high RTTs have caused performance problems for TCP upon packet losses. We have also shown that the available bandwidth for the LTE networks has high variation and long RTTs prevent TCP from fully utilizing the bandwidth as the congestion window cannot adapt fast enough. We further notice that the limited TCP receive window size has constrained TCP data rate for 52.61\% of the downlink flows. By devising a bandwidth estimation algorithm, we observe that for 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. In addition, we also observe that the application design may result in underutilized bandwidth. We have seen that about 44.3\% of the HTTP content is multimedia; therefore, increasing the network efficiency of the corresponding applications is important in improving the application responsiveness and energy efficiency.
+
