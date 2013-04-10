@@ -13,7 +13,7 @@ and FCC's broadband test~\cite{fccspeedtest}, only measure bandwidth and latency
 \end{itemize}
 
 
-In the following of this chapter, we first discuss the design and implementation of \mobiperf, the tool to characterize cellular network performance in Section~\ref{sec:net.design}. Then we discuss the measurement results collected via \mobiperf and implications in Section~\ref{sec:net.result}.
+In the following of this chapter, we first discuss the design and implementation of \mobiperf in Section~\ref{sec:net.design} and following that, we discuss the measurement results collected via \mobiperf and their implications.
 
 
 \nsection{MobiPerf Design and Methodology}
@@ -201,7 +201,7 @@ experiments.
 %delays. 
 Figure~\ref{fig:net.general}(g) shows DNS lookup performance. We design 
 the experiment in a way that all DNS lookups are cached at the LDNS 
-server but not locally on the phone (\S\ref{sec:3GTest}). This allows 
+server but not locally on the phone (Section~\ref{sec:net.design}). This allows 
 us to more accurately estimate the delay to the LDNS servers. 
 The LDNS servers studied tend not to respond to ICMP packets, making 
 it challenging to directly measure the network delay between the 
@@ -577,7 +577,8 @@ A special version of \mobiperf, branded as \FT (in the following, we do not dist
 Similar to our previous study for 3G networks in 2009, we complement \mobiperf with local controlled experiments.
 We use an HTC phone with LTE data plan from a large cellular ISP for controlled experiments. It has 768 MB RAM memory and 1 GHz Qualcomm MSM8655 CPU, running Android 2.2.1. We also use a laptop equipped with LTE USB Modem. It has 8GB memory and 2.53 GHz Intel Core Duo CPU, running Mac OS X 10.7.2.
 
-\nsubsection{Comparing LTE to other mobile networks}
+
+\nsubsection{Comparing LTE to Other Mobile Networks}
 \label{sec:net.4gtest}
 
 \begin{figure*}[t]
@@ -605,7 +606,25 @@ In terms of RTT and RTT jitter, LTE with the median RTT 69.5ms and RTT jitter 5.
 To summarize, Figure~\ref{fig:net.4gtest} provides a fair comparison on performance distribution among different mobile networks, from which we observe that LTE significantly improves network throughput as well as RTT and jitter, making it comparable to or even better than WiFi for throughput. WiMAX lags behind LTE, followed by HSDPA, eHRPD and EVDO\_A networks.
 
 
-\nsubsection{One-way delay and impact of packet size}
+\nsubsection{Network-based LTE Parameter Inference}
+\label{sec:net.sm}
+
+\begin{figure}[t]
+\centering
+\IG{figures/mobisys12/rtt_drx.eps} \\
+\ncaption{LTE RTT v.s. inter-packet idle time}
+\label{fig:rtt.drx}
+\end{figure}
+
+\textbf{Network-based approach for LTE parameter inference} is used to validate the power-based approach (Section~\ref{sec:power.method}). We use the following experiment to infer LTE state machine and \RI DRX parameters. The LTE phone maintains a long lived TCP connection with a test server. For each experiment, server first sends a packet $P_1$ to trigger UE's promotion to \RC, and after $X$ seconds, server sends another packet $P_2$ to the phone to measure RTT. Assume the RTT at \RC is $RTT_{b}$ ignoring the minor impact of DRX in \RC. When $X\leq T_{tail}$, $RTT(X) = RTT_{b}$. Otherwise, $RTT(X) = RTT_{b} + T_{pro} + T_{drx}$, where $T_{drx} = T_{n} - X$ and $T_{n}$ is the start time of the next DRX on duration after $P_2$'s arrival. If $P_2$'s arrival is inside any DRX on duration, $T_{drx} = 0$.
+
+
+Figure~\ref{fig:rtt.drx} summarizes the network-based approach for LTE state machine and DRX parameter measurement using the LTE phone. Each point is the median of five runs and for each run, RTT is measured after making the device idle for a specific time. The pattern of RTT is expected as inter-packet idle time changes. Based on these results, we can infer the values of the following parameters in Table~\ref{tab:parameter}: $T_{tail}$ is around 11.5s, $T_{pi}$ is 1.28s and $T_{oni}$ is close to 45ms. In addition, we observe $T_{pro}$ is around 260ms. These measured values agree with those measured from the power-based approach in Table~\ref{tab:power}, cross-validating our measurement methodology.
+
+
+
+
+\nsubsection{One-way Delay and Impact of Packet Size}
 \label{sec:net.owd}
 
 
@@ -666,8 +685,7 @@ For downlink and uplink throughput, variation across different hours is observed
 To summarize, with both global experiments, via \mobiperf, and local controlled experiments, we observe that LTE has significantly improved network performance over 3G, making it comparable to, if not better than, WiFi.
 
 
-\nsection{Summary}
-
-TODO
+%\nsection{Summary}
+%TODO
 
 

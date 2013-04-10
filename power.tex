@@ -88,7 +88,7 @@ WiFi beacon (idle) & 77.2$\pm$1.1 & 7.6$\pm$0.1 & 308.2$\pm$1.0 \\\hline
 \nsubsection{Power model for RRC and DRX}
 \label{sec:power.rrc}
 
-With the experimental setup described in Section~\ref{sec:power.method}, we measure power model for LTE, 3G, and WiFi on the LTE phone, summarized in Table~\ref{tab:power}. The LTE parameter values are validated by the network-based measurement in Section~\ref{sec:net.sm}\comment{update reference}. For simplicity, we ignore the WiFi AP scanning and association, assuming UE is already connected with an AP.
+With the experimental setup described in Section~\ref{sec:power.method}, we measure power model for LTE, 3G, and WiFi on the LTE phone, summarized in Table~\ref{tab:power}. The LTE parameter values are validated by the network-based measurement in Section~\ref{sec:net.sm}. For simplicity, we ignore the WiFi AP scanning and association, assuming UE is already connected with an AP.
 
 First, we observe that LTE reduces the promotion delay ($T_{pro}$) from 3G's 582.06ms to 260.13ms. However, the power level is almost doubled, \ie 1210.74mW (LTE) v.s. 659.43mW (3G). WiFi has the most lightweight state promotion with smaller $T_{pro}$ and much lower power level.
 
@@ -190,16 +190,17 @@ First, energy per bit decreases as bulk data size increases, largely because wit
 \MR{App} & Measured & Simulated & \MR{Error}  \\
 &energy (J)\footnotemark[1] & energy (J)\footnotemark[1] &\\\hline
 Website G\footnotemark[3] & 24.77 & 24.37 & -1.61\% (-2.06\%\footnotemark[2]) \\\hline
-Website Y\footnotemark[3] & 31.84 & 30.08 & -5.53\% (-7.04\%) \\\hline
+Website Y\footnotemark[4] & 31.84 & 30.08 & -5.53\% (-7.04\%) \\\hline
 YouTube & 21.81 & 21.14 & -3.07\% (-4.17\%) \\\hline
 NPR News & 24.65 & 24.37 & -1.12\% (-1.70\%) \\\hline
 Market & 38.64 & 38.03 & -1.58\% (-3.03\%) \\\hline
 \end{tabular}
 \\
 \begin{tabular}{l}
-{$^1$Both measured and simulated energy include tail energy}\\
-{$^2$This error is for simulated energy assuming $\alpha_u = \alpha_d = 0$}\\
-{$^3$Refer to \S\ref{sec:method.app}\comment{update reference} for the definition of \WG and \WY}\\
+{$^1$Both measured and simulated energy include tail energy.}\\
+{$^2$This error is for simulated energy assuming $\alpha_u = \alpha_d = 0$.}\\
+{$^3$\WG is the mobile version of \url{google.com}.}\\
+{$^4$\WY is the non-mobile version of \url{yahoo.com}.}\\
 \end{tabular}
 \ncaption{LTE power model validation}
 \label{tab:power.validation}

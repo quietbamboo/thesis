@@ -82,7 +82,7 @@ complete, incurring additional radio energy overhead.
 Based on our observations, we make several recommendations on protocol and application design to more effectively take
 advantage of the available network resources. We believe our findings likely apply to other LTE networks given the extensive coverage of the data trace used and independent controlled experiments carried out locally.
 
-Here is the roadmap for this chapter. Section~\ref{sec:tcp.method} describes the data set studied and setup for controlled experiments. We then characterize the LTE network characteristics in Section~\ref{sec:tcp.char} and discuss a newly identified TCP performance issue in LTE networks in Section~\ref{sec:tcp.tcp}. We investigate the network resource usage efficiency with a devised bandwidth estimation algorithm in Section~\ref{sec:tcp.estimate}, and then explore the network application behaviors that cause network inefficiency in Section~\ref{sec:tcp.app}, before concluding in \S\ref{sec:tcp.conc}.
+Here is the roadmap for this chapter. Section~\ref{sec:tcp.method} describes the data set studied and setup for controlled experiments. We then characterize the LTE network characteristics in Section~\ref{sec:tcp.char} and discuss a newly identified TCP performance issue in LTE networks in Section~\ref{sec:tcp.tcp}. We investigate the network resource usage efficiency with a devised bandwidth estimation algorithm in Section~\ref{sec:tcp.estimate}, followed by exploring the network application behaviors that cause network inefficiency in Section~\ref{sec:tcp.app}.
 
 
 \nsection{LTE Data and Local Testbed}
@@ -202,7 +202,7 @@ Figure~\ref{fig:flow.duration} shows the distribution of TCP flow duration (the 
 \label{fig:delayed_fin}
 \end{figure}
 
-The dotted curve in Figure~\ref{fig:flow.duration} denotes the timing gap between the packet carrying the last payload byte and the last packet of a flow. Note that most flows in the dataset are properly terminated by either FIN (86.16\% of flows) or RESET (5.35\%), and for the remaining flows, they consist of only one or more SYN packets (8.49\%). One example of the cause of the aforementioned timing gap is persistent HTTP that tries to reuse the same TCP connection for transferring multiple web objects so there is a timeout before the connection is closed. This does not cause any issue in wired and Wi-Fi networks. However, in LTE networks, there exists a timeout for shutting down the radio interface after a data transfer. Such a timeout, which is called \emph{tail time}, saves energy by taking the device to the idle state once it finishes, and prevents frequent radio state switches~\cite{huang12_mobisys}. We measured the timeout (\ie the tail time) to be 10 seconds for the studied LTE network. A delayed FIN or RESET packet will incur additional radio-on time of 10 seconds and one additional off-on switch if the delay is longer than 10 seconds, leading to waste of device energy~\cite{mobisys.aro}. Figure~\ref{fig:delayed_fin} shows one such example, which is found to be prevalent: delaying FIN or RESET for longer than 10 seconds occurs in 23.14\% of the flows in our dataset as shown in Figure~\ref{fig:flow.duration}.
+The dotted curve in Figure~\ref{fig:flow.duration} denotes the timing gap between the packet carrying the last payload byte and the last packet of a flow. Note that most flows in the dataset are properly terminated by either FIN (86.16\% of flows) or RESET (5.35\%), and for the remaining flows, they consist of only one or more SYN packets (8.49\%). One example of the cause of the aforementioned timing gap is persistent HTTP that tries to reuse the same TCP connection for transferring multiple web objects so there is a timeout before the connection is closed. This does not cause any issue in wired and Wi-Fi networks. However, in LTE networks, there exists a timeout for shutting down the radio interface after a data transfer. Such a timeout, which is called \emph{tail time}, saves energy by taking the device to the idle state once it finishes, and prevents frequent radio state switches~\cite{huang_mobisys12}. We measured the timeout (\ie the tail time) to be 10 seconds for the studied LTE network. A delayed FIN or RESET packet will incur additional radio-on time of 10 seconds and one additional off-on switch if the delay is longer than 10 seconds, leading to waste of device energy~\cite{mobisys.aro}. Figure~\ref{fig:delayed_fin} shows one such example, which is found to be prevalent: delaying FIN or RESET for longer than 10 seconds occurs in 23.14\% of the flows in our dataset as shown in Figure~\ref{fig:flow.duration}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -431,12 +431,12 @@ If SACK is disabled, we can use a fall-back approach to estimate RTT based on du
 
 
 \nsection{Bandwidth Estimation}
-\label{sec:estimate}
+\label{sec:tcp.estimate}
 
 In order to understand the network utilization efficiency of existing applications in the LTE networks, we first need to know the available bandwidth for each user. Previous work on active bandwidth measurement methodology to estimate available bandwidth, \eg using packet pairs, packet trains, and parallel TCP connections~\cite{prasad03, jain02, hu04}, do not apply here. As existing studies have shown that network condition is highly variable in cellular networks~\cite{mobisys.3gtest}, active probing would require us launch measurements for each user in our data set at the time of trace collection. Using packet traces collected at the monitor, we instead devise a \emph{passive} bandwidth estimation algorithm to capture the available bandwidth for each user using TCP flows that may \emph{not} fully utilize the bandwidth.
 
 \nsubsection{Bandwidth Estimation Algorithm}
-\label{sec:estimation}
+\label{sec:tcp.estimation}
 
 \begin{figure}[t]
 \centering
@@ -497,7 +497,7 @@ Although the described algorithm is based on one single TCP flow per user, a sim
 
 \nsubsection{Validation with Local Experiments}
 
-To validate the bandwidth estimation algorithm, we use controlled experiments with the setup described in \S\ref{sec:testbed}.
+To validate the bandwidth estimation algorithm, we use controlled experiments with the setup described in Section~\ref{sec:tcp.testbed}.
 
 \begin{figure}[t]
 \centering
@@ -532,7 +532,7 @@ focus on applying our bandwidth estimation algorithm to single TCP flows with no
 We then apply the bandwidth estimation algorithm to the large TCP downlink flows that are not concurrent with other large flows and summarize the results in Figure~\ref{fig:bwe}. We use a time window size of 250ms and for each window, we take one bandwidth estimation sample that is closest to the center of the window. For some flows, there exist windows that do not contain any valid bandwidth estimation samples and we simply assume the bandwidth distribution for these unknown windows is the same for the known windows. The possible bias will not likely significantly affect our analysis as such unknown duration accounts for less than 20\% of the total flow duration. For each flow, we use the average value of all bandwidth estimation samples as the estimated bandwidth and compare it with the actual utilized bandwidth.
 
 %For Figure~\ref{fig:bwe}, the median estimated bandwidth among all large flows is 12.20Mbps and the median used bandwidth is only 1.49Mbps. 
-For Figure~\ref{fig:bwe}, we plot the ratio of used bandwidth to estimated bandwidth per flow. The median value is only 19.78\%. For 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. We notice that for 6.41\% of the flows, the used bandwidth is slightly larger than the estimated bandwidth and this is possibly due to estimation error. On average, the utilization ratio is 34.60\%, meaning that the data transfer for a TCP flow takes 52.91\% longer than if the bandwidth is fully utilized, while keeping the ratio interface in the high-power state, incurring significant additional radio energy overhead~\cite{huang12_mobisys}.
+For Figure~\ref{fig:bwe}, we plot the ratio of used bandwidth to estimated bandwidth per flow. The median value is only 19.78\%. For 71.26\% of the large flows, the bandwidth utilization ratio is below 50\%. We notice that for 6.41\% of the flows, the used bandwidth is slightly larger than the estimated bandwidth and this is possibly due to estimation error. On average, the utilization ratio is 34.60\%, meaning that the data transfer for a TCP flow takes 52.91\% longer than if the bandwidth is fully utilized, while keeping the ratio interface in the high-power state, incurring significant additional radio energy overhead~\cite{huang_mobisys12}.
 
 
 \begin{figure}[t]
@@ -551,9 +551,9 @@ To understand how well TCP performs under highly variable available bandwidth, w
 
 
 \nsection{Network Applications in LTE}
-\label{sec:app}
+\label{sec:tcp.app}
 
-In this section, we characterize the network applications and traffic patterns in the LTE data set. Specifically, we study the causes of inefficient bandwidth usage observed in Section~\ref{sec:estimate}.
+In this section, we characterize the network applications and traffic patterns in the LTE data set. Specifically, we study the causes of inefficient bandwidth usage observed in Section~\ref{sec:tcp.estimate}.
 
 
 \nsubsection{HTTP Content Characterization}
