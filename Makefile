@@ -29,5 +29,5 @@ thesis.blg: thesis.bib $(SRC)
 	latex thesis
 
 clean: 
-	\rm -f *.dvi *.aux *.ps *~ *.log *.blg *.bbl *.pdf *.eps *.out *.lot *.lof *.toc *.synctex.gz
+	\rm -f *.dvi *.aux *.ps *~ *.log *.blg *.bbl thesis.pdf *.eps *.out *.lot *.lof *.toc *.synctex.gz
 
