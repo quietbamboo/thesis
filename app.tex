@@ -989,45 +989,6 @@ This merits more detailed future study.
 %\end{figure}
 
 
-
-
-\nsubsection{VoIP}\label{sec:voip}
-
-%\begin{figure*}[t]
-%\begin{tabular}{cc}
-%\centering
-%\includegraphics[width=0.45\textwidth]{figures/voip/voip_inter.eps} &
-%\includegraphics[width=0.45\textwidth]{figures/voip/voip_thru.eps} \\
-%\small{(a) CDFs of the inter-packet arrival time and inter-packet departure time} &
-%\small{(b) Downlink throughput varies with time} \\
-%\end{tabular}
-%\caption{VoIP performance} \label{fig:voip}
-%\end{figure*}
-
-%We use a popular VoIP application to call a wired computer from a 
-%smartphone and play a piece of clip on both sides simulating 
-
-
-We carry out a simple VoIP experiment on the Samsung (Verizon) and 
-Palm (Sprint) phones given their uniform support for Skype. During 
-the experiment, the same 3-minute music file is played on both the phone and 
-the desktop, when the two are in a Skype call. The volume is kept 
-the same to have similar voice input. Figure~\ref{fig:voip} shows 
-that the throughput for both phones via 3G is nearly identical, as 
-the same coding rate is used. The throughput is higher under WiFi 
-than under 3G, as different amount of data is transferred depending 
-on the network being used. This reflects how Skype tries to vary 
-the encoding rate according to the network condition to achieve 
-good perceived voice quality.
-
-
-%Figure~\ref{fig:voip}(a) shows the inter-arrival time and inter-departure time from which we can study the difference originated from the platform. The inter-arrival time is the interval between two packets from our desktops to our phones, while the inter-departure time is the interval between two packets from our phones to our desktops. The only difference between inter-arrival time and inter-departure time is the platform that originates the traffic. However, from Figure~\ref{fig:voip}(a), we cannot say which one between the inter-arrival and inter-departure is better. The inter-packet arrival time of the Samsung phone is longer than its inter-departure, which is on the contrary on the Sprint phone. Figure~\ref{fig:voip_}(a) at least indicates that phone's processing ability is not the bottleneck for VoIP service.
-
-%In all, in our experiments, platform is not the bottleneck, but the network condition may affect the performance in terms of payload size. When the phone is using WiFi, the throughput is consistently higher than that in 3G. 
-%
-
-
-
 \begin{figure}[t]
 \centering
 %\includegraphics[width=0.45\textwidth]{figures/voip/voip_inter.eps} &
@@ -1036,5 +997,18 @@ good perceived voice quality.
 \small{Downlink throughput timeline for Skype} \\
 \ncaption{VoIP performance} \label{fig:voip}
 \end{figure}
+
+
+\nsubsection{VoIP}\label{sec:voip}
+
+We carry out a simple VoIP experiment on the Samsung (Verizon) and Palm (Sprint) phones given their uniform support for Skype. During the experiment, the same 3-minute music file is played on both the phone and the desktop, when the two are in a Skype call. The volume is kept the same to have similar voice input. Figure~\ref{fig:voip} shows that the throughput for both phones via 3G is nearly identical, as the same coding rate is used. The throughput is higher under WiFi than under 3G, as different amount of data is transferred depending on the network being used. This reflects how Skype tries to vary the encoding rate according to the network condition to achieve good perceived voice quality.
+
+%Figure~\ref{fig:voip}(a) shows the inter-arrival time and inter-departure time from which we can study the difference originated from the platform. The inter-arrival time is the interval between two packets from our desktops to our phones, while the inter-departure time is the interval between two packets from our phones to our desktops. The only difference between inter-arrival time and inter-departure time is the platform that originates the traffic. However, from Figure~\ref{fig:voip}(a), we cannot say which one between the inter-arrival and inter-departure is better. The inter-packet arrival time of the Samsung phone is longer than its inter-departure, which is on the contrary on the Sprint phone. Figure~\ref{fig:voip_}(a) at least indicates that phone's processing ability is not the bottleneck for VoIP service.
+
+%In all, in our experiments, platform is not the bottleneck, but the network condition may affect the performance in terms of payload size. When the phone is using WiFi, the throughput is consistently higher than that in 3G. 
+%
+
+
+
 
 
