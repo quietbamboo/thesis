@@ -1,7 +1,7 @@
 \chapter{Anatomizing Smartphone Application Performance}
 \label{chap:app}
 
-Unlike traditional Internet-based applications, whose performance is mostly constrained by the wired network, network application performance on smartphones with limited physical resources also heavily depends on factors including hardware and software on the phone as well as the quality and load of wireless link. Understanding the application performance on smartphones is important for the purpose of assisting consumers in choosing carriers and phones and guiding application developers in designing intelligent software. Moreover, cellular network operators and smartphone hardware and software vendors can use this knowledge to optimize networks and phones for better end-user experiences. Similarly, content providers can leverage this knowledge to better customize content for mobile users. However, this task is quite challenging since the performance of network applications on smartphones is poorly understood before our study, due to a lack of a systematic approach for controlled experiments and comparative analysis. We believe this work fills this gap.
+Unlike traditional Internet-based applications, whose performance is mostly constrained by the wired network, network application performance on smartphones with limited physical resources also heavily depends on factors including hardware and software on the phone as well as the quality and load of wireless link. Understanding the application performance on smartphones is important for the purpose of assisting consumers in choosing carriers and phones and guiding application developers in designing improved software. Moreover, cellular network operators and smartphone hardware and software vendors can use this knowledge to optimize networks and phones for better end-user experiences. Similarly, content providers can leverage this knowledge to better customize content for mobile users. However, this task is quite challenging since the performance of network applications on smartphones is poorly understood before our study, due to a lack of a systematic approach for controlled experiments and comparative analysis. We believe this work fills this gap.
 
 We focus on developing systematic methodology for measuring and analyzing smartphone application performance. We make it relevant to end users by studying real applications directly on the phone platforms. Our approach differs inherently from most previous work of using laptops equipped with 3G data cards in three ways: (1) We measure the performance of applications rather than that of the low-level protocols. Prior work has shown that application performance often significantly deviates from protocol performance~\cite{Zhuang:A3:Mobicom2006}. We target the pervasive web browsing, streaming video, and VoIP applications that most end-users care about; (2) We measure application performance on several common mobile devices. Application performance varies widely across devices due to differences in hardware and software, necessitating direct experimentation on smartphones instead of on laptops with wireless cards; (3) We study the application performance under real-world scenarios and quantify the performance of web browsing by evaluating commercial websites in addition to locally-constructed ones with replicated, real web content under our control. The latter setup helps dissect and analyze the individual factors that contribute to the overall web browsing performance.
 
@@ -273,7 +273,10 @@ pipelining is observed on any phones. After serialization, we get a
 total time $T_{total}$ which is the sum of each connection's duration. 
 Assuming the actual page loading time is $T^{*}_{total}$, the
 normalized DNS lookup time $T^{*}_{dns}$ is calculated as
-$T^{*}_{total} * T_{dns} / T_{total}$. This metric shows the 
+\begin{displaymath}
+T^{*}_{dns} = \frac{T_{dns}}{T_{total}}T^{*}_{total}
+\end{displaymath}
+This metric shows the 
 overall weight of DNS lookup in the actual page loading time. The
 normalized TCP handshake time, TCP idle time and TCP transfer time 
 are calculated in a similar way. 
