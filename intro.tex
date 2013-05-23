@@ -7,6 +7,20 @@ Unlike traditional Internet-based applications, whose performance is mostly cons
 
 In addition to network performance aspect, we also study the energy footprint for smartphone applications. Today’s cellular systems operate under diverse resource constraints: limited frequency spectrum, network processing capability, and handset battery life. Optimizing energy footprint for smartphone applications is important for end-users. In the meanwhile, optimizing the radio resource usage is of great interest for mobile operators to minimize cost and guarantee quality of service.
 
+In this dissertation, we dedicate five chapters to present our study in this space and these chapters are broadly classified into three categories as summarized in Table~\ref{tab:roadmap}. Chapter~\ref{chap:net} and Chapter~\ref{chap:power} discuss the network and power characterization of cellular networks and smartphones. Chapter~\ref{chap:app} and Chapter~\ref{chap:tcp} focus more on mobile application behaviors and the interactions between mobile applications and cellular networks. Chapter~\ref{chap:optimize} presents our work in optimizing resource utilization efficiency for mobile applications in cellular networks.
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{|c|c|c|c|}\hline
+Chapter(s) & Content category \\\hline\hline
+Chapter~\ref{chap:net}, Chapter~\ref{chap:power} & Network and power characterization\\\hline
+Chapter~\ref{chap:app}, Chapter~\ref{chap:tcp} & Application performance and interplay with network protocol \\\hline
+Chapter~\ref{chap:optimize} & Optimization to improve resource utilization efficiency\\\hline
+\end{tabular}
+\ncaption{Roadmap}
+\label{tab:roadmap}
+\end{table*}
+
 \nsection{Characterizing Cellular Network Performance} Since 2008, We have been working on devising systematical methodologies and developing tools for characterizing cellular network performance directly from end users. The tools developed includes \TT~\cite{3gtest}, \FT~\cite{4gtest} and \emph{MobiPerf}~\cite{mobiperf}~\footnote{Notably, \emph{MobiPerf} has received both the \emph{Open Internet App Award} and the \emph{People's Choice App Award} in the \emph{FCC Open Internet Apps Challenge}~\cite{fcc.award}. It is now an open-source project~\cite{mobiperf.repo} that are being actively worked on, with joint collaboration among University of Michigan, M-Lab~\cite{mlab} and University of Washington.}, which have cumulatively over 150,000 users from over 190 countries or regions. In these measurement tools, we have devised methods to accurately measure round-trip time (RTT), DNS lookup time, uplink/downlink bandwidth, loss rate, and other network performance metrics for 3G, WiMAX and LTE 4G networks and compare those with WiFi networks.
 
 Our study is among one of the first studies of the network characteristics of commercial LTE networks. Initiated in 2004 by {\em 3rd Generation Partnership Project} (3GPP),  the {\em Long Term Evolution} (LTE), commonly referred to as a type of 4G wireless service, aims at enhancing the {\em Universal Terrestrial Radio Access Network} (UTRAN)  and optimizing radio access architecture~\cite{3gpp.lte}. Since 2009, LTE starts entering the commercial markets and is available now in more than 10 countries, with an expectedly fast-growing user base. The targeted user throughput is 100Mbps for downlink and 50Mbps for uplink, significantly higher than the existing 3G networks, with less than 5ms user-plane latency~\cite{tr25.913}. Understanding the actual user-perceived network performance for LTE network and how it compares with its predecessor 3G and its competitors, \eg WiFi and WiMAX, is important, yet not straightforward. Our forementioned tool \FT, with enhanced measurement design and global server support, allows us to characterize network performance of LTE and other mobile networks~\cite{huang_mobisys12}.
